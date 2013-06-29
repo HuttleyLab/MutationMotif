@@ -93,7 +93,7 @@ class TestEntropy(TestCase):
         expect_mit = array([[0.03561, 0.03561],
                             [0.05782, 0], 
                             [0.16781, -0.02109], 
-                            [0.16781, float('nan')]])
+                            [0.16781, 0.0]])
         
         numpy.testing.assert_equal(mit, expect_mit)
         
