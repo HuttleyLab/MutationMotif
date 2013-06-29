@@ -4,7 +4,7 @@ Assumes bases recoded to ints in range 0 <= b < 4"""
 
 from __future__ import division
 
-from numpy import array, log, log2
+from numpy import array, log, log2, isnan
 
 from mutation_motif.util import is_valid
 
@@ -58,4 +58,5 @@ def get_mit(data, pseudocount=0, check_valid=False):
     entropy_terms = get_entropy_terms(data, pseudocount=pseudocount, 
                                         check_valid=check_valid)
     mit = 0.5 - entropy_terms
+    mit[isnan(mit)] = 0
     return mit

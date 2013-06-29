@@ -8,6 +8,9 @@ def get_mi_char_heights(probs, heights):
     """returns char height for each position in aln.
     """
     result = probs * heights
+    # zero the middle position
+    mid = (result.shape[1] -1 ) / 2
+    result[:, mid] = 0
     return result
 
 def get_re_char_heights(rets):
