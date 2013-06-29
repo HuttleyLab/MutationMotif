@@ -9,13 +9,21 @@ from mutation_motif import profile, util, height, logo, entropy, distribution
 def PutN(data, direction, ylabel):
     """put N text on plot"""
     N = data.shape[0]
+    
+    # following is an ugly hack to get better number formatting on plots
+    n = list(str(N))
+    n.reverse()
+    n = [''.join(reversed(n[i:i+3])) for i in range(0, len(n),3)]
+    n.reverse()
+    N = ','.join(n)
+    
     direction = r"$%s \rightarrow %s$" % tuple(direction.split('to'))
     def call(fig):
         ax = fig.gca()
         ax.set_ylabel(ylabel, fontsize=20)
         y = ax.get_ylim()[1]
         fig.gca().text(0.2, y * 0.75, direction, fontsize=20)
-        fig.gca().text(0.2, y * 0.67, 'N=' + str(N))
+        fig.gca().text(0.2, y * 0.67, 'N=' + N)
     return call
 
 def get_re_char_hts(seqs, chosen_base, step, flank_size):
@@ -40,7 +48,7 @@ def get_mi_char_hts(seqs, flank_size):
 
 fns = glob.glob('../data/snps_71/rare-A-intro*.fasta.gz')
 fns = [fn for fn in fns if 'to' in fn]
-use_mi = True
+use_mi = False
 ylabel = ['RE', 'MI'][use_mi]
 
 
@@ -51,7 +59,7 @@ for fn in fns:
     print 'working on', fn
     direction = fn.split('-')[-1].split('.')[0]
     chosen_base = direction[0]
-    basename = os.path.basename(fn).replace('.fasta.gz', '.png')
+    basename = os.path.basename(fn).replace('.fasta.gz', '.pdf')
     if use_mi:
         basename = 'mi-' + basename
     else:
@@ -74,7 +82,7 @@ for fn in fns:
     
     fig = logo.draw_alignment(char_hts.T, figsize=(9,3),
                             fig_callback=callback, verbose=False)
-    if seqs.shape[0] < 5000:
+    if seqs.shape[0] < 20000 and not use_mi:
         sigc = distribution.make_distribution(seqs, chosen_base, 3, flank_size, num_reps=100)
         fig.gca().plot(numpy.arange(0.5, sigc.shape[0], 1), sigc, color='k')
     
