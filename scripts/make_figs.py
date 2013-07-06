@@ -111,7 +111,7 @@ def main(script_info):
                         fig_callback=callback, verbose=False, ylim=opts.ylim)
         
         if seqs.shape[0] < 20000 and not use_mi and opts.sig:
-            sigc = distribution.make_distribution(seqs, chosen_base, 3, flank_size, num_reps=100)
+            sigc = distribution.get_max_re_distribution(seqs, chosen_base, 3, flank_size, num_reps=100)
             fig.gca().plot(numpy.arange(0.5, sigc.shape[0], 1), sigc, color='k')
         
         fig.savefig(outfile_name, bbox_inches='tight')
