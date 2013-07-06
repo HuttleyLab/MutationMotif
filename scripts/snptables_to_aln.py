@@ -50,7 +50,7 @@ def is_autosome(chrom):
 
 def is_xchrom(chrom):
     chrom = chrom.upper()
-    return 'X' in x
+    return 'X' in chrom
 
 everything = lambda x: True
 
@@ -168,7 +168,7 @@ script_info['required_options'] = [
 
 script_info['optional_options'] = [
     make_option('-c','--chrom_class', type='choice', default='All',
-        choices=['All', 'X', 'A', 'Y'], help='Chrom class.'),
+        choices=['All', 'X', 'A', 'Y'], help='Chrom class [default:%default].'),
     make_option('--GC', type='choice', default='All',
         choices=['All', 'Hi', 'Lo'], help='GC proportion. Hi is >0.5, Lo is < 0.4.'),
     make_option('--freq_class', type='choice', default='All',
