@@ -51,16 +51,24 @@ def get_max_allele_freqs(freq_table):
     
     return [(a, max(alleles_freqs[a])) for a in alleles_freqs]
 
-def get_snp_dump_data(snp):
+def get_snp_dump_data(snp, genic=False):
     """returns all SNP data for dumping. If rc, reverse complements all properties."""
     allele_freqs = get_max_allele_freqs(snp.AlleleFreqs)
     alleles = snp.Alleles
     ancestral = snp.Ancestral
     flank_5prime = snp.FlankingSeq[0]
     flank_3prime = snp.FlankingSeq[1]
+    if genic:
+        gene = list(snp.getFeatures('gene'))[0]
+        pep_alleles = str(snp.PeptideAlleles)
+        gene_loc = str(gene.Location)
+        gene_id = gene.StableId
+    else:
+        pep_alleles = gene_loc = gene_id = 'None'
+    
     record = [snp.Symbol, str(snp.Location), str(snp.Location.Strand),
             snp.Effect, str(allele_freqs), alleles, str(ancestral),
-            str(flank_5prime), str(flank_3prime)]
+            str(flank_5prime), str(flank_3prime), pep_alleles, gene_id, gene_loc]
     
     return record
 
@@ -70,6 +78,8 @@ def main(script_info):
     
     output_filename = os.path.join(opts.output, '%s_%s.txt.gz' % (opts.snp_effect,
                     opts.release))
+    
+    genic = not opts.snp_effect.startswith('intergenic')
     
     util.create_path(opts.output)
     
@@ -100,8 +110,7 @@ def main(script_info):
         if type(validation) != str:
             validation = ','.join(validation)
         
-        record = get_snp_dump_data(snp)
-        
+        record = get_snp_dump_data(snp, genic=genic)
         num += 1
         outfile.write('\t'.join(record) + '\n')
     
