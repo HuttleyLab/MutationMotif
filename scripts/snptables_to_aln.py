@@ -7,6 +7,7 @@ from itertools import permutations
 from optparse import make_option
 from cogent.util.option_parsing import parse_command_line_parameters
 from mutation_motif.util import open_, create_path
+import strand
 
 MAF = 0.05
 
@@ -99,10 +100,14 @@ def main(script_info):
                 num = 0
                 for line in infile:
                     line = line.strip().split('\t')
+                    label = line[0].strip()
+                    if label in seen:
+                        continue
+            
                     coord = line[1]
             
                     ancestor = line[6]
-                    if len(ancestor) > 1:
+                    if len(ancestor) > 1: # it's the string "None"
                         continue
             
                     alleles = line[5]
@@ -116,29 +121,41 @@ def main(script_info):
                     if not correct_chrom(coord):
                         continue
             
-                    got = alleles.difference(ancestor).pop()
-                    if (ancestor, got) != direction:
-                        continue
-            
-                    label = line[0].strip()
-                    if label in seen:
-                        continue
-            
-                    seen.update([label])
-                    seq = line[7] + ancestor + line[8]
-                    if 'N' in seq:
-                        continue
-            
-                    if not correct_comp(seq):
-                        continue
-            
                     freqs = dict(eval(line[4]))
                     if not freqs:
                         continue
             
                     if not correct_freq(freqs.values()):
                         continue
+                    
+                    flank_5, flank_3 = line[7], line[8]
+                    
+                    if 'N' in flank_5 or 'N' in flank_3:
+                        continue
+                    
+                    # handle the strandedness
+                    snp_strand = int(line[2])
+                    try:
+                        # e.g. Homo sapiens:chromosome:20:68350-77174:1
+                        gene_strand = int(line[11].split(':')[-1])
+                    except IndexError:
+                        gene_strand = None
+                    
+                    if gene_strand and \
+                     strand.reverse_complement_record(gene_strand, snp_strand):
+                        alleles, ancestor, freqs, flank_5, flank_3 = strand.get_rc_record(alleles, ancestor, freqs, flank_5, flank_3)
+                    
+                    got = alleles.difference(ancestor).pop()
+                    if (ancestor, got) != direction:
+                        continue
+                    
+                    seen.update([label])
+                    seq = flank_5 + ancestor + flank_3
             
+                    if not correct_comp(seq):
+                        continue
+            
+                    
                     record = '\n'.join(['>%s' % label, seq, ''])
                     outfile.write(record)
                     chroms.update([coord.split(':')[2]])
