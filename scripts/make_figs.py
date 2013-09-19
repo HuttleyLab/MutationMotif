@@ -39,7 +39,6 @@ def get_re_char_hts(seqs, chosen_base, step, flank_size):
     return char_hts, ret.sum(axis=0).max()
 
 def get_mi_char_hts(seqs, flank_size):
-    """docstring for get_mi_char_hts"""
     midpt = (seqs.shape[1] -1) // 2
     assert 2 * midpt + 1 == seqs.shape[1], midpt
     start = midpt - flank_size
