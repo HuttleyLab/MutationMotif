@@ -37,11 +37,18 @@ def draw_position(idx, idx_char_heights):
         add_letter(letter, x, y, dx, fabs(dy), invert=dy<0)
         y += fabs(dy)
 
-def draw_alignment(char_heights, ax=None, figsize=None, ylim=None, fig_callback=None, verbose=False):
+def set_anchored_ticks(fig):
+    """modifies the X-ticks to include negative numbers"""
+    ax = fig.gca()
+    labels = ax.get_xticklabels()
+    num = len(labels)
+    mid = (num - 1) / 2
+    assert 2 * mid + 1 == num, "Funny length"
+    new_labels = [int(label.get_text()) - mid for label in labels]
+    ax.set_xticklabels(new_labels, fontsize=20)
+
+def draw_alignment(char_heights, ax=None, figsize=None, ylim=None, fig_callback=None, set_ticks_func=set_anchored_ticks, verbose=False):
     """Takes in an alignment and creates an image from the alignment profile.
-        
-        skipped_indices = list of indices that were skipped because they consist
-        entirely of gaps 
     """
     
     if ylim is None:
@@ -80,7 +87,9 @@ def draw_alignment(char_heights, ax=None, figsize=None, ylim=None, fig_callback=
     ax.set_yticklabels(ylabels, fontsize=20)
     ax.set_xticks(array([i+0.5 for i in range(orig_len)]))
     ax.set_xticklabels([str(i) for i in range(orig_len)], rotation=-90)
-    set_ticks(fig)
+    if set_ticks_func:
+        set_ticks_func(fig)
+    
     if fig_callback:
         fig_callback(fig)
     
@@ -91,14 +100,4 @@ def draw_alignment(char_heights, ax=None, figsize=None, ylim=None, fig_callback=
     
     gca().yaxis.grid(True)
     return fig
-
-def set_ticks(fig):
-    """modifies the X-ticks to include negative numbers"""
-    ax = fig.gca()
-    labels = ax.get_xticklabels()
-    num = len(labels)
-    mid = (num - 1) / 2
-    assert 2 * mid + 1 == num, "Funny length"
-    new_labels = [int(label.get_text()) - mid for label in labels]
-    ax.set_xticklabels(new_labels, fontsize=20)
 
