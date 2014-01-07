@@ -200,6 +200,11 @@ script_info['optional_options'] = [
 script_info['version'] = '0.1'
 script_info['authors'] = 'Gavin Huttley'
 
+# TODO put all sequences onto the plus strand if there is gene data
+# this will require conversion of the SNP alleles and the flanks
+# Yicheng's work showed that if gene and SNP strand were opposite for missense
+# variation, the SNP and sequences needed to be reverse complemented to recover
+# Ensembl's peptide alleles
 
 if __name__ == "__main__":
     main(script_info)

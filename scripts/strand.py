@@ -3,20 +3,12 @@ from cogent import LoadTable, DNA
 def reverse_complement_record(gene_strand, snp_strand):
     """returns True if the SNP record needs to be reverse complemented to put on transcribed strand"""
     
-    if gene_strand == snp_strand == 1:
+    if gene_strand == snp_strand:
         # gene is + snp is +; False
         rc = False
-    elif gene_strand == snp_strand == -1:
+    elif gene_strand != snp_strand:
         # gene is - snp is -; True
-        rc = True
-    elif gene_strand == 1 and snp_strand == -1:
-        # gene is + snp is -; True
-        rc = True
-    elif gene_strand == -1 and snp_strand == 1:
-        # gene is - snp is +; False
         rc = False
-    else:
-        raise RuntimeError("Unknown strand values: %s, %s" % (snp_strand, gene_strand))
     
     return rc
 
