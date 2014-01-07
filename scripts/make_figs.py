@@ -30,10 +30,7 @@ def PutN(data, direction, ylabel):
         fig.gca().text(0.2, y * 0.67, 'N=' + N)
     return call
 
-def get_re_char_hts(seqs, chosen_base, step, flank_size):
-    orig, ctl = profile.get_profiles(seqs, chosen_base=chosen_base,
-                                 step=step, flank_size=flank_size)
-    
+def get_re_char_hts(orig, ctl, chosen_base, step, flank_size):
     ret = entropy.get_ret(orig, ctl)
     char_hts = height.get_re_char_heights(ret)
     return char_hts, ret.sum(axis=0).max()
@@ -54,6 +51,10 @@ def main(script_info):
        parse_command_line_parameters(**script_info)
     
     fns = glob.glob(opts.input_path)
+    if not len(fns):
+        print "No input files matching glob pattern '%s'" % opts.input_path
+        exit(-1)
+    
     util.create_path(opts.outpath)
     
     specified_direction = opts.direction is not None
@@ -102,16 +103,33 @@ def main(script_info):
         
         callback = PutN(seqs, direction, ylabel)
         if not use_mi:
-            char_hts, max_val = get_re_char_hts(seqs, chosen_base, step, flank_size)
+            orig, ctl = profile.get_profiles(seqs, chosen_base=chosen_base,
+                                         step=step, flank_size=flank_size)
+            char_hts, max_val = get_re_char_hts(orig, ctl, chosen_base, step, flank_size)
         else:
             char_hts, max_val = get_mi_char_hts(seqs, flank_size)
         
         fig = logo.draw_alignment(char_hts.T, figsize=(9,3),
                         fig_callback=callback, verbose=False, ylim=opts.ylim)
         
-        if seqs.shape[0] < 20000 and not use_mi and opts.sig:
-            sigc = distribution.get_max_re_distribution(seqs, chosen_base, 3, flank_size, num_reps=100)
-            fig.gca().plot(numpy.arange(0.5, sigc.shape[0], 1), sigc, color='k')
+        if not use_mi and opts.sig:
+            num_reps = 100
+            sigc = distribution.get_max_re_distribution(seqs, chosen_base,
+                                            step, flank_size, num_reps=num_reps)
+            fig.gca().plot(numpy.arange(0.5, sigc.shape[0], 1), sigc,
+                        color='k', linestyle='-.', alpha=0.6)
+            
+            # determine the bootstrapped 95% CI for heights
+            #lower, upper = distribution.estimate_re_ci(seqs, chosen_base, step, flank_size, num_reps=30)
+            lower, upper = distribution.bootstrapped_quantiles(orig, ctl,
+                                                    num_reps=num_reps)
+            ax = fig.gca()
+            y = numpy.fabs(char_hts).sum(axis=0)
+            y_lo = numpy.fabs(y - lower)
+            y_hi = numpy.fabs(y - upper)
+            x = numpy.arange(0.5, y.shape[0], 1)
+            ax.errorbar(x, y, yerr=[y_lo, y_hi], fmt='.', color='k',
+                        ecolor='k', alpha=0.6)
         
         fig.savefig(outfile_name, bbox_inches='tight')
         print 'Wrote', outfile_name

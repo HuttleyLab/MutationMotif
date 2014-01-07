@@ -1,4 +1,5 @@
-from numpy import logical_and, flatnonzero, zeros, array, matrix, prod
+from numpy import logical_and, flatnonzero, zeros, array, matrix, prod, \
+    ndarray, asarray
 from random import choice
 
 from cogent import LoadSeqs, DNA
@@ -6,6 +7,25 @@ from cogent.align.weights.util import AlnToProfile
 from cogent.core.alignment import DenseAlignment, seqs_from_array
 
 from mutation_motif.util import seqs_to_array as load_seqs_to_array
+
+def get_zero_counts(dim, dtype, pseudo_count=1):
+    """returns a ProfileCounts instance zeroed"""
+    data = zeros((4, dim), dtype=dtype)
+    return ProfileCounts(data, pseudo_count=pseudo_count)
+
+class ProfileCounts(ndarray):
+    """counts object"""
+    def __new__(cls, data, pseudo_count=0):
+        new = asarray(data).view(cls)
+        new += pseudo_count
+        return new
+    
+    def add_seq(self, seq):
+        """add a new sequence"""
+        for i in range(seq.shape[0]):
+            self[seq[i], i] += 1
+    
+    
 
 def MakeCircleRange(circle_size, slice_side):
     """factory function that pre computes all circular slices
@@ -114,3 +134,28 @@ def get_profiles(data, chosen_base, step, flank_size, circle_range=None):
     start = mid_pt - flank_size
     data = data[:, start: start + (flank_size * 2 + 1)]
     return data, ctl
+
+def get_control_counts(seq_array, chosen_base, step, flank_size, sample_indices=None, circle_range=None):
+    """returns the counts array for controls, more memory efficient"""
+    counts = get_zero_counts((seq_array.shape[0],4), float)
+    if sample_indices is None:
+        sample_indices = chosen_base_indices(seq_array, chosen_base, step)
+        seq_array, sample_indices = filter_seqs_by_chosen_base(seq_array, sample_indices, 1)
+    
+    if circle_range is None:
+        circle_range = MakeCircleRange(seq_array.shape[1], flank_size)
+    
+    for i, v in enumerate(sample_indices):
+        r = choice(v)
+        indices = circle_range(r)
+        counts.add_seq(seq_array[i].take(indices))
+    
+    return counts
+
+
+if __name__ == "__main__":
+    c = get_zero_counts(5, int)
+    n = array([0,1,2,3,0])
+    c.add_seq(n)
+    print c
+    
