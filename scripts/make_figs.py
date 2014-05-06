@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 from itertools import permutations
 import os, glob, re
 from optparse import make_option
@@ -48,14 +49,24 @@ def get_mi_char_hts(seqs, flank_size):
 
 def main(script_info):
     option_parser, opts, args =\
-       parse_command_line_parameters(**script_info)
+       parse_command_line_parameters(disallow_positional_arguments=False, **script_info)
     
     fns = glob.glob(opts.input_path)
     if not len(fns):
         print "No input files matching glob pattern '%s'" % opts.input_path
         exit(-1)
     
-    util.create_path(opts.outpath)
+    if len(args) > 1:
+        raise RuntimeError("too many positional args")
+    
+    # have a command line label from sumatra which requires we put all results
+    # in a sub-directory of the same name
+    if args:
+        outpath = os.path.join(opts.outpath, args[0])
+    else:
+        outpath = opts.outpath
+    
+    util.create_path(outpath)
     
     specified_direction = opts.direction is not None
     if specified_direction:
@@ -89,7 +100,7 @@ def main(script_info):
         else:
             basename = 're-' + basename
         
-        outfile_name = os.path.join(opts.outpath, basename)
+        outfile_name = os.path.join(outpath, basename)
         if os.path.exists(outfile_name) and not opts.force_overwrite:
             print 'Skipping', outfile_name
             continue
