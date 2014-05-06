@@ -100,6 +100,9 @@ def main(script_info):
         else:
             basename = 're-' + basename
         
+        if opts.prefix:
+            basename = opts.prefix + basename
+        
         outfile_name = os.path.join(outpath, basename)
         if os.path.exists(outfile_name) and not opts.force_overwrite:
             print 'Skipping', outfile_name
@@ -153,6 +156,7 @@ script_info['script_description'] = "export fasta formatted seqs matching specif
 script_info['required_options'] = [
      make_option('-i','--input_path', help='glob pattern to data files.'),
      make_option('-o','--outpath', help='Path to write data.'),
+     make_option('-p','--prefix', help='Prefix for output figure, e.g. intronic-'),
     ]
 
 script_info['optional_options'] = [
