@@ -94,7 +94,7 @@ def main(script_info):
         if opts.verbose:
             print "chosen_base", chosen_base
         
-        basename = os.path.basename(fn).replace('.fasta.gz', '.pdf')
+        basename = os.path.basename(fn).replace('.fasta.gz', '.%s' % opts.format)
         if use_mi:
             basename = 'mi-' + basename
         else:
@@ -173,6 +173,8 @@ script_info['optional_options'] = [
         help='Use MI for producing logo.'),
     make_option('--sig', action='store_true', default=False,
         help='Put a significance line on the plots.'),
+    make_option('--format', default='pdf', choices=['pdf', 'png'],
+        help='Plot format.'),
     make_option('-F','--force_overwrite', action='store_true', default=False,
         help='Overwrite existing files.'),
     make_option('-D','--dry_run', action='store_true', default=False,
