@@ -120,6 +120,10 @@ def main(script_info):
             orig, ctl = profile.get_profiles(seqs, chosen_base=chosen_base,
                                          step=step, flank_size=flank_size)
             char_hts, max_val = get_re_char_hts(orig, ctl, chosen_base, step, flank_size)
+            orig_counts = profile.convert_profile_to_seq_counts(orig)
+            # following for exporting raw counts of motifs
+            # ctl_counts = profile.convert_profile_to_seq_counts(ctl)
+            # profile.dump_counts(orig_counts, ctl_counts, '/Users/gavin/Desktop/Outbox/flanking_dinucs_AG.txt', 2)
         else:
             char_hts, max_val = get_mi_char_hts(seqs, flank_size)
         
