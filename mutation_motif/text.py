@@ -270,13 +270,17 @@ class G(letter):
 
 letter_to_class = {'T':T,'U':U,'C':C,'A':A,'G':G}
 
-def add_letter(letter,x,y,dx,dy,**kwargs):
+def add_letter(letter, x, y, dx, dy, ax=None, **kwargs):
     """adds t to current axis"""
+    if ax is None:
+        ax = gca()
     klass = letter_to_class[letter]
-    gca().add_artist(klass(x,y,dx,dy,**kwargs))
+    ax.add_artist(klass(x,y,dx,dy,**kwargs))
 
-def set_axis_scale(x,y):
-    gca().set_ylim(0,y)
-    gca().set_xlim(0,x)
+def set_axis_scale(x,y, ax=None):
+    if ax is None:
+        ax = gca()
+    ax.set_ylim(0,y)
+    ax.set_xlim(0,x)
 
 
