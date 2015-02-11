@@ -154,28 +154,6 @@ def get_control_counts(seq_array, chosen_base, step, flank_size, sample_indices=
     
     return counts
 
-def convert_profile_to_seq_counts(data, flank_size=1):
-    """converts data to seqs and returns sequence counts"""
-    mp = data.shape[1] / 2
-    indices = [i for i in range(mp-flank_size, mp+flank_size+1) if i != mp]
-    
-    data = data.take(indices, axis=1)
-    seqs = array_to_str(data)
-    seqs = Counter(seqs)
-    return seqs
-
-def dump_counts(orig, ctl, outfile_path, k):
-    """writes sequence counts out as tab delimited"""
-    rows = []
-    for state in product('ACGT', repeat=k):
-        state = ''.join(state)
-        ctl_counts = ctl[state]
-        orig_counts = orig[state]
-        rows.append([ctl_counts] + list(state) + ['U'])
-        rows.append([orig_counts] + list(state) + ['M'])
-    table = LoadTable(header=['count'] + ["pos%d" % i for i in range(2)] + ['mut'], rows=rows)
-    table.writeToFile(outfile_path, sep='\t')
-
 if __name__ == "__main__":
     c = get_zero_counts(5, int)
     n = array([0,1,2,3,0])
