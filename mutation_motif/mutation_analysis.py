@@ -310,8 +310,6 @@ script_info['required_options'] = [
     ]
 
 script_info['optional_options'] = [
-    make_option('--flank_size', type=int, default=5,
-        help='Flank size, must be 1 <= flank_size <= 5.'),
     make_option('--coding', action='store_true', default=False,
         help='If True, samples pseudo-SNPs at 3-bp intervals from real SNP.'),
     make_option('--format', default='pdf', choices=['pdf', 'png'],
@@ -329,7 +327,7 @@ def main():
     option_parser, opts, args =\
        parse_command_line_parameters(disallow_positional_arguments=False, **script_info)
     
-    assert opts.flank_size <= 5
+    flank_size = 2
     
     outpath = util.abspath(opts.outpath)
     if not opts.dry_run:
@@ -347,12 +345,12 @@ def main():
         seqs = orig_seqs.ArraySeqs
         seqs = util.just_nucs(seqs)
         orig, ctl = profile.get_profiles(seqs, chosen_base=chosen_base, step=1,
-                                        flank_size=opts.flank_size)
+                                        flank_size=flank_size, seed=opts.seed)
     
         # convert profiles to a motif count table
-        orig_counts = motif_count.profile_to_seq_counts(orig, flank_size=opts.flank_size)
-        ctl_counts = motif_count.profile_to_seq_counts(ctl, flank_size=opts.flank_size)
-        counts_table = motif_count.get_count_table(orig_counts, ctl_counts, opts.flank_size*2)
+        orig_counts = motif_count.profile_to_seq_counts(orig, flank_size=flank_size)
+        ctl_counts = motif_count.profile_to_seq_counts(ctl, flank_size=flank_size)
+        counts_table = motif_count.get_count_table(orig_counts, ctl_counts, flank_size*2)
         counts_table = counts_table.sorted(columns='mut')
         if not opts.dry_run:
             counts_table.writeToFile(counts_filename, sep='\t')
