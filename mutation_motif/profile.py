@@ -2,7 +2,7 @@ from collections import Counter
 from itertools import product
 from numpy import logical_and, flatnonzero, zeros, array, matrix, prod, \
     ndarray, asarray
-from random import choice
+from random import choice, seed as set_seed
 
 from cogent import LoadSeqs, DNA, LoadTable
 from cogent.align.weights.util import AlnToProfile
@@ -125,8 +125,10 @@ def get_control(seq_array, chosen_base, step, flank_size, sample_indices=None, c
     sampled_data = array(rows)
     return sampled_data
 
-def get_profiles(data, chosen_base, step, flank_size, circle_range=None):
+def get_profiles(data, chosen_base, step, flank_size, circle_range=None, seed=None):
     """returns matched profile and control profile"""
+    assert seed is not None, "Must provide a random number seed"
+    set_seed(seed)
     ctl = get_control(data, chosen_base, step, flank_size,
                         circle_range=circle_range)
     length = data.shape[1]

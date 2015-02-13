@@ -307,6 +307,8 @@ script_info['required_options'] = [
     make_option('--direction', default=None,
      choices=['AtoC', 'AtoG', 'AtoT', 'CtoA', 'CtoG', 'CtoT', 'GtoA', 'GtoC',
              'GtoT', 'TtoA', 'TtoC', 'TtoG'], help='Mutation direction.'),
+    make_option('-S', '--seed',
+        help='Seed for random number generator (e.g. 17, or 2015-02-13).'),
     ]
 
 script_info['optional_options'] = [
@@ -335,8 +337,8 @@ def main():
     
     counts_filename = os.path.join(outpath, "counts_table.txt")
     
-    print "Deriving counts from sequence file"
     if not os.path.exists(counts_filename):
+        print "Deriving counts from sequence file"
         direction = tuple(opts.direction.split('to'))
         chosen_base = direction[0]
     
@@ -355,6 +357,7 @@ def main():
         if not opts.dry_run:
             counts_table.writeToFile(counts_filename, sep='\t')
     else:
+        print "Loading existing counts_table"
         counts_table = LoadTable(counts_filename, sep='\t')
     
     
