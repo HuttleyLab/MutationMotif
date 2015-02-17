@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import os, glob, re
+import os, glob, re, time
 from itertools import permutations, combinations
 from optparse import make_option
 
@@ -307,11 +307,11 @@ script_info['required_options'] = [
     make_option('--direction', default=None,
      choices=['AtoC', 'AtoG', 'AtoT', 'CtoA', 'CtoG', 'CtoT', 'GtoA', 'GtoC',
              'GtoT', 'TtoA', 'TtoC', 'TtoG'], help='Mutation direction.'),
-    make_option('-S', '--seed',
-        help='Seed for random number generator (e.g. 17, or 2015-02-13).'),
     ]
 
 script_info['optional_options'] = [
+    make_option('-S', '--seed',
+        help='Seed for random number generator (e.g. 17, or 2015-02-13). Defaults to system time.'),
     make_option('--coding', action='store_true', default=False,
         help='If True, samples pseudo-SNPs at 3-bp intervals from real SNP.'),
     make_option('--format', default='pdf', choices=['pdf', 'png'],
@@ -336,6 +336,10 @@ def main():
         util.create_path(outpath)
     
     counts_filename = os.path.join(outpath, "counts_table.txt")
+    
+    if not opts.seed:
+        opts.seed = str(time.time())
+        print "NOTE: set random number seed to %s" % (opts.seed)
     
     if not os.path.exists(counts_filename):
         print "Deriving counts from sequence file"
