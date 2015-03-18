@@ -49,6 +49,7 @@ def CalcRet(dev_to_re, epsilon=1e-9):
         for i in range(len(obs)):
             o, e = obs[i], exp[i]
             e = e or epsilon # to avoide zero division
+            o = o or epsilon # avoid zero counts
             ret = dev_to_re(2 * o * numpy.log(o / e))
             result.append(ret)
         return result
