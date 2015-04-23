@@ -59,13 +59,13 @@ def position_effect(counts_table, test=False):
     """returns total relative entropy, degrees of freedom and stats
     
     fit's a log-lin model that is excludes only the full interaction term"""
-    num_pos = len(counts_table.Header) - 2
+    num_pos = sum(1 for c in counts_table.Header if c.startswith('base'))
     assert 1 <= num_pos <= 4, "Can only handle 4 positions"
     
     if num_pos == 1:
         columns = ['mut', 'base', 'count']
     else:
-        columns = ['mut'] + ['base%d' % (i+1) for i in range(num_pos)] + ['count']
+        columns = ['mut'] + ['base%d' % (i + 1) for i in range(num_pos)] + ['count']
     
     factors = columns[:-1]
     formula = " - ".join([" * ".join(factors), " : ".join(factors)])
