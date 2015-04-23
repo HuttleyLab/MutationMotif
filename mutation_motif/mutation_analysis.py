@@ -287,18 +287,11 @@ script_info['script_description'] = \
 + "directory outpath."
 
 script_info['required_options'] = [
-     make_option('-a','--alignfile', help='fasta aligned file centred on mutated position.'),
+     make_option('-1','--countsfile', help='tab delimited file of counts.'),
      make_option('-o','--outpath', help='Directory path to write data.'),
-    make_option('--direction', default=None,
-     choices=['AtoC', 'AtoG', 'AtoT', 'CtoA', 'CtoG', 'CtoT', 'GtoA', 'GtoC',
-             'GtoT', 'TtoA', 'TtoC', 'TtoG'], help='Mutation direction.'),
     ]
 
 script_info['optional_options'] = [
-    make_option('-S', '--seed',
-        help='Seed for random number generator (e.g. 17, or 2015-02-13). Defaults to system time.'),
-    make_option('--coding', action='store_true', default=False,
-        help='If True, samples pseudo-SNPs at 3-bp intervals from real SNP.'),
     make_option('--format', default='pdf', choices=['pdf', 'png'],
         help='Plot format.'),
     make_option('-F','--force_overwrite', action='store_true', default=False,
@@ -310,45 +303,20 @@ script_info['optional_options'] = [
 script_info['version'] = '0.1'
 script_info['authors'] = 'Gavin Huttley'
 
-def main():
+def single_group(opts):
     option_parser, opts, args =\
        parse_command_line_parameters(disallow_positional_arguments=False, **script_info)
-    
-    flank_size = 2
     
     outpath = util.abspath(opts.outpath)
     if not opts.dry_run:
         util.create_path(outpath)
     
-    counts_filename = os.path.join(outpath, "counts_table.txt")
-    
-    if not opts.seed:
-        opts.seed = str(time.time())
-        print "NOTE: set random number seed to '%s'" % (opts.seed)
-    
-    if not os.path.exists(counts_filename):
-        print "Deriving counts from sequence file"
-        direction = tuple(opts.direction.split('to'))
-        chosen_base = direction[0]
-    
-        fn = util.abspath(opts.alignfile)
-        orig_seqs = util.load_from_fasta(fn)
-        seqs = orig_seqs.ArraySeqs
-        seqs = util.just_nucs(seqs)
-        orig, ctl = profile.get_profiles(seqs, chosen_base=chosen_base, step=1,
-                                        flank_size=flank_size, seed=opts.seed)
-    
-        # convert profiles to a motif count table
-        orig_counts = motif_count.profile_to_seq_counts(orig, flank_size=flank_size)
-        ctl_counts = motif_count.profile_to_seq_counts(ctl, flank_size=flank_size)
-        counts_table = motif_count.get_count_table(orig_counts, ctl_counts, flank_size*2)
-        counts_table = counts_table.sorted(columns='mut')
-        if not opts.dry_run:
-            counts_table.writeToFile(counts_filename, sep='\t')
-    else:
-        print "Loading existing counts_table"
-        counts_table = LoadTable(counts_filename, sep='\t')
-    
+    counts_filename = util.abspath(opts.countsfile)
+    print "Loading existing counts_table"
+    counts_table = LoadTable(counts_filename, sep='\t')
+    num_pos = sum(1 for c in counts_table.Header if c.startswith('pos'))
+    if num_pos != 4:
+        raise ValueError("Requires four positions for analysis")
     
     if opts.dry_run or opts.verbose:
         print
@@ -423,3 +391,9 @@ def main():
         print "Wrote", outfilename
     
     print "Done! Check %s for your results" % outpath
+
+def main():
+    option_parser, opts, args =\
+       parse_command_line_parameters(disallow_positional_arguments=False, **script_info)
+    
+    single_group(opts)
