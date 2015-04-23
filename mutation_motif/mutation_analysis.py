@@ -14,13 +14,17 @@ from mutation_motif import profile, util, logo, motif_count, log_lin
 
 from mutation_motif.height import get_re_char_heights
 
+def get_position_effects(table, position_sets):
+    pos_results = {}
+    for position_set in position_sets:
+        counts = motif_count.get_combined_counts(table, position_set)
+        rel_entropy, deviance, df, stats = log_lin.position_effect(counts)
+        pos_results[position_set] = dict(rel_entropy=rel_entropy,
+                                        deviance=deviance, df=df, stats=stats)
+    return pos_results
 
 def single_position_effects(table, positions):
-    single_results = {}
-    for position in positions:
-        counts = motif_count.get_combined_counts(table, position)
-        rel_entropy, deviance, df, stats = log_lin.position_effect(counts)
-        single_results[position] = dict(rel_entropy=rel_entropy, deviance=deviance, df=df, stats=stats)
+    single_results = get_position_effects(table, positions)
     return single_results
 
 def get_single_position_fig(single_results, positions, figsize, fig_width=None, fontsize=14):
@@ -74,14 +78,7 @@ def get_resized_array_coordinates2(positions, motifs):
     return mapping
 
 def get_two_position_effects(table, positions):
-    two_pos_results = {}
-    rel_entropies = []
-    position_sets = list(combinations(positions, 2))
-    for position_set in position_sets:
-        counts = motif_count.get_combined_counts(table, position_set)
-        rel_entropy, deviance, df, stats = log_lin.position_effect(counts)
-        two_pos_results[position_set] = dict(rel_entropy=rel_entropy, deviance=deviance, df=df, stats=stats)
-        rel_entropies.append(rel_entropy)
+    two_pos_results = get_position_effects(table, list(combinations(positions, 2)))
     return two_pos_results
 
 def get_two_position_fig(two_pos_results, positions, figsize, fig_width=None, fontsize=14):
@@ -163,12 +160,7 @@ def get_resized_array_coordinates3(positions, position_set):
     return mapping
 
 def get_three_position_effects(table, positions):
-    three_pos_results = {}
-    position_sets = list(combinations(positions, 3))
-    for position_set in position_sets:
-        counts = motif_count.get_combined_counts(table, position_set)
-        rel_entropy, deviance, df, stats = log_lin.position_effect(counts)
-        three_pos_results[position_set] = dict(rel_entropy=rel_entropy, deviance=deviance, df=df, stats=stats)
+    three_pos_results = get_position_effects(table, list(combinations(positions, 3)))
     return three_pos_results
 
 def get_three_position_fig(three_pos_results, positions, figsize, fig_width=None, fontsize=14):
@@ -239,12 +231,7 @@ def get_three_position_fig(three_pos_results, positions, figsize, fig_width=None
     return fig
 
 def get_four_position_effects(table, positions):
-    result = {}
-    position_sets = list(combinations(positions, 4))
-    for position_set in position_sets:
-        counts = motif_count.get_combined_counts(table, position_set)
-        rel_entropy, deviance, df, stats = log_lin.position_effect(counts)
-        result[position_set] = dict(rel_entropy=rel_entropy, deviance=deviance, df=df, stats=stats)
+    result = get_position_effects(table, list(combinations(positions, 4)))
     return result
 
 def get_four_position_fig(four_pos_results, positions, figsize, fig_width=None, fontsize=14):
