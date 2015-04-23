@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import os, glob, re, time
+import os, time
 from itertools import permutations, combinations
 from optparse import make_option
 
@@ -10,12 +10,10 @@ from cogent import LoadSeqs, DNA, LoadTable
 from cogent.core.alignment import DenseAlignment
 from cogent.util.option_parsing import parse_command_line_parameters
 
-from mutation_motif import profile, util, logo, motif_count
+from mutation_motif import profile, util, logo, motif_count, log_lin
 
 from mutation_motif.height import get_re_char_heights
-from mutation_motif import logo
 
-import motif_count, log_lin
 
 def single_position_effects(table, positions):
     single_results = {}
@@ -339,7 +337,7 @@ def main():
     
     if not opts.seed:
         opts.seed = str(time.time())
-        print "NOTE: set random number seed to %s" % (opts.seed)
+        print "NOTE: set random number seed to '%s'" % (opts.seed)
     
     if not os.path.exists(counts_filename):
         print "Deriving counts from sequence file"
