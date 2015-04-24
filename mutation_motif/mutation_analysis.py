@@ -9,18 +9,38 @@ from matplotlib import pyplot
 from cogent import LoadSeqs, DNA, LoadTable
 from cogent.core.alignment import DenseAlignment
 from cogent.util.option_parsing import parse_command_line_parameters
+from cogent.maths.stats import chisqprob
 
 from mutation_motif import profile, util, logo, motif_count, log_lin
 
 from mutation_motif.height import get_re_char_heights
 
+def make_summary(results):
+    '''returns records from analyses as list'''
+    rows = []
+    for position_set in results:
+        if type(position_set) != str:
+            position = ':'.join(position_set)
+        else:
+            position = position_set
+        
+        re = results[position_set]['rel_entropy']
+        dev = results[position_set]['deviance']
+        df = results[position_set]['df']
+        prob = results[position_set]['prob']
+        formula = results[position_set]['formula']
+        rows.append([position, re, dev, df, prob, formula])
+    return rows
+
 def get_position_effects(table, position_sets):
     pos_results = {}
     for position_set in position_sets:
         counts = motif_count.get_combined_counts(table, position_set)
-        rel_entropy, deviance, df, stats = log_lin.position_effect(counts)
+        rel_entropy, deviance, df, stats, formula = log_lin.position_effect(counts)
+        p = chisqprob(deviance, df)
         pos_results[position_set] = dict(rel_entropy=rel_entropy,
-                                        deviance=deviance, df=df, stats=stats)
+                                        deviance=deviance, df=df, stats=stats,
+                                        formula=formula, prob=p)
     return pos_results
 
 def single_position_effects(table, positions):
@@ -192,8 +212,6 @@ def get_three_position_fig(three_pos_results, positions, figsize, fig_width=None
         rel_entropies.append(three_pos_results[position_set]['rel_entropy'])
     ylim = logo.est_ylim(rel_entropies)
 
-
-
     position_re = numpy.zeros((num_pos,), float)
     multi_positions = {}
     characters = numpy.zeros((num_pos, 64), str)
@@ -325,10 +343,16 @@ def single_group(opts):
     
     positions = [c for c in counts_table.Header if c.startswith('pos')]
     
+    
+    # Collect statistical analysis results
+    summary = []
+    
     max_results = {}
     # Single position analysis
     print "Doing single position analysis"
     single_results = single_position_effects(counts_table, positions)
+    summary += make_summary(single_results)
+    
     max_results[1] = max(single_results[p]['rel_entropy'] for p in single_results)
     fig = get_single_position_fig(single_results, positions, (9,3), fig_width=2.25)
     fig.tight_layout()
@@ -340,6 +364,8 @@ def single_group(opts):
     
     print "Doing two positions analysis"
     results = get_two_position_effects(counts_table, positions)
+    summary += make_summary(results)
+    
     max_results[2] = max(results[p]['rel_entropy'] for p in results)
     fig = get_two_position_fig(results, positions, (9,9))
     fig.set_figwidth(9)
@@ -353,6 +379,8 @@ def single_group(opts):
     
     print "Doing three positions analysis"
     results = get_three_position_effects(counts_table, positions)
+    summary += make_summary(results)
+    
     max_results[3] = max(results[p]['rel_entropy'] for p in results)
     fig = get_three_position_fig(results, positions, (9,9))
     fig.set_figwidth(9)
@@ -366,6 +394,8 @@ def single_group(opts):
     
     print "Doing four positions analysis"
     results = get_four_position_effects(counts_table, positions)
+    summary += make_summary(results)
+    
     max_results[4] = max(results[p]['rel_entropy'] for p in results)
     fig = get_four_position_fig(results, positions, (9,9))
     fig.set_figwidth(9)
@@ -390,7 +420,16 @@ def single_group(opts):
         pyplot.savefig(outfilename)
         print "Wrote", outfilename
     
+    summary = LoadTable(header=['Position', 'RE', 'Deviance', 'df', 'prob', 'formula'],
+            rows=summary)
+    if not opts.dry_run:
+        outfilename = os.path.join(outpath, "summary.txt")
+        summary.writeToFile(outfilename, sep='\t')
+    
+    print summary
+    
     print "Done! Check %s for your results" % outpath
+    
 
 def main():
     option_parser, opts, args =\
