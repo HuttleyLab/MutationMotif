@@ -3,7 +3,24 @@ from itertools import product
 
 from cogent import DNA, LoadTable
 
-from mutation_motif.util import array_to_str
+from mutation_motif.util import array_to_str, load_from_fasta
+from mutation_motif.profile import get_profiles
+
+def counts_from_seqs(fn, chosen_base, flank_size, seed):
+    """returns a counts table of motifs for mutated, control seqs"""
+    orig_seqs = load_from_fasta(fn)
+    seqs = orig_seqs.ArraySeqs
+    seqs = util.just_nucs(seqs)
+    orig, ctl = get_profiles(seqs, chosen_base=chosen_base, step=1,
+                                    flank_size=flank_size, seed=seed)
+
+    # convert profiles to a motif count table
+    orig_counts = profile_to_seq_counts(orig, flank_size=flank_size)
+    ctl_counts = profile_to_seq_counts(ctl, flank_size=flank_size)
+    counts_table = get_count_table(orig_counts, ctl_counts,
+                                                flank_size*2)
+    counts_table = counts_table.sorted(columns='mut')
+    return counts_table
 
 def profile_to_seq_counts(data, flank_size):
     """converts data to seqs and returns sequence counts"""

@@ -67,6 +67,10 @@ def position_effect(counts_table, test=False):
     else:
         columns = ['mut'] + ['base%d' % (i + 1) for i in range(num_pos)] + ['count']
     
+    # handle groups
+    if 'group' in counts_table.Header:
+        columns.insert(0, 'group')
+    
     factors = columns[:-1]
     formula = " - ".join([" * ".join(factors), " : ".join(factors)])
     formula = "count ~ %s" % formula

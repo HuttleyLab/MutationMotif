@@ -32,12 +32,45 @@ def make_summary(results):
         rows.append([position, re, dev, df, prob, formula])
     return rows
 
+def get_selected_indices(stats):
+    """returns indices for selecting dataframe records for display"""
+    if 'group' in stats:
+        indices = numpy.logical_and(stats['mut'] == 'M', stats['group'] == 1)
+    else:
+        indices = stats['mut'] == 'M'
+    return indices
+
+def get_grouped_combined_counts(table, position):
+    """wraps motif_count.get_combined_counts for groups"""
+    counts1 = motif_count.get_combined_counts(table.filtered("group in ('1', 1)"), position)
+    counts2 = motif_count.get_combined_counts(table.filtered("group in ('2', 2)"), position)
+    header = list(counts1.Header)
+    counts1 = counts1.withNewColumn('group', lambda x : 1, columns=header[0])
+    counts2 = counts2.withNewColumn('group', lambda x : 2, columns=header[0])
+    header = ['group'] + header
+    counts = LoadTable(header=header,
+            rows=counts1.getRawData(header)+counts2.getRawData(header))
+    counts.sorted(columns=['group', 'mut'])
+    return counts
+
 def get_position_effects(table, position_sets):
     pos_results = {}
+    grouped = 'group' in table.Header
+    if grouped:
+        assert len(table.getDistinctValues('group')) == 2
+    
     for position_set in position_sets:
-        counts = motif_count.get_combined_counts(table, position_set)
+        if not grouped:
+            counts = motif_count.get_combined_counts(table, position_set)
+        else:
+            counts = get_grouped_combined_counts(table, position_set)
+        
         rel_entropy, deviance, df, stats, formula = log_lin.position_effect(counts)
-        p = chisqprob(deviance, df)
+        if deviance < 0:
+            p = 1.0
+        else:
+            p = chisqprob(deviance, df)
+        
         pos_results[position_set] = dict(rel_entropy=rel_entropy,
                                         deviance=deviance, df=df, stats=stats,
                                         formula=formula, prob=p)
@@ -60,7 +93,7 @@ def get_single_position_fig(single_results, positions, figsize, fig_width=None, 
 
         stats = single_results[pos]['stats']
         position_re[index] = single_results[pos]['rel_entropy']
-        mut_stats = stats[stats['mut'] == 'M'][['base', 'ret']]
+        mut_stats = stats[get_selected_indices(stats)][['base', 'ret']]
         mut_stats = mut_stats.sort('ret')
         characters[index] = list(mut_stats['base'])
         rets[:,index] = mut_stats['ret']
@@ -143,7 +176,7 @@ def get_two_position_fig(two_pos_results, positions, figsize, fig_width=None, fo
         position_re.put(indices, two_pos_results[pair]['rel_entropy'])
 
         stats = two_pos_results[pair]['stats']
-        mut_stats = stats[stats['mut'] == 'M'][['base1', 'base2', 'ret']]
+        mut_stats = stats[get_selected_indices(stats)][['base1', 'base2', 'ret']]
         mut_stats = mut_stats.sort(columns='ret')
 
         characters[indices[0]] = list(mut_stats['base1'])
@@ -230,7 +263,7 @@ def get_three_position_fig(three_pos_results, positions, figsize, fig_width=None
         position_re.put(indices, three_pos_results[motif]['rel_entropy'])
 
         stats = three_pos_results[motif]['stats']
-        mut_stats = stats[stats['mut'] == 'M'][['base1', 'base2', 'base3', 'ret']]
+        mut_stats = stats[get_selected_indices(stats)][['base1', 'base2', 'base3', 'ret']]
         mut_stats = mut_stats.sort(columns='ret')
 
         characters[indices[0]] = list(mut_stats['base1'])
@@ -280,7 +313,7 @@ def get_four_position_fig(four_pos_results, positions, figsize, fig_width=None, 
 
     position_re.put(indices, rel_entropy)
     stats = four_pos_results[position_sets[0]]['stats']
-    mut_stats = stats[stats['mut'] == 'M'][['base1', 'base2', 'base3', 'base4', 'ret']]
+    mut_stats = stats[get_selected_indices(stats)][['base1', 'base2', 'base3', 'base4', 'ret']]
     mut_stats = mut_stats.sort(columns='ret')
 
     characters[indices[0]] = list(mut_stats['base1'])
@@ -310,6 +343,8 @@ script_info['required_options'] = [
     ]
 
 script_info['optional_options'] = [
+    make_option('-2','--countsfile2',
+        help='second group motif counts file.'),
     make_option('--format', default='pdf', choices=['pdf', 'png'],
         help='Plot format.'),
     make_option('-F','--force_overwrite', action='store_true', default=False,
@@ -330,11 +365,29 @@ def single_group(opts):
         util.create_path(outpath)
     
     counts_filename = util.abspath(opts.countsfile)
-    print "Loading existing counts_table"
     counts_table = LoadTable(counts_filename, sep='\t')
     num_pos = sum(1 for c in counts_table.Header if c.startswith('pos'))
     if num_pos != 4:
         raise ValueError("Requires four positions for analysis")
+    
+    if opts.countsfile2:
+        print "Performing 2 group analysis"
+        counts_table1 = counts_table.withNewColumn('group', lambda x: '1',
+                                    columns=counts_table.Header[0])
+        
+        fn2 = util.abspath(opts.countsfile2)
+        counts_table2 = LoadTable(fn2, sep='\t')
+        counts_table2 = counts_table2.withNewColumn('group', lambda x: '2',
+                                    columns=counts_table2.Header[0])
+        # now combine
+        header = ['group'] + counts_table2.Header[:-1]
+        raw1 = counts_table1.getRawData(header)
+        raw2 = counts_table2.getRawData(header)
+        counts_table = LoadTable(header=header, rows=raw1+raw2)
+        
+        if not opts.dry_run:
+            outfile = os.path.join(outpath, 'group_counts_table.txt')
+            counts_table.writeToFile(outfile, sep='\t')
     
     if opts.dry_run or opts.verbose:
         print
