@@ -57,6 +57,7 @@ setup(
     dependency_links=['https://github.com/GavinHuttley/pycogent/archive/master.zip#egg=cogent-1.5.3-dev'],
     entry_points={
             'console_scripts': ['mutation_analysis=mutation_motif.mutation_analysis:main',
+                                'aln_to_counts=mutation_motif.aln_to_counts:main',
                             ],
         }
     )
