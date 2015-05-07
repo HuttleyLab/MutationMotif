@@ -4,13 +4,15 @@ from __future__ import division
 import os, sys, time, re
 from itertools import permutations
 from optparse import make_option
+
 from cogent.util.option_parsing import parse_command_line_parameters
+from trackcomp import CachingLogger
 
 from mutation_motif.util import open_, create_path, abspath, just_nucs,\
-    load_from_fasta, CachingLogger, get_file_hexdigest
+    load_from_fasta
 from mutation_motif import profile, motif_count
 
-LOGGER = CachingLogger()
+LOGGER = CachingLogger(create_dir=True)
 fn_suffixes = re.compile(r"\.(fa|fasta)\.(gz|gzip|bz2)$")
 
 def get_counts_filename(align_path, output_dir):
@@ -100,8 +102,8 @@ def main():
         LOGGER.write("command_string: %s" % ' '.join(sys.argv))
         LOGGER.write("user: %s" % os.environ['USER'])
         LOGGER.write("vars: %s" % str(vars(opts)))
-        LOGGER.write("align_path md5 sum: %s" % get_file_hexdigest(opts.align_path))
-        
+        LOGGER.input_file(opts.align_path, label="align_path")
+    
     start_time = time.time()
     
     # run the program
@@ -109,9 +111,7 @@ def main():
     
     if not opts.dry_run:
         counts_table.writeToFile(counts_filename, sep='\t')
-        md5sum = get_file_hexdigest(counts_filename)
-        LOGGER.write("output file: %s" % counts_filename)
-        LOGGER.write("output file md5 sum: %s" % md5sum)
+        LOGGER.output_file(counts_filename)
     
     
     # determine runtime
