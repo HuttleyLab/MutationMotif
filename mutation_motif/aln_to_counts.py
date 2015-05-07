@@ -115,4 +115,4 @@ def main():
     # determine runtime
     duration = time.time() - start_time
     if not opts.dry_run:
-        LOGGER.write("run duration (minutes): %.2f" % (duration/60.))
+        LOGGER.write("%.2f" % (duration/60.), label="run duration (minutes)")
