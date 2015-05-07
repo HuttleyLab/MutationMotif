@@ -11,9 +11,13 @@ from cogent.core.alignment import DenseAlignment
 from cogent.util.option_parsing import parse_command_line_parameters
 from cogent.maths.stats import chisqprob
 
+from scitrack import CachingLogger
+
 from mutation_motif import profile, util, logo, motif_count, log_lin
 
 from mutation_motif.height import get_re_char_heights
+
+LOGGER = CachingLogger(create_dir=True)
 
 def make_summary(results):
     '''returns records from analyses as list'''
@@ -363,9 +367,16 @@ def single_group(opts):
     outpath = util.abspath(opts.outpath)
     if not opts.dry_run:
         util.create_path(outpath)
+        runlog_path = os.path.join(outpath, "analysis.log")
+        LOGGER.log_file_path = runlog_path
+        LOGGER.write(str(vars(opts)), label='vars')
     
     counts_filename = util.abspath(opts.countsfile)
     counts_table = LoadTable(counts_filename, sep='\t')
+    
+    
+    LOGGER.input_file(counts_filename, label="countsfile1_path")
+    
     num_pos = sum(1 for c in counts_table.Header if c.startswith('pos'))
     if num_pos != 4:
         raise ValueError("Requires four positions for analysis")
@@ -377,6 +388,9 @@ def single_group(opts):
         
         fn2 = util.abspath(opts.countsfile2)
         counts_table2 = LoadTable(fn2, sep='\t')
+        
+        LOGGER.input_file(fn2, label="countsfile2_path")
+        
         counts_table2 = counts_table2.withNewColumn('group', lambda x: '2',
                                     columns=counts_table2.Header[0])
         # now combine
@@ -388,6 +402,8 @@ def single_group(opts):
         if not opts.dry_run:
             outfile = os.path.join(outpath, 'group_counts_table.txt')
             counts_table.writeToFile(outfile, sep='\t')
+            LOGGER.output_file(outfile, label="group_counts")
+            
     
     if opts.dry_run or opts.verbose:
         print
@@ -395,7 +411,6 @@ def single_group(opts):
         print
     
     positions = [c for c in counts_table.Header if c.startswith('pos')]
-    
     
     # Collect statistical analysis results
     summary = []
@@ -407,6 +422,11 @@ def single_group(opts):
     summary += make_summary(single_results)
     
     max_results[1] = max(single_results[p]['rel_entropy'] for p in single_results)
+    if not opts.dry_run:
+        outfilename = os.path.join(outpath, "1.json")
+        util.dump_loglin_stats(single_results, outfilename)
+        LOGGER.output_file(outfilename, label="analysis1")
+    
     fig = get_single_position_fig(single_results, positions, (9,3), fig_width=2.25)
     fig.tight_layout()
     if not opts.dry_run:
@@ -420,6 +440,11 @@ def single_group(opts):
     summary += make_summary(results)
     
     max_results[2] = max(results[p]['rel_entropy'] for p in results)
+    if not opts.dry_run:
+        outfilename = os.path.join(outpath, "2.json")
+        util.dump_loglin_stats(results, outfilename)
+        LOGGER.output_file(outfilename, label="analysis2")
+    
     fig = get_two_position_fig(results, positions, (9,9))
     fig.set_figwidth(9)
     fig.text(0.5, 0.05, 'Position', ha='center', va='center', fontsize=14)
@@ -435,6 +460,11 @@ def single_group(opts):
     summary += make_summary(results)
     
     max_results[3] = max(results[p]['rel_entropy'] for p in results)
+    if not opts.dry_run:
+        outfilename = os.path.join(outpath, "3.json")
+        util.dump_loglin_stats(results, outfilename)
+        LOGGER.output_file(outfilename, label="analysis3")
+
     fig = get_three_position_fig(results, positions, (9,9))
     fig.set_figwidth(9)
     fig.text(0.5, 0.05, 'Position', ha='center', va='center', fontsize=14)
@@ -450,6 +480,11 @@ def single_group(opts):
     summary += make_summary(results)
     
     max_results[4] = max(results[p]['rel_entropy'] for p in results)
+    if not opts.dry_run:
+        outfilename = os.path.join(outpath, "4.json")
+        util.dump_loglin_stats(results, outfilename)
+        LOGGER.output_file(outfilename, label="analysis4")
+    
     fig = get_four_position_fig(results, positions, (9,9))
     fig.set_figwidth(9)
     ax = fig.gca()
@@ -478,6 +513,7 @@ def single_group(opts):
     if not opts.dry_run:
         outfilename = os.path.join(outpath, "summary.txt")
         summary.writeToFile(outfilename, sep='\t')
+        LOGGER.output_file(outfilename, label="summary")
     
     print summary
     

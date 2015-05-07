@@ -1,10 +1,50 @@
-import os, gzip, bz2, sys, platform
+import os, gzip, bz2, sys, platform, json
 from traceback import format_exc
-from socket import gethostname
+
+from pandas import read_json
 
 from cogent import DNA
 from cogent.parse.fasta import MinimalFastaParser
 from cogent.core.alignment import Alignment, DenseAlignment
+
+
+def dump_loglin_stats(data, outfile_path):
+    '''save data in json format to outfile_path'''
+    # convert all pandas data frames to json
+    saveable = {}
+    for position_set in data:
+        curr = {}
+        new_key = str(position_set)
+        for key, value in data[position_set].items():
+            if key == 'stats':
+                value = data[position_set][key].to_json()
+            curr[key] = value
+                
+        saveable[new_key] = curr
+    
+    with open(outfile_path, mode="w") as outfile:
+        json.dump(saveable, outfile)
+
+def load_loglin_stats(infile_path):
+    '''read in data in json format'''
+    # convert all 'stats' to pandas data frames
+    with open(infile_path) as infile:
+        data = json.load(infile)
+    
+    new_data = {}
+    for position_set in data:
+        try:
+            new_key = eval(position_set)
+        except NameError:
+            new_key = position_set
+        
+        new_data[new_key] = {}
+        for key, value in data[position_set].items():
+            if key == 'stats':
+                value = read_json(value)
+            new_data[new_key][key] = value
+    return new_data
+
 
 def is_valid(data):
     """returns True if all elements satisfy 0 <= e < 4"""
