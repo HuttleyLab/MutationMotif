@@ -6,7 +6,7 @@ from itertools import permutations
 from optparse import make_option
 
 from cogent.util.option_parsing import parse_command_line_parameters
-from trackcomp import CachingLogger
+from scitrack import CachingLogger
 
 from mutation_motif.util import open_, create_path, abspath, just_nucs,\
     load_from_fasta
@@ -99,9 +99,7 @@ def main():
         
         create_path(opts.output_path)
         
-        LOGGER.write("command_string: %s" % ' '.join(sys.argv))
-        LOGGER.write("user: %s" % os.environ['USER'])
-        LOGGER.write("vars: %s" % str(vars(opts)))
+        LOGGER.write(str(vars(opts)), label='vars')
         LOGGER.input_file(opts.align_path, label="align_path")
     
     start_time = time.time()
