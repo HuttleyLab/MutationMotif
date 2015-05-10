@@ -13,7 +13,7 @@ from mutation_motif.util import open_, create_path, abspath, just_nucs,\
 from mutation_motif import profile, motif_count
 
 LOGGER = CachingLogger(create_dir=True)
-fn_suffixes = re.compile(r"\.(fa|fasta)\.(gz|gzip|bz2)$")
+fn_suffixes = re.compile(r"\.(fa|fasta)\.*(gz|gzip|bz2)*$")
 
 def get_counts_filename(align_path, output_dir):
     """returns counts output path
