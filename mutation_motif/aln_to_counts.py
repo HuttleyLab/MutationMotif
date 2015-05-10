@@ -72,7 +72,6 @@ script_info['optional_options'] = [
         help='Do a dry run of the analysis without writing output.'),
     make_option('-F','--force_overwrite', action='store_true', default=False,
         help='Overwrite output and run.log files.'),
-    make_option('-r','--reason', help='Reason for running analysis (for Sumatra log).'),
     ]
 
 script_info['version'] = '0.1'
