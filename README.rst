@@ -20,3 +20,9 @@ To see the options for these commands do::
 
 
 .. TODO specify the format requirements for the counts table
+
+********************
+testing full spectra
+********************
+
+for strand symmetry, this requires the combined counts file

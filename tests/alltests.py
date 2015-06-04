@@ -24,6 +24,7 @@ def suite():
         'test_entropy',
         'test_util',
         'test_heights',
+        'test_complement',
         ]
 
     alltests = unittest.TestSuite()

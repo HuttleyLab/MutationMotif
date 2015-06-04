@@ -10,6 +10,7 @@ from cogent.util.option_parsing import parse_command_line_parameters
 from scitrack import CachingLogger
 
 from mutation_motif.util import open_, create_path, abspath
+from mutation_motif.complement import make_strand_symmetric_table
 
 LOGGER = CachingLogger(create_dir=True)
 _directions = ['AtoC', 'AtoG', 'AtoT', 'CtoA', 'CtoG', 'CtoT', 'GtoA', 'GtoC',
@@ -38,6 +39,8 @@ script_info['script_description'] = "export tab delimited combined counts "\
 script_info['required_options'] = [
      make_option('-c','--counts_pattern', help='glob pattern uniquely identifying all 12 mutation counts files.'),
      make_option('-o','--output_path', help='Path to write combined_counts data.'),
+     make_option('-s','--strand_symmetric', action='store_true', default=False,
+         help='produces table suitable for strand symmetry test.'),
     ]
 
 script_info['optional_options'] = [
@@ -85,18 +88,21 @@ def main():
         table = LoadTable(fn, sep='\t')
         if header is None:
             header = list(table.Header)
-            header.insert(0, 'direction')
+            header.append('direction')
             num_rows = table.Shape[0]
         
         data = table.getRawData()
         new = []
         for row in data:
-            row.insert(0, mutation)
+            row.append(mutation)
             new.append(row)
         all_counts += new
     
     table = LoadTable(header=header, rows=all_counts)
     assert table.Shape[0] == (12 * num_rows), "not all tables had the same number of rows: %s" % (12 * num_rows)
+    
+    if opts.strand_symmetric:
+        table = make_strand_symmetric_table(table)
     
     if not opts.dry_run:
         table.writeToFile(counts_filename, sep='\t')
@@ -107,3 +113,5 @@ def main():
     duration = time.time() - start_time
     if not opts.dry_run:
         LOGGER.write("%.2f" % (duration/60.), label="run duration (minutes)")
+    
+    print "Done!"
