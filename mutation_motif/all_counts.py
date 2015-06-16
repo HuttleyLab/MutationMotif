@@ -39,11 +39,11 @@ script_info['script_description'] = "export tab delimited combined counts "\
 script_info['required_options'] = [
      make_option('-c','--counts_pattern', help='glob pattern uniquely identifying all 12 mutation counts files.'),
      make_option('-o','--output_path', help='Path to write combined_counts data.'),
-     make_option('-s','--strand_symmetric', action='store_true', default=False,
-         help='produces table suitable for strand symmetry test.'),
     ]
 
 script_info['optional_options'] = [
+    make_option('-s','--strand_symmetric', action='store_true', default=False,
+         help='produces table suitable for strand symmetry test.'),
     make_option('-D','--dry_run', action='store_true', default=False,
         help='Do a dry run of the analysis without writing output.'),
     make_option('-F','--force_overwrite', action='store_true', default=False,
