@@ -16,3 +16,4 @@ build
 *.idea
 draw_results
 *.coverage
+*mutation_motif.egg-info*
