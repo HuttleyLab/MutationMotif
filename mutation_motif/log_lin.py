@@ -55,10 +55,14 @@ def CalcRet(dev_to_re, epsilon=1e-9):
         return result
     return call
 
-def position_effect(counts_table, test=False):
+def position_effect(counts_table, group_label=None, test=False):
     """returns total relative entropy, degrees of freedom and stats
     
-    fit's a log-lin model that is excludes only the full interaction term"""
+    fit's a log-lin model that excludes only the full interaction term
+    
+    Arguments:
+        - group_label: name of column containing group data
+    """
     num_pos = sum(1 for c in counts_table.Header if c.startswith('base'))
     assert 1 <= num_pos <= 4, "Can only handle 4 positions"
     
@@ -68,8 +72,8 @@ def position_effect(counts_table, test=False):
         columns = ['mut'] + ['base%d' % (i + 1) for i in range(num_pos)] + ['count']
     
     # handle groups
-    if 'group' in counts_table.Header:
-        columns.insert(0, 'group')
+    if group_label and group_label in counts_table.Header:
+        columns.insert(0, group_label)
     
     factors = columns[:-1]
     formula = " - ".join([" * ".join(factors), " : ".join(factors)])

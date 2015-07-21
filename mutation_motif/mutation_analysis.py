@@ -36,40 +36,60 @@ def make_summary(results):
         rows.append([position, re, dev, df, prob, formula])
     return rows
 
-def get_selected_indices(stats):
+def get_selected_indices(stats, group_label=None):
     """returns indices for selecting dataframe records for display"""
-    if 'group' in stats:
-        indices = numpy.logical_and(stats['mut'] == 'M', stats['group'] == 1)
+    if group_label: # TODO this logic needs improving
+        val = dict(strand='+').get(group_label, 1)
+        indices = numpy.logical_and(stats['mut'] == 'M', stats[group_label] == val)
     else:
         indices = stats['mut'] == 'M'
     return indices
 
-def get_grouped_combined_counts(table, position):
+def get_grouped_combined_counts(table, position, group_label):
     """wraps motif_count.get_combined_counts for groups"""
-    counts1 = motif_count.get_combined_counts(table.filtered("group in ('1', 1)"), position)
-    counts2 = motif_count.get_combined_counts(table.filtered("group in ('2', 2)"), position)
-    header = list(counts1.Header)
-    counts1 = counts1.withNewColumn('group', lambda x : 1, columns=header[0])
-    counts2 = counts2.withNewColumn('group', lambda x : 2, columns=header[0])
-    header = ['group'] + header
+    group_cats = table.getDistinctValues(group_label)
+    all_data = []
+    header = None
+    for category in group_cats:
+        subtable = table.filtered(lambda x: x == category, columns=group_label)
+        counts = motif_count.get_combined_counts(subtable, position)
+        if header is None:
+            header = [group_label] + list(counts.Header)
+        
+        counts = counts.withNewColumn(group_label, lambda x : category,
+                                     columns=counts.Header[0])
+        all_data.extend(counts.getRawData(header))
     counts = LoadTable(header=header,
-            rows=counts1.getRawData(header)+counts2.getRawData(header))
-    counts.sorted(columns=['group', 'mut'])
+            rows=all_data)
+    counts.sorted(columns=[group_label, 'mut'])
     return counts
 
-def get_position_effects(table, position_sets):
+def get_grouped_combined_counts_old(table, position, group_label):
+    """wraps motif_count.get_combined_counts for groups"""
+    counts1 = motif_count.get_combined_counts(table.filtered("%s in ('1', 1)" % group_label), position)
+    counts2 = motif_count.get_combined_counts(table.filtered("%s in ('2', 2)" % group_label), position)
+    header = list(counts1.Header)
+    counts1 = counts1.withNewColumn(group_label, lambda x : 1, columns=header[0])
+    counts2 = counts2.withNewColumn(group_label, lambda x : 2, columns=header[0])
+    header = [group_label] + header
+    counts = LoadTable(header=header,
+            rows=counts1.getRawData(header)+counts2.getRawData(header))
+    counts.sorted(columns=[group_label, 'mut'])
+    return counts
+
+def get_position_effects(table, position_sets, group_label=None):
     pos_results = {}
-    grouped = 'group' in table.Header
+    grouped = group_label is not None
     if grouped:
-        assert len(table.getDistinctValues('group')) == 2
+        assert len(table.getDistinctValues(group_label)) == 2
     
     for position_set in position_sets:
         if not grouped:
             counts = motif_count.get_combined_counts(table, position_set)
         else:
-            counts = get_grouped_combined_counts(table, position_set)
-        
-        rel_entropy, deviance, df, stats, formula = log_lin.position_effect(counts)
+            counts = get_grouped_combined_counts(table, position_set,
+                                            group_label=group_label)
+        rel_entropy, deviance, df, stats, formula = log_lin.position_effect(counts, group_label=group_label)
         if deviance < 0:
             p = 1.0
         else:
@@ -80,11 +100,11 @@ def get_position_effects(table, position_sets):
                                         formula=formula, prob=p)
     return pos_results
 
-def single_position_effects(table, positions):
-    single_results = get_position_effects(table, positions)
+def single_position_effects(table, positions, group_label=None):
+    single_results = get_position_effects(table, positions, group_label=group_label)
     return single_results
 
-def get_single_position_fig(single_results, positions, figsize, fig_width=None, fontsize=14):
+def get_single_position_fig(single_results, positions, figsize, group_label=None, fig_width=None, fontsize=14):
     num_pos = len(positions) + 1
     mid = num_pos // 2
 
@@ -97,7 +117,7 @@ def get_single_position_fig(single_results, positions, figsize, fig_width=None, 
 
         stats = single_results[pos]['stats']
         position_re[index] = single_results[pos]['rel_entropy']
-        mut_stats = stats[get_selected_indices(stats)][['base', 'ret']]
+        mut_stats = stats[get_selected_indices(stats, group_label=group_label)][['base', 'ret']]
         mut_stats = mut_stats.sort('ret')
         characters[index] = list(mut_stats['base'])
         rets[:,index] = mut_stats['ret']
@@ -134,11 +154,11 @@ def get_resized_array_coordinates2(positions, motifs):
                 mapping[new[i, j]] = (i, j)
     return mapping
 
-def get_two_position_effects(table, positions):
-    two_pos_results = get_position_effects(table, list(combinations(positions, 2)))
+def get_two_position_effects(table, positions, group_label=None):
+    two_pos_results = get_position_effects(table, list(combinations(positions, 2)), group_label=group_label)
     return two_pos_results
 
-def get_two_position_fig(two_pos_results, positions, figsize, fig_width=None, fontsize=14):
+def get_two_position_fig(two_pos_results, positions, figsize, group_label=None, fig_width=None, fontsize=14):
     position_sets = list(combinations(positions, 2))
     array_coords = get_resized_array_coordinates2(positions, position_sets)
     coords = array_coords.values()
@@ -180,7 +200,7 @@ def get_two_position_fig(two_pos_results, positions, figsize, fig_width=None, fo
         position_re.put(indices, two_pos_results[pair]['rel_entropy'])
 
         stats = two_pos_results[pair]['stats']
-        mut_stats = stats[get_selected_indices(stats)][['base1', 'base2', 'ret']]
+        mut_stats = stats[get_selected_indices(stats, group_label=group_label)][['base1', 'base2', 'ret']]
         mut_stats = mut_stats.sort(columns='ret')
 
         characters[indices[0]] = list(mut_stats['base1'])
@@ -216,11 +236,11 @@ def get_resized_array_coordinates3(positions, position_set):
                 mapping[new[i, j]] = (i, j)
     return mapping
 
-def get_three_position_effects(table, positions):
-    three_pos_results = get_position_effects(table, list(combinations(positions, 3)))
+def get_three_position_effects(table, positions, group_label=None):
+    three_pos_results = get_position_effects(table, list(combinations(positions, 3)), group_label=group_label)
     return three_pos_results
 
-def get_three_position_fig(three_pos_results, positions, figsize, fig_width=None, fontsize=14):
+def get_three_position_fig(three_pos_results, positions, figsize, group_label=None, fig_width=None, fontsize=14):
     position_sets = list(combinations(positions, 3))
     array_coords = get_resized_array_coordinates3(positions, position_sets)
 
@@ -267,7 +287,7 @@ def get_three_position_fig(three_pos_results, positions, figsize, fig_width=None
         position_re.put(indices, three_pos_results[motif]['rel_entropy'])
 
         stats = three_pos_results[motif]['stats']
-        mut_stats = stats[get_selected_indices(stats)][['base1', 'base2', 'base3', 'ret']]
+        mut_stats = stats[get_selected_indices(stats, group_label=group_label)][['base1', 'base2', 'base3', 'ret']]
         mut_stats = mut_stats.sort(columns='ret')
 
         characters[indices[0]] = list(mut_stats['base1'])
@@ -285,11 +305,11 @@ def get_three_position_fig(three_pos_results, positions, figsize, fig_width=None
 
     return fig
 
-def get_four_position_effects(table, positions):
-    result = get_position_effects(table, list(combinations(positions, 4)))
+def get_four_position_effects(table, positions, group_label=None):
+    result = get_position_effects(table, list(combinations(positions, 4)), group_label=group_label)
     return result
 
-def get_four_position_fig(four_pos_results, positions, figsize, fig_width=None, fontsize=14):
+def get_four_position_fig(four_pos_results, positions, figsize, group_label=None, fig_width=None, fontsize=14):
     position_sets = list(combinations(positions, 4))
     assert len(position_sets) == 1
     rel_entropies = [four_pos_results[position_sets[0]]['rel_entropy']]
@@ -317,7 +337,7 @@ def get_four_position_fig(four_pos_results, positions, figsize, fig_width=None, 
 
     position_re.put(indices, rel_entropy)
     stats = four_pos_results[position_sets[0]]['stats']
-    mut_stats = stats[get_selected_indices(stats)][['base1', 'base2', 'base3', 'base4', 'ret']]
+    mut_stats = stats[get_selected_indices(stats, group_label=group_label)][['base1', 'base2', 'base3', 'base4', 'ret']]
     mut_stats = mut_stats.sort(columns='ret')
 
     characters[indices[0]] = list(mut_stats['base1'])
@@ -349,6 +369,8 @@ script_info['required_options'] = [
 script_info['optional_options'] = [
     make_option('-2','--countsfile2',
         help='second group motif counts file.'),
+    make_option('-s','--strand_symmetry', action='store_true', default=False,
+        help='single counts file but second group is strand.'),
     make_option('--format', default='pdf', choices=['pdf', 'png'],
         help='Plot format.'),
     make_option('-F','--force_overwrite', action='store_true', default=False,
@@ -360,9 +382,119 @@ script_info['optional_options'] = [
 script_info['version'] = '0.1'
 script_info['authors'] = 'Gavin Huttley'
 
-def single_group(opts):
+def single_group(counts_table, outpath, group_label, positions, dry_run):
+    # Collect statistical analysis results
+    summary = []
+    
+    max_results = {}
+    # Single position analysis
+    print "Doing single position analysis"
+    single_results = single_position_effects(counts_table, positions, group_label=group_label)
+    summary += make_summary(single_results)
+    
+    max_results[1] = max(single_results[p]['rel_entropy'] for p in single_results)
+    if not dry_run:
+        outfilename = os.path.join(outpath, "1.json")
+        util.dump_loglin_stats(single_results, outfilename)
+        LOGGER.output_file(outfilename, label="analysis1")
+    
+    fig = get_single_position_fig(single_results, positions, (9,3), group_label=group_label, fig_width=2.25)
+    fig.tight_layout()
+    if not dry_run:
+        outfilename = os.path.join(outpath, "1.pdf")
+        fig.savefig(outfilename)
+        print "Wrote", outfilename
+        fig.clf() # refresh for next section
+    
+    print "Doing two positions analysis"
+    results = get_two_position_effects(counts_table, positions, group_label=group_label)
+    summary += make_summary(results)
+    
+    max_results[2] = max(results[p]['rel_entropy'] for p in results)
+    if not dry_run:
+        outfilename = os.path.join(outpath, "2.json")
+        util.dump_loglin_stats(results, outfilename)
+        LOGGER.output_file(outfilename, label="analysis2")
+    
+    fig = get_two_position_fig(results, positions, (9,9), group_label=group_label)
+    fig.set_figwidth(9)
+    fig.text(0.5, 0.05, 'Position', ha='center', va='center', fontsize=14)
+    fig.text(0.01, 0.5, 'RE', ha='center', va='center', rotation='vertical', fontsize=14)
+    if not dry_run:
+        outfilename = os.path.join(outpath, "2.pdf")
+        fig.savefig(outfilename)
+        print "Wrote", outfilename
+        fig.clf() # refresh for next section
+    
+    print "Doing three positions analysis"
+    results = get_three_position_effects(counts_table, positions, group_label=group_label)
+    summary += make_summary(results)
+    
+    max_results[3] = max(results[p]['rel_entropy'] for p in results)
+    if not dry_run:
+        outfilename = os.path.join(outpath, "3.json")
+        util.dump_loglin_stats(results, outfilename)
+        LOGGER.output_file(outfilename, label="analysis3")
+
+    fig = get_three_position_fig(results, positions, (9,9), group_label=group_label)
+    fig.set_figwidth(9)
+    fig.text(0.5, 0.05, 'Position', ha='center', va='center', fontsize=14)
+    fig.text(0.01, 0.5, 'RE', ha='center', va='center', rotation='vertical', fontsize=14)
+    if not dry_run:
+        outfilename = os.path.join(outpath, "3.pdf")
+        fig.savefig(outfilename)
+        print "Wrote", outfilename
+        fig.clf() # refresh for next section
+    
+    print "Doing four positions analysis"
+    results = get_four_position_effects(counts_table, positions, group_label=group_label)
+    summary += make_summary(results)
+    
+    max_results[4] = max(results[p]['rel_entropy'] for p in results)
+    if not dry_run:
+        outfilename = os.path.join(outpath, "4.json")
+        util.dump_loglin_stats(results, outfilename)
+        LOGGER.output_file(outfilename, label="analysis4")
+    
+    fig = get_four_position_fig(results, positions, (9,9), group_label=group_label)
+    fig.set_figwidth(9)
+    ax = fig.gca()
+    ax.set_xlabel('Position', fontsize=14)
+    ax.set_ylabel('RE', fontsize=14)
+    if not dry_run:
+        outfilename = os.path.join(outpath, "4.pdf")
+        fig.savefig(outfilename)
+        print "Wrote", outfilename
+        fig.clf() # refresh for next section
+    
+    # now generate summary plot
+    bar_width = 0.5
+    index = numpy.arange(4)
+    bar = pyplot.bar(index, [max_results[i] for i in range(1,5)], bar_width)
+    pyplot.xticks(index+(bar_width/2.), range(1,5))
+    pyplot.ylabel("RE$_{max}$")
+    pyplot.xlabel("Motif Length")
+    if not dry_run:
+        outfilename = os.path.join(outpath, "summary.pdf")
+        pyplot.savefig(outfilename)
+        print "Wrote", outfilename
+    
+    summary = LoadTable(header=['Position', 'RE', 'Deviance', 'df', 'prob', 'formula'],
+            rows=summary)
+    if not dry_run:
+        outfilename = os.path.join(outpath, "summary.txt")
+        summary.writeToFile(outfilename, sep='\t')
+        LOGGER.output_file(outfilename, label="summary")
+    
+    print summary
+    pyplot.close('all')
+    print "Done! Check %s for your results" % outpath
+    
+
+def main():
     option_parser, opts, args =\
-       parse_command_line_parameters(disallow_positional_arguments=False, **script_info)
+       parse_command_line_parameters(disallow_positional_arguments=False,
+                               **script_info)
     
     outpath = util.abspath(opts.outpath)
     if not opts.dry_run:
@@ -374,16 +506,25 @@ def single_group(opts):
     counts_filename = util.abspath(opts.countsfile)
     counts_table = LoadTable(counts_filename, sep='\t')
     
-    
     LOGGER.input_file(counts_filename, label="countsfile1_path")
     
-    num_pos = sum(1 for c in counts_table.Header if c.startswith('pos'))
-    if num_pos != 4:
+    positions = [c for c in counts_table.Header if c.startswith('pos')]
+    if len(positions) != 4:
         raise ValueError("Requires four positions for analysis")
+    
+    group_label = None
+    
+    if opts.strand_symmetry:
+        group_label = 'strand'
+        if group_label not in counts_table.Header:
+            print "ERROR: no column named 'strand', exiting."
+            exit(-1)
+        
     
     if opts.countsfile2:
         print "Performing 2 group analysis"
-        counts_table1 = counts_table.withNewColumn('group', lambda x: '1',
+        group_label = 'group'
+        counts_table1 = counts_table.withNewColumn(group_label, lambda x: '1',
                                     columns=counts_table.Header[0])
         
         fn2 = util.abspath(opts.countsfile2)
@@ -391,10 +532,10 @@ def single_group(opts):
         
         LOGGER.input_file(fn2, label="countsfile2_path")
         
-        counts_table2 = counts_table2.withNewColumn('group', lambda x: '2',
+        counts_table2 = counts_table2.withNewColumn(group_label, lambda x: '2',
                                     columns=counts_table2.Header[0])
         # now combine
-        header = ['group'] + counts_table2.Header[:-1]
+        header = [group_label] + counts_table2.Header[:-1]
         raw1 = counts_table1.getRawData(header)
         raw2 = counts_table2.getRawData(header)
         counts_table = LoadTable(header=header, rows=raw1+raw2)
@@ -410,118 +551,5 @@ def single_group(opts):
         print counts_table
         print
     
-    positions = [c for c in counts_table.Header if c.startswith('pos')]
+    single_group(counts_table, outpath, group_label, positions, opts.dry_run)
     
-    # Collect statistical analysis results
-    summary = []
-    
-    max_results = {}
-    # Single position analysis
-    print "Doing single position analysis"
-    single_results = single_position_effects(counts_table, positions)
-    summary += make_summary(single_results)
-    
-    max_results[1] = max(single_results[p]['rel_entropy'] for p in single_results)
-    if not opts.dry_run:
-        outfilename = os.path.join(outpath, "1.json")
-        util.dump_loglin_stats(single_results, outfilename)
-        LOGGER.output_file(outfilename, label="analysis1")
-    
-    fig = get_single_position_fig(single_results, positions, (9,3), fig_width=2.25)
-    fig.tight_layout()
-    if not opts.dry_run:
-        outfilename = os.path.join(outpath, "1.pdf")
-        fig.savefig(outfilename)
-        print "Wrote", outfilename
-        fig.clf() # refresh for next section
-    
-    print "Doing two positions analysis"
-    results = get_two_position_effects(counts_table, positions)
-    summary += make_summary(results)
-    
-    max_results[2] = max(results[p]['rel_entropy'] for p in results)
-    if not opts.dry_run:
-        outfilename = os.path.join(outpath, "2.json")
-        util.dump_loglin_stats(results, outfilename)
-        LOGGER.output_file(outfilename, label="analysis2")
-    
-    fig = get_two_position_fig(results, positions, (9,9))
-    fig.set_figwidth(9)
-    fig.text(0.5, 0.05, 'Position', ha='center', va='center', fontsize=14)
-    fig.text(0.01, 0.5, 'RE', ha='center', va='center', rotation='vertical', fontsize=14)
-    if not opts.dry_run:
-        outfilename = os.path.join(outpath, "2.pdf")
-        fig.savefig(outfilename)
-        print "Wrote", outfilename
-        fig.clf() # refresh for next section
-    
-    print "Doing three positions analysis"
-    results = get_three_position_effects(counts_table, positions)
-    summary += make_summary(results)
-    
-    max_results[3] = max(results[p]['rel_entropy'] for p in results)
-    if not opts.dry_run:
-        outfilename = os.path.join(outpath, "3.json")
-        util.dump_loglin_stats(results, outfilename)
-        LOGGER.output_file(outfilename, label="analysis3")
-
-    fig = get_three_position_fig(results, positions, (9,9))
-    fig.set_figwidth(9)
-    fig.text(0.5, 0.05, 'Position', ha='center', va='center', fontsize=14)
-    fig.text(0.01, 0.5, 'RE', ha='center', va='center', rotation='vertical', fontsize=14)
-    if not opts.dry_run:
-        outfilename = os.path.join(outpath, "3.pdf")
-        fig.savefig(outfilename)
-        print "Wrote", outfilename
-        fig.clf() # refresh for next section
-    
-    print "Doing four positions analysis"
-    results = get_four_position_effects(counts_table, positions)
-    summary += make_summary(results)
-    
-    max_results[4] = max(results[p]['rel_entropy'] for p in results)
-    if not opts.dry_run:
-        outfilename = os.path.join(outpath, "4.json")
-        util.dump_loglin_stats(results, outfilename)
-        LOGGER.output_file(outfilename, label="analysis4")
-    
-    fig = get_four_position_fig(results, positions, (9,9))
-    fig.set_figwidth(9)
-    ax = fig.gca()
-    ax.set_xlabel('Position', fontsize=14)
-    ax.set_ylabel('RE', fontsize=14)
-    if not opts.dry_run:
-        outfilename = os.path.join(outpath, "4.pdf")
-        fig.savefig(outfilename)
-        print "Wrote", outfilename
-        fig.clf() # refresh for next section
-    
-    # now generate summary plot
-    bar_width = 0.5
-    index = numpy.arange(4)
-    bar = pyplot.bar(index, [max_results[i] for i in range(1,5)], bar_width)
-    pyplot.xticks(index+(bar_width/2.), range(1,5))
-    pyplot.ylabel("RE$_{max}$")
-    pyplot.xlabel("Motif Length")
-    if not opts.dry_run:
-        outfilename = os.path.join(outpath, "summary.pdf")
-        pyplot.savefig(outfilename)
-        print "Wrote", outfilename
-    
-    summary = LoadTable(header=['Position', 'RE', 'Deviance', 'df', 'prob', 'formula'],
-            rows=summary)
-    if not opts.dry_run:
-        outfilename = os.path.join(outpath, "summary.txt")
-        summary.writeToFile(outfilename, sep='\t')
-        LOGGER.output_file(outfilename, label="summary")
-    
-    print summary
-    
-    print "Done! Check %s for your results" % outpath
-    
-
-def main():
-    option_parser, opts, args =\
-       parse_command_line_parameters(disallow_positional_arguments=False, **script_info)
-    
-    single_group(opts)
