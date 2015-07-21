@@ -100,4 +100,32 @@ def position_effect(counts_table, group_label=None, test=False):
     collated = collated.reindex_axis(columns + ['fitted', 'ret'], axis=1)
     collated = collated.sort(columns=columns[:-1])
     return total_re, dev, df, collated, formula
+
+def spectra_difference(counts_table, group_label, test=False):
+    """group_label is the column name for category"""
+    # we compare direction between group
+    columns = ['count', 'direction', group_label]
+    assert set(columns) <= set(counts_table.Header)
+    formula = "count ~ direction + %s" % group_label
+    null = Formula(formula)
+    if test:
+        print formula
     
+    counts_table = counts_table.getColumns(columns)
+    d = as_dataframe(counts_table)
+    f = R.glm(null, data=d, family = "poisson")
+    f_attr = dict(f.items())
+    dev = f_attr['deviance'][0]
+    df = f_attr['df.null'][0]
+    
+    collated = convert_rdf_to_pandasdf(f_attr['data'])
+    collated['fitted'] = list(f_attr['fitted.values'])
+    dev_to_re = DevianceToRelativeEntropy(collated['count'].sum())
+    calc_ret = CalcRet(dev_to_re)
+    total_re = dev_to_re(dev)
+    
+    collated['ret'] = calc_ret(collated['count'], collated['fitted'])
+    collated = collated.reindex_axis(columns + ['fitted', 'ret'], axis=1)
+    collated = collated.sort(columns=columns[:-1])
+    return total_re, dev, df, collated, formula
+

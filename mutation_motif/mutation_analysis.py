@@ -39,7 +39,7 @@ def make_summary(results):
 def get_selected_indices(stats, group_label=None):
     """returns indices for selecting dataframe records for display"""
     if group_label: # TODO this logic needs improving
-        val = dict(strand='+').get(group_label, 1)
+        val = dict(strand='+').get(group_label, '1')
         indices = numpy.logical_and(stats['mut'] == 'M', stats[group_label] == val)
     else:
         indices = stats['mut'] == 'M'

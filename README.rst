@@ -40,4 +40,7 @@ Full spectrum
 
 This is an analysis of position influences at each position, but for all directions. So the glm is ``count ~ pos * dir * mut - pos : dir : mut``.
 
-If that is significant, after correcting for 4 tests (one per position), one can proceed to examine individual directions.
+If that is significant, after correcting for 4 tests (one per position), one can sensibly proceed to examine individual directions.
+
+Approach to that would be to have a script that can take the combined counts file, iterate over the direction sub-tables, perform the log-lin analysis for each, writing each to it's own sub-directory. That script could also, as a convenience, write the config text file specifying paths to json data for each direction so the grid drawing script can easily load all.
+

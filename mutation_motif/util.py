@@ -3,10 +3,32 @@ from traceback import format_exc
 
 from pandas import read_json
 
-from cogent import DNA
+from cogent import DNA, LoadTable
 from cogent.parse.fasta import MinimalFastaParser
 from cogent.core.alignment import Alignment, DenseAlignment
 
+def spectra_table(table, group_label):
+    """returns a table with columns without position information"""
+    assert 'direction' in table.Header
+    
+    if 'mut' in table.Header:
+        # remove redundant category (counts of M == U)
+        table = table.filtered("mut=='M'")
+    
+    columns = ['count', 'direction', group_label]
+    table = table.getColumns(columns)
+    # so we have a table with counts per direction
+    results = []
+    group_categories = table.getDistinctValues(group_label)
+    filter_template = "direction=='%(direction)s' and %(label)s=='%(category)s'"
+    for direction in table.getDistinctValues('direction'):
+        for group_category in group_categories:
+            condition = dict(direction=direction, label=group_label,
+                            category=group_category)
+            sub_table = table.filtered(filter_template % condition)
+            total = sub_table.summed('count')
+            results.append([total, direction, group_category])
+    return LoadTable(header=columns, rows=results)
 
 def dump_loglin_stats(data, outfile_path):
     '''save data in json format to outfile_path'''

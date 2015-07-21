@@ -108,7 +108,6 @@ def main():
         table.writeToFile(counts_filename, sep='\t')
         LOGGER.output_file(counts_filename)
     
-    
     # determine runtime
     duration = time.time() - start_time
     if not opts.dry_run:

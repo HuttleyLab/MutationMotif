@@ -61,6 +61,7 @@ setup(
             'console_scripts': ['mutation_analysis=mutation_motif.mutation_analysis:main',
                                 'aln_to_counts=mutation_motif.aln_to_counts:main',
                                 'all_counts=mutation_motif.all_counts:main',
+                                'mutation_spectra=mutation_motif.spectra_analysis:main',
                             ],
         }
     )
