@@ -25,7 +25,7 @@ def check_found_filenames(filenames):
         found.update(d)
     total = sum(found.values())
     if total != 12 or set(found) != set(_directions):
-        print "ERROR: counts_pattern did not identify 12 files -- %s" % counts_files
+        print "ERROR: counts_pattern did not identify 12 files -- %s" % filenames
         print "Note that each file must contain a single direction pattern, e.g. CtoT, AtoG"
         exit(-1)
     
