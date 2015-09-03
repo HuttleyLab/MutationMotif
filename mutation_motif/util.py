@@ -30,6 +30,15 @@ def spectra_table(table, group_label):
             results.append([total, direction, group_category])
     return LoadTable(header=columns, rows=results)
 
+def get_subtables(table, group_label='direction'):
+    """returns [(group, subtable),...] for distinct values of group_label"""
+    groups = table.getDistinctValues(group_label)
+    tables = []
+    for group in groups:
+        subtable = table.filtered(lambda x: x == group, columns=group_label)
+        tables.append((group, subtable))
+    return tables
+
 def dump_loglin_stats(data, outfile_path):
     '''save data in json format to outfile_path'''
     # convert all pandas data frames to json

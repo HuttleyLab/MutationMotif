@@ -9,7 +9,7 @@ from cogent import LoadTable
 from cogent.util.option_parsing import parse_command_line_parameters
 from scitrack import CachingLogger
 
-from mutation_motif.util import open_, create_path, abspath
+from mutation_motif.util import open_, create_path, abspath, get_subtables
 from mutation_motif.complement import make_strand_symmetric_table
 
 LOGGER = CachingLogger(create_dir=True)
@@ -44,6 +44,8 @@ script_info['required_options'] = [
 script_info['optional_options'] = [
     make_option('-s','--strand_symmetric', action='store_true', default=False,
          help='produces table suitable for strand symmetry test.'),
+    make_option('-p','--split_dir', default=None,
+         help='path to write individual direction strand symmetric tables.'),
     make_option('-D','--dry_run', action='store_true', default=False,
         help='Do a dry run of the analysis without writing output.'),
     make_option('-F','--force_overwrite', action='store_true', default=False,
@@ -58,6 +60,10 @@ def main():
        parse_command_line_parameters(**script_info)
     
     opts.output_path = abspath(opts.output_path)
+    if opts.strand_symmetric and opts.split_dir:
+        split_dir = abspath(opts.split_dir)
+    else:
+        split_dir = None
     
     # check we the glob pattern produces the correct number of files
     counts_files = glob.glob(opts.counts_pattern)
@@ -72,6 +78,9 @@ def main():
             raise ValueError(msg % (counts_filename, runlog_path))
         
         create_path(opts.output_path)
+        if split_dir:
+            create_path(split_dir)
+        
         LOGGER.log_file_path = runlog_path
         LOGGER.write(str(vars(opts)), label='vars')
         for fn in counts_files:
@@ -83,7 +92,9 @@ def main():
     all_counts = []
     header = None
     num_rows = 0
+    basenames = []
     for fn in counts_files:
+        basenames.append(os.path.basename(fn))
         mutation = direction.findall(fn)[0]
         table = LoadTable(fn, sep='\t')
         if header is None:
@@ -104,9 +115,25 @@ def main():
     if opts.strand_symmetric:
         table = make_strand_symmetric_table(table)
     
+    if split_dir:
+        group_subtables = get_subtables(table, group_label='direction')
+    
     if not opts.dry_run:
         table.writeToFile(counts_filename, sep='\t')
         LOGGER.output_file(counts_filename)
+        
+        if split_dir:
+            for group, subtable in group_subtables:
+                # we first assume that group is part of the filenames!
+                fn = [bn for bn in basenames if group in bn]
+                if len(fn) == 1:
+                    fn = fn[0]
+                else:
+                    fn = "%s.txt" % group
+                
+                counts_filename = os.path.join(split_dir, fn)
+                subtable.writeToFile(counts_filename, sep='\t')
+                LOGGER.output_file(counts_filename)
     
     # determine runtime
     duration = time.time() - start_time
