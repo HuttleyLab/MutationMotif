@@ -356,10 +356,13 @@ def get_four_position_fig(four_pos_results, positions, figsize, group_label=None
 
 script_info = {}
 script_info['brief_description'] = ""
-script_info['script_description'] = \
-"log-linear analysis of neighbouring bases."\
-+ " Writes counts tables, estimated statistics and figures to the specified"\
-+ "directory outpath."
+script_info['script_description'] = "\n".join([
+"log-linear analysis of neighbouring base influence on point mutation",
+"",
+"Writes estimated statistics, figures and a run log to the specified",
+"directory outpath.",
+"",
+"See documentation for count table format requirements."])
 
 script_info['required_options'] = [
      make_option('-1','--countsfile', help='tab delimited file of counts.'),

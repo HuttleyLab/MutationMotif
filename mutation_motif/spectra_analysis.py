@@ -24,11 +24,14 @@ def dump_json(data, outfile_path):
 
 script_info = {}
 script_info['brief_description'] = ""
-script_info['script_description'] = \
-"log-linear analysis of point mutation spectra."\
-+ "The spectra is simply the total number of mutations for each direction."\
-+ "These counts are compared between groups. Writes counts tables, estimated "\
-+ "statistics and figures to the specified directory outpath."
+script_info['script_description'] = "\n".join([
+"log-linear analysis of point mutation spectra",
+"",
+"The spectra is simply the total number of mutations for each point mutation.",
+"These counts are compared between groups. Writes estimated",
+"statistics, figures and a run log to the specified directory outpath.",
+"",
+"See documentation for count table format requirements."])
 
 script_info['required_options'] = [
      make_option('-1','--countsfile', help='tab delimited file of counts.'),
