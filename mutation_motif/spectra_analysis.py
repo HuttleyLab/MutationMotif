@@ -56,7 +56,12 @@ def main():
        parse_command_line_parameters(disallow_positional_arguments=False, **script_info)
     
     table = LoadTable(opts.countsfile, sep='\t')
+    if not opts.dry_run:
+        log_file_path = os.path.join(util.abspath(opts.outpath),
+                                     'spectra_analysis.log')
+        LOGGER.log_file_path = log_file_path
     
+    LOGGER.input_file(opts.countsfile)
     # if there's a strand symmetry argument then we don't need a second file
     if opts.strand_symmetry:
         group_label = 'strand'
@@ -67,6 +72,7 @@ def main():
         
         # be sure there's two files
         counts_table2 = LoadTable(opts.countsfile2, sep='\t')
+        LOGGER.input_file(opts.countsfile2)
         counts_table2 = counts_table2.withNewColumn('group',
                                 lambda x: '2', columns=counts_table2.Header[0])
         counts_table1 = table.withNewColumn('group',
@@ -92,7 +98,10 @@ def main():
     else:
         prob = "%.6f" % p
     
-    print "RE=%.6f  :  Dev=%.2f  :  df=%d  :  p=%s" % (total_re, dev, df, prob)
+    significance = ["RE=%.6f" % total_re, "Dev=%.2f" % dev,  "df=%d" % df,
+                    "p=%s" % p]
+    
+    print "  :  ".join(significance)
     
     table = LoadTable(header=collated.columns, rows=r, digits=5).sorted(columns='ret')
     saveable = dict(rel_entropy=total_re, deviance=dev, df=df, prob=p,
@@ -104,8 +113,11 @@ def main():
         util.create_path(outpath)
         json_path = os.path.join(outpath, 'spectra_analysis.json')
         dump_json(saveable, json_path)
+        LOGGER.output_file(json_path)
         table_path = os.path.join(outpath, 'spectra_summary.txt')
         table.writeToFile(table_path, sep='\t')
+        LOGGER.output_file(table_path)
+        LOGGER.write(str(significance), label="significance")
 
 
 if __name__ == "__main__":
