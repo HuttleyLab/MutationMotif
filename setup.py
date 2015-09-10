@@ -58,7 +58,7 @@ setup(
     dependency_links=['https://github.com/GavinHuttley/pycogent/archive/master.zip#egg=cogent-1.5.3-dev',
                       'hg+ssh://hg@bitbucket.org/gavin.huttley/scitrack'],
     entry_points={
-            'console_scripts': ['mutation_analysis=mutation_motif.mutation_analysis:main',
+            'console_scripts': ['mutation_nbr=mutation_motif.mutation_analysis:main',
                                 'aln_to_counts=mutation_motif.aln_to_counts:main',
                                 'all_counts=mutation_motif.all_counts:main',
                                 'mutation_spectra=mutation_motif.spectra_analysis:main',
