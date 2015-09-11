@@ -62,6 +62,7 @@ setup(
                                 'aln_to_counts=mutation_motif.aln_to_counts:main',
                                 'all_counts=mutation_motif.all_counts:main',
                                 'mutation_spectra=mutation_motif.spectra_analysis:main',
+                                'mutation_grid=mutation_motif.draw:main',
                             ],
         }
     )
