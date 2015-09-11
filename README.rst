@@ -44,3 +44,7 @@ If that is significant, after correcting for 4 tests (one per position), one can
 
 Approach to that would be to have a script that can take the combined counts file, iterate over the direction sub-tables, perform the log-lin analysis for each, writing each to it's own sub-directory. That script could also, as a convenience, write the config text file specifying paths to json data for each direction so the grid drawing script can easily load all.
 
+Interpreting logo's
+===================
+
+If it's a group comparison, the relative entropy terms (which specify the stack height, letter size and orientation) are taken from the mutated class belonging to group 1 (which is the counts file path assigned to the ``-1`` option). For example, if you specified ``-1 file_a.txt -2 file_b.txt``, then large upright letters in the display indicate an excess in the mutated class from ``file_a.txt`` relative to ``file_b.txt``.
