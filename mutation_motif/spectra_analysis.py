@@ -42,9 +42,7 @@ script_info['optional_options'] = [
     make_option('-2','--countsfile2',
         help='second group motif counts file.'),
     make_option('-s','--strand_symmetry', action='store_true', default=False,
-        help='second group is strand symmetry.'),
-    make_option('--format', default='pdf', choices=['pdf', 'png'],
-        help='Plot format.'),
+        help='Second group is strand symmetry.'),
     make_option('-F','--force_overwrite', action='store_true', default=False,
         help='Overwrite existing files.'),
     make_option('-D','--dry_run', action='store_true', default=False,
@@ -95,6 +93,14 @@ def main():
         
     total_re, dev, df, collated, formula = log_lin.spectra_difference(counts_table, group_label)
     r = [list(x) for x in collated.to_records(index=False)]
+    if not opts.strand_symmetry:
+        grp_labels = {'1': opts.countsfile,
+                      '2': opts.countsfile2}
+        grp_index = list(collated.columns).index('group')
+        for row in r:
+            row[grp_index] = grp_labels[row[grp_index]]
+    
+    
     p = chisqprob(dev, df)
     if p < 1e-6:
         prob = "%.2e" % p
