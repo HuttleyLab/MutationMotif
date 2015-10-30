@@ -91,30 +91,46 @@ def main():
         if opts.verbose:
             print counts_table
         
-    total_re, dev, df, collated, formula = log_lin.spectra_difference(counts_table, group_label)
-    r = [list(x) for x in collated.to_records(index=False)]
-    if not opts.strand_symmetry:
-        grp_labels = {'1': opts.countsfile,
-                      '2': opts.countsfile2}
-        grp_index = list(collated.columns).index('group')
+    # spectra table has [count, start, end, group] order
+    # we reduce comparisons to a start base
+    results = []
+    saveable = {}
+    for start_base in counts_table.getDistinctValues('start'):
+        subtable = counts_table.filtered('start == "%s"' % start_base)
+        columns = [c for c in counts_table.Header if c != 'start']
+        subtable = subtable.getColumns(columns)
+        total_re, dev, df, collated, formula = log_lin.spectra_difference(subtable, group_label)
+        r = [list(x) for x in collated.to_records(index=False)]
+        
+        if not opts.strand_symmetry:
+            grp_labels = {'1': opts.countsfile,
+                          '2': opts.countsfile2}
+            grp_index = list(collated.columns).index('group')
+            for row in r:
+                row[grp_index] = grp_labels[row[grp_index]]
+                
+        
         for row in r:
-            row[grp_index] = grp_labels[row[grp_index]]
+            row.insert(0, start_base)
+        
+        results += r
+        
+        p = chisqprob(dev, df)
+        if p < 1e-6:
+            prob = "%.2e" % p
+        else:
+            prob = "%.6f" % p
     
+        significance = ["RE=%.6f" % total_re, "Dev=%.2f" % dev,  "df=%d" % df,
+                        "p=%s" % p]
     
-    p = chisqprob(dev, df)
-    if p < 1e-6:
-        prob = "%.2e" % p
-    else:
-        prob = "%.6f" % p
-    
-    significance = ["RE=%.6f" % total_re, "Dev=%.2f" % dev,  "df=%d" % df,
-                    "p=%s" % p]
-    
-    print "  :  ".join(significance)
-    
-    table = LoadTable(header=collated.columns, rows=r, digits=5).sorted(columns='ret')
-    saveable = dict(rel_entropy=total_re, deviance=dev, df=df, prob=p,
+        stats =  "  :  ".join(significance)
+        print "Start base=%s  %s" % (start_base, stats)
+        saveable[start_base] = dict(rel_entropy=total_re, deviance=dev, df=df, prob=p,
                     formula=formula, stats=collated.to_json())
+    
+    table = LoadTable(header=['start_base'] + list(collated.columns),
+                rows=results, digits=5).sorted(columns='ret')
     json_path = None
     
     outpath = util.abspath(opts.outpath)

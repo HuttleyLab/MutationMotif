@@ -10,7 +10,6 @@ from cogent.core.alignment import Alignment, DenseAlignment
 def spectra_table(table, group_label):
     """returns a table with columns without position information"""
     assert 'direction' in table.Header
-    
     if 'mut' in table.Header:
         # remove redundant category (counts of M == U)
         table = table.filtered("mut=='M'")
@@ -22,13 +21,16 @@ def spectra_table(table, group_label):
     group_categories = table.getDistinctValues(group_label)
     filter_template = "direction=='%(direction)s' and %(label)s=='%(category)s'"
     for direction in table.getDistinctValues('direction'):
+        start = direction[0]
         for group_category in group_categories:
             condition = dict(direction=direction, label=group_label,
                             category=group_category)
             sub_table = table.filtered(filter_template % condition)
             total = sub_table.summed('count')
-            results.append([total, direction, group_category])
-    return LoadTable(header=columns, rows=results)
+            results.append([total, start, direction, group_category])
+    result = LoadTable(header=['count', 'start', 'direction', group_label],
+                rows=results)
+    return result
 
 def get_subtables(table, group_label='direction'):
     """returns [(group, subtable),...] for distinct values of group_label"""
