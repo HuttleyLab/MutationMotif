@@ -47,7 +47,7 @@ def get_count_table(observed, control, k):
         state = ''.join(state)
         control_counts = control[state]
         observed_counts = observed[state]
-        rows.append([control_counts] + list(state) + ['U'])
+        rows.append([control_counts] + list(state) + ['R'])
         rows.append([observed_counts] + list(state) + ['M'])
     
     header=['count'] + ["pos%d" % i for i in range(k)] + ['mut']
@@ -73,7 +73,7 @@ def reduced_one_position(table, pos):
 
 def get_combined_counts(table, positions):
     mutated = table.filtered("mut=='M'")
-    unmutated = table.filtered("mut=='U'")
+    unmutated = table.filtered("mut=='R'")
     if type(positions) == str:
         mut_counts = reduced_one_position(mutated, positions)
         unmut_counts = reduced_one_position(unmutated, positions)
@@ -91,7 +91,7 @@ def get_combined_counts(table, positions):
     n = 0
     for state in states:
         n += 1
-        combined.append(['U'] + list(state) + [unmut_counts[state]])
+        combined.append(['R'] + list(state) + [unmut_counts[state]])
         combined.append(['M'] + list(state) + [mut_counts[state]])
     
     counts_table = LoadTable(header=header, rows=combined)

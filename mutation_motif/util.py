@@ -11,7 +11,7 @@ def spectra_table(table, group_label):
     """returns a table with columns without position information"""
     assert 'direction' in table.Header
     if 'mut' in table.Header:
-        # remove redundant category (counts of M == U)
+        # remove redundant category (counts of M == R)
         table = table.filtered("mut=='M'")
     
     columns = ['count', 'direction', group_label]
