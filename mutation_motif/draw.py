@@ -169,7 +169,7 @@ def main():
         log_file_path = os.path.join(indir, "mutation_grid_draw.log")
     else:
         figpath = util.abspath(opts.figpath)
-        log_file_path = "%s.log" % "."join(figpath.split(".")[:-1])
+        log_file_path = "%s.log" % ".".join(figpath.split(".")[:-1])
     
     LOGGER.log_file_path = log_file_path
     plot_data = {}
