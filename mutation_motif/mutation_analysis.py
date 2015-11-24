@@ -354,37 +354,6 @@ def get_four_position_fig(four_pos_results, positions, figsize, group_label=None
 
     return fig
 
-script_info = {}
-script_info['brief_description'] = ""
-script_info['script_description'] = "\n".join([
-"log-linear analysis of neighbouring base influence on point mutation",
-"",
-"Writes estimated statistics, figures and a run log to the specified",
-"directory outpath.",
-"",
-"See documentation for count table format requirements."])
-
-script_info['required_options'] = [
-     make_option('-1','--countsfile', help='tab delimited file of counts.'),
-     make_option('-o','--outpath', help='Directory path to write data.'),
-    ]
-
-script_info['optional_options'] = [
-    make_option('-2','--countsfile2',
-        help='second group motif counts file.'),
-    make_option('-s','--strand_symmetry', action='store_true', default=False,
-        help='single counts file but second group is strand.'),
-    make_option('--format', default='pdf', choices=['pdf', 'png'],
-        help='Plot format.'),
-    make_option('-F','--force_overwrite', action='store_true', default=False,
-        help='Overwrite existing files.'),
-    make_option('-D','--dry_run', action='store_true', default=False,
-        help='Do a dry run of the analysis without writing output.'),
-    ]
-
-script_info['version'] = '0.1'
-script_info['authors'] = 'Gavin Huttley'
-
 def single_group(counts_table, outpath, group_label, positions, dry_run):
     # Collect statistical analysis results
     summary = []
@@ -493,6 +462,36 @@ def single_group(counts_table, outpath, group_label, positions, dry_run):
     pyplot.close('all')
     print "Done! Check %s for your results" % outpath
     
+script_info = {}
+script_info['brief_description'] = ""
+script_info['script_description'] = "\n".join([
+"log-linear analysis of neighbouring base influence on point mutation",
+"",
+"Writes estimated statistics, figures and a run log to the specified",
+"directory outpath.",
+"",
+"See documentation for count table format requirements."])
+
+script_info['required_options'] = [
+     make_option('-1','--countsfile', help='tab delimited file of counts.'),
+     make_option('-o','--outpath', help='Directory path to write data.'),
+    ]
+
+script_info['optional_options'] = [
+    make_option('-2','--countsfile2',
+        help='second group motif counts file.'),
+    make_option('-s','--strand_symmetry', action='store_true', default=False,
+        help='single counts file but second group is strand.'),
+    make_option('--format', default='pdf', choices=['pdf', 'png'],
+        help='Plot format.'),
+    make_option('-F','--force_overwrite', action='store_true', default=False,
+        help='Overwrite existing files.'),
+    make_option('-D','--dry_run', action='store_true', default=False,
+        help='Do a dry run of the analysis without writing output.'),
+    ]
+
+script_info['version'] = '0.1'
+script_info['authors'] = 'Gavin Huttley'
 
 def main():
     option_parser, opts, args =\
