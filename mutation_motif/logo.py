@@ -74,7 +74,7 @@ def set_anchored_ticks(ax, fontsize=14):
     new_labels = [int(label.get_text()) - mid for label in labels]
     ax.set_xticklabels(new_labels, fontsize=fontsize)
 
-def draw_alignment(char_heights, characters=None, ax=None, figsize=None, ylim=None, fig_width=None, fig_callback=None, set_ticks_func=set_anchored_ticks, fontsize=14, verbose=False):
+def draw_alignment(char_heights, characters=None, ax=None, figsize=None, ylim=None, figwidth=None, fig_callback=None, set_ticks_func=set_anchored_ticks, fontsize=14, verbose=False):
     """Takes in an alignment and creates an image from the alignment profile.
     """
     
@@ -92,14 +92,14 @@ def draw_alignment(char_heights, characters=None, ax=None, figsize=None, ylim=No
     
     set_axis_scale(orig_len, ylim, ax=ax)
     
-    if fig_width is None:
-        fig_width = fig.get_figwidth()
+    if figwidth is None:
+        figwidth = fig.get_figwidth()
         width_multiplier = orig_len / 20.
-        fig.set_figwidth(width_multiplier*fig_width)
+        fig.set_figwidth(width_multiplier*figwidth)
         print fig.get_figwidth()
     else:
-        fig.set_figwidth(fig_width)
-        print fig_width
+        fig.set_figwidth(figwidth)
+        print figwidth
     
     ax.set_yticks(array([0.0, ylim / 2, ylim]))
     ax.set_yticklabels([0.0, ylim / 2, ylim], fontsize=14)
@@ -120,7 +120,7 @@ def draw_alignment(char_heights, characters=None, ax=None, figsize=None, ylim=No
     
     return fig
 
-def draw_multi_position(char_heights, characters, position_indices, ax=None, figsize=None, ylim=None, fig_width=None, fig_callback=None, set_ticks_func=set_anchored_ticks, fontsize=14, verbose=False):
+def draw_multi_position(char_heights, characters, position_indices, ax=None, figsize=None, ylim=None, figwidth=None, fig_callback=None, set_ticks_func=set_anchored_ticks, fontsize=14, verbose=False):
     """Takes in an alignment and creates an image from the alignment profile.
     """
     if ylim is None:
@@ -137,12 +137,12 @@ def draw_multi_position(char_heights, characters, position_indices, ax=None, fig
     
     set_axis_scale(orig_len, ylim, ax=ax)
     
-    if fig_width is None:
-        fig_width = fig.get_figwidth()
+    if figwidth is None:
+        figwidth = fig.get_figwidth()
         width_multiplier = orig_len / 20.
-        fig.set_figwidth(width_multiplier*fig_width)
+        fig.set_figwidth(width_multiplier*figwidth)
     else:
-        fig.set_figwidth(fig_width)
+        fig.set_figwidth(figwidth)
     
     ax.set_yticks(array([0.0, ylim / 2, ylim]))
     ax.set_yticklabels([0.0, ylim / 2, ylim], fontsize=14)

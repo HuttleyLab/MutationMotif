@@ -104,7 +104,7 @@ def single_position_effects(table, positions, group_label=None):
     single_results = get_position_effects(table, positions, group_label=group_label)
     return single_results
 
-def get_single_position_fig(single_results, positions, figsize, group_label=None, fig_width=None, fontsize=14):
+def get_single_position_fig(single_results, positions, figsize, group_label=None, figwidth=None, fontsize=14):
     num_pos = len(positions) + 1
     mid = num_pos // 2
 
@@ -124,10 +124,10 @@ def get_single_position_fig(single_results, positions, figsize, group_label=None
 
     heights = get_re_char_heights(rets, re_positionwise=position_re)
     fig = logo.draw_multi_position(heights.T, characters=characters, position_indices=range(num_pos),
-                               figsize=figsize, fig_width=fig_width, verbose=False)
+                               figsize=figsize, figwidth=figwidth, verbose=False)
     
-    if fig_width:
-        fig.set_figwidth(fig_width)
+    if figwidth:
+        fig.set_figwidth(figwidth)
     
     ax = fig.gca()
     ax.set_xlabel('Position', fontsize=fontsize)
@@ -158,7 +158,7 @@ def get_two_position_effects(table, positions, group_label=None):
     two_pos_results = get_position_effects(table, list(combinations(positions, 2)), group_label=group_label)
     return two_pos_results
 
-def get_two_position_fig(two_pos_results, positions, figsize, group_label=None, fig_width=None, fontsize=14):
+def get_two_position_fig(two_pos_results, positions, figsize, group_label=None, figwidth=None, fontsize=14):
     position_sets = list(combinations(positions, 2))
     array_coords = get_resized_array_coordinates2(positions, position_sets)
     coords = array_coords.values()
@@ -240,7 +240,7 @@ def get_three_position_effects(table, positions, group_label=None):
     three_pos_results = get_position_effects(table, list(combinations(positions, 3)), group_label=group_label)
     return three_pos_results
 
-def get_three_position_fig(three_pos_results, positions, figsize, group_label=None, fig_width=None, fontsize=14):
+def get_three_position_fig(three_pos_results, positions, figsize, group_label=None, figwidth=None, fontsize=14):
     position_sets = list(combinations(positions, 3))
     array_coords = get_resized_array_coordinates3(positions, position_sets)
 
@@ -309,7 +309,7 @@ def get_four_position_effects(table, positions, group_label=None):
     result = get_position_effects(table, list(combinations(positions, 4)), group_label=group_label)
     return result
 
-def get_four_position_fig(four_pos_results, positions, figsize, group_label=None, fig_width=None, fontsize=14):
+def get_four_position_fig(four_pos_results, positions, figsize, group_label=None, figwidth=None, fontsize=14):
     position_sets = list(combinations(positions, 4))
     assert len(position_sets) == 1
     rel_entropies = [four_pos_results[position_sets[0]]['rel_entropy']]
@@ -370,7 +370,7 @@ def single_group(counts_table, outpath, group_label, positions, dry_run):
         util.dump_loglin_stats(single_results, outfilename)
         LOGGER.output_file(outfilename, label="analysis1")
     
-    fig = get_single_position_fig(single_results, positions, (9,3), group_label=group_label, fig_width=2.25)
+    fig = get_single_position_fig(single_results, positions, (9,3), group_label=group_label, figwidth=2.25)
     fig.tight_layout()
     if not dry_run:
         outfilename = os.path.join(outpath, "1.pdf")

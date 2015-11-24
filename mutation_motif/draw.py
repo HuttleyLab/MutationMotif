@@ -86,7 +86,7 @@ def draw_position_grid(directions, sample_size=False, width=8, height=8, title_s
         fr, to = map(bases.index, direction.split('to'))
         ax = axes[fr, to]
         fig = logo.draw_multi_position(heights, characters=characters,
-                        position_indices=indices, ylim=ylim, ax=ax, fig_width=width, verbose=False)
+                        position_indices=indices, ylim=ylim, ax=ax, figwidth=width, verbose=False)
         if sample_size:
             y = ax.get_ylim()[1]
             ax.text(0.2, y * 0.85, "N={:,}".format(number), fontsize=10)
