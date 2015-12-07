@@ -35,12 +35,14 @@ def align_to_counts(opts):
         create_path(opts.output_path)
     
     print "Deriving counts from sequence file"
+    step = int(opts.step)
+    
     direction = tuple(opts.direction.split('to'))
     chosen_base = direction[0]
     orig_seqs = load_from_fasta(os.path.abspath(opts.align_path))
     seqs = orig_seqs.ArraySeqs
     seqs = just_nucs(seqs)
-    orig, ctl = profile.get_profiles(seqs, chosen_base=chosen_base, step=1,
+    orig, ctl = profile.get_profiles(seqs, chosen_base=chosen_base, step=step,
                                      flank_size=opts.flank_size, seed=opts.seed)
     
     # convert profiles to a motif count table
@@ -68,6 +70,8 @@ script_info['required_options'] = [
 script_info['optional_options'] = [
     make_option('-S', '--seed',
         help='Seed for random number generator (e.g. 17, or 2015-02-13). Defaults to system time.'),
+    make_option('--step', default='1', choices=['1', '2', '3'],
+        help='Specifies a "frame" for selecting the random base. [default=%default]'),
     make_option('-D','--dry_run', action='store_true', default=False,
         help='Do a dry run of the analysis without writing output.'),
     make_option('-F','--force_overwrite', action='store_true', default=False,
