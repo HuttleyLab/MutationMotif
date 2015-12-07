@@ -109,18 +109,18 @@ def main():
             for row in r:
                 row[grp_index] = grp_labels[row[grp_index]]
                 
-        
-        for row in r:
-            row.insert(0, start_base)
-        
-        results += r
-        
         p = chisqprob(dev, df)
         if p < 1e-6:
             prob = "%.2e" % p
         else:
             prob = "%.6f" % p
     
+        for row in r:
+            row.insert(0, start_base)
+            row.append(prob)
+        
+        results += r
+        
         significance = ["RE=%.6f" % total_re, "Dev=%.2f" % dev,  "df=%d" % df,
                         "p=%s" % p]
     
@@ -129,7 +129,7 @@ def main():
         saveable[start_base] = dict(rel_entropy=total_re, deviance=dev, df=df, prob=p,
                     formula=formula, stats=collated.to_json())
     
-    table = LoadTable(header=['start_base'] + list(collated.columns),
+    table = LoadTable(header=['start_base'] + list(collated.columns) + ['prob'],
                 rows=results, digits=5).sorted(columns='ret')
     json_path = None
     
