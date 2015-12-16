@@ -36,6 +36,8 @@ def est_ylim(char_heights):
         ylim *= 1.667
         ylim = around(ylim, i)
     
+    ylim = max(ylim, 1e-6)
+    
     return ylim
 
 def draw_position(idx, idx_char_heights, sort_data=False, characters=None, ax=None):
