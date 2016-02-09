@@ -409,7 +409,7 @@ def get_four_position_fig(four_pos_results, positions, figsize, group_label=None
 
     return fig
 
-def single_group(counts_table, outpath, group_label, positions, plot_config, dry_run):
+def single_group(counts_table, outpath, group_label, positions, plot_config, first_order, dry_run):
     # Collect statistical analysis results
     summary = []
     
@@ -439,6 +439,17 @@ def single_group(counts_table, outpath, group_label, positions, plot_config, dry
         fig.savefig(outfilename, bbox_inches='tight')
         print "Wrote", outfilename
         fig.clf() # refresh for next section
+    
+    if first_order:
+        msg = "Done! Check %s for your results" % outpath
+        summary = LoadTable(header=['Position', 'RE', 'Deviance', 'df', 'prob', 'formula'],
+                rows=summary, digits=2, space=2)
+        if not dry_run:
+            outfilename = os.path.join(outpath, "summary.txt")
+            summary.writeToFile(outfilename, sep='\t')
+            LOGGER.output_file(outfilename, label="summary")
+        
+        return msg
     
     print "Doing two positions analysis"
     results = get_two_position_effects(counts_table, positions, group_label=group_label)
@@ -556,7 +567,8 @@ def single_group(counts_table, outpath, group_label, positions, plot_config, dry
     
     print summary
     pyplot.close('all')
-    print "Done! Check %s for your results" % outpath
+    msg = "Done! Check %s for your results" % outpath
+    return  msg
     
 script_info = {}
 script_info['brief_description'] = ""
@@ -574,6 +586,8 @@ script_info['required_options'] = [
     ]
 
 script_info['optional_options'] = [
+    make_option('--first_order', action='store_true', default=False,
+        help='Consider only first order effects. Defaults to considering up to 4th order interactions [default=%default].'),
     make_option('-2','--countsfile2',
         help='second group motif counts file.'),
     make_option('-s','--strand_symmetry', action='store_true', default=False,
@@ -608,7 +622,7 @@ def main():
     LOGGER.input_file(counts_filename, label="countsfile1_path")
     
     positions = [c for c in counts_table.Header if c.startswith('pos')]
-    if len(positions) != 4:
+    if not opts.first_order and len(positions) != 4:
         raise ValueError("Requires four positions for analysis")
     
     group_label = None
@@ -651,5 +665,5 @@ def main():
         print
     
     plot_config = get_plot_configs(cfg_path=opts.plot_cfg)
-    single_group(counts_table, outpath, group_label, positions, plot_config, opts.dry_run)
-    
+    msg = single_group(counts_table, outpath, group_label, positions, plot_config, opts.first_order, opts.dry_run)
+    print msg

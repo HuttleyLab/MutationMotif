@@ -43,10 +43,16 @@ def get_count_table(observed, control, k):
         - control: the control counts as {seq: count}
         - k: size of the motif"""
     rows = []
-    for state in product('ACGT', repeat=k):
+    states = list(set(observed.keys()) | set(control.keys()))
+    states.sort()
+    for state in states:
         state = ''.join(state)
         control_counts = control[state]
         observed_counts = observed[state]
+        if control_counts == observed_counts == 0:
+            # we skip unobserved states
+            continue
+        
         rows.append([control_counts] + list(state) + ['R'])
         rows.append([observed_counts] + list(state) + ['M'])
     
