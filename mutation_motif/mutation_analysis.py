@@ -2,6 +2,7 @@
 import os, time
 from itertools import permutations, combinations
 from optparse import make_option
+from ConfigParser import RawConfigParser, NoSectionError, NoOptionError, ParsingError
 
 import numpy
 from matplotlib import pyplot
@@ -18,6 +19,53 @@ from mutation_motif import profile, util, logo, motif_count, log_lin
 from mutation_motif.height import get_re_char_heights
 
 LOGGER = CachingLogger(create_dir=True)
+
+def get_plot_configs(cfg_path=None):
+    """returns a config object with plotting settings"""
+    defaults = dict(xlabel_fontsize=14, ylabel_fontsize=14,
+                    xtick_fontsize=12, ytick_fontsize=12,
+                    xlabel_pad=0.01, ylabel_pad=0.01)
+    
+    figwidths = {'1-way plot': 2.25, '2-way plot': 9, '3-way plot': 9,
+                 '4-way plot': 9, 'summary plot': 9}
+    figsizes = {'1-way plot': (9,3), '2-way plot': (9,9), '3-way plot': (9,9),
+                 '4-way plot': (9,9), 'summary plot': (9,9)}
+    
+    config = RawConfigParser()
+    for section in ['1-way plot', '2-way plot', '3-way plot', '4-way plot',
+                    'summary plot']:
+        config.add_section(section)
+        config.set(section, 'figwidth', figwidths[section])
+        config.set(section, 'figsize', figsizes[section])
+        for arg, default in defaults.items():
+            config.set(section, arg, default)
+    
+    if cfg_path:
+        # load the user provided config
+        user_config = RawConfigParser(allow_no_value=True)
+        try:
+            user_config.read(cfg_path)
+        except ParsingError, err:
+            msg = 'Could not parse %s: %s' % (cfg_path, err)
+            raise ParsingError(msg)
+        
+        # update the default settings
+        for section in config.sections():
+            for key, val in config.items(section):
+                try:
+                    new_val = user_config.get(section, key)
+                    config.set(section, key, eval(new_val))
+                except (NoSectionError, NoOptionError):
+                    pass
+    
+    return config
+
+def format_offset(fig, fontsize):
+    """formats the offset text for all axes"""
+    for ax in fig.axes:
+        t = ax.yaxis.get_offset_text()
+        t.set_size(fontsize)
+    
 
 def make_summary(results):
     '''returns records from analyses as list'''
@@ -104,7 +152,7 @@ def single_position_effects(table, positions, group_label=None):
     single_results = get_position_effects(table, positions, group_label=group_label)
     return single_results
 
-def get_single_position_fig(single_results, positions, figsize, group_label=None, figwidth=None, fontsize=14):
+def get_single_position_fig(single_results, positions, figsize, group_label=None, figwidth=None, xlabel_fontsize=14, ylabel_fontsize=14, xtick_fontsize=14, ytick_fontsize=14):
     num_pos = len(positions) + 1
     mid = num_pos // 2
 
@@ -130,8 +178,10 @@ def get_single_position_fig(single_results, positions, figsize, group_label=None
         fig.set_figwidth(figwidth)
     
     ax = fig.gca()
-    ax.set_xlabel('Position', fontsize=fontsize)
-    ax.set_ylabel('RE', rotation='vertical', fontsize=fontsize)
+    ax.set_xlabel('Position', fontsize=xlabel_fontsize)
+    ax.set_ylabel('RE', rotation='vertical', fontsize=ylabel_fontsize)
+    ax.tick_params(axis='x', labelsize=xtick_fontsize, pad=xtick_fontsize//2, length=0)
+    ax.tick_params(axis='y', labelsize=ytick_fontsize, pad=ytick_fontsize//2)
     return fig
 
 def get_resized_array_coordinates2(positions, motifs):
@@ -158,7 +208,7 @@ def get_two_position_effects(table, positions, group_label=None):
     two_pos_results = get_position_effects(table, list(combinations(positions, 2)), group_label=group_label)
     return two_pos_results
 
-def get_two_position_fig(two_pos_results, positions, figsize, group_label=None, figwidth=None, fontsize=14):
+def get_two_position_fig(two_pos_results, positions, figsize, group_label=None, figwidth=None, xtick_fontsize=14, ytick_fontsize=14):
     position_sets = list(combinations(positions, 2))
     array_coords = get_resized_array_coordinates2(positions, position_sets)
     coords = array_coords.values()
@@ -212,7 +262,9 @@ def get_two_position_fig(two_pos_results, positions, figsize, group_label=None, 
         heights = get_re_char_heights(rets, re_positionwise=position_re)
         multi_positions[pair] = dict(rets=rets, indices=indices, characters=characters, heights=heights)
         logo.draw_multi_position(char_heights=heights.T, characters=characters,
-                                 position_indices=indices, ax=ax, ylim=ylim)
+                                 position_indices=indices, ax=ax, ylim=ylim,
+                                 xtick_fontsize=xtick_fontsize,
+                                 ytick_fontsize=ytick_fontsize)
     return fig
 
 def get_resized_array_coordinates3(positions, position_set):
@@ -240,7 +292,7 @@ def get_three_position_effects(table, positions, group_label=None):
     three_pos_results = get_position_effects(table, list(combinations(positions, 3)), group_label=group_label)
     return three_pos_results
 
-def get_three_position_fig(three_pos_results, positions, figsize, group_label=None, figwidth=None, fontsize=14):
+def get_three_position_fig(three_pos_results, positions, figsize, group_label=None, figwidth=None, xtick_fontsize=14, ytick_fontsize=14):
     position_sets = list(combinations(positions, 3))
     array_coords = get_resized_array_coordinates3(positions, position_sets)
 
@@ -294,14 +346,15 @@ def get_three_position_fig(three_pos_results, positions, figsize, group_label=No
         characters[indices[1]] = list(mut_stats['base2'])
         characters[indices[2]] = list(mut_stats['base3'])
 
-
         for index in indices:
             rets[:, index] = mut_stats['ret']
 
         heights = get_re_char_heights(rets, re_positionwise=position_re)
         multi_positions[motif] = dict(rets=rets, indices=indices, characters=characters, heights=heights)
         logo.draw_multi_position(char_heights=heights.T, characters=characters,
-                                 position_indices=indices, ax=ax, ylim=ylim)
+                                 position_indices=indices, ax=ax, ylim=ylim,
+                                 xtick_fontsize=xtick_fontsize,
+                                 ytick_fontsize=ytick_fontsize)
 
     return fig
 
@@ -309,7 +362,7 @@ def get_four_position_effects(table, positions, group_label=None):
     result = get_position_effects(table, list(combinations(positions, 4)), group_label=group_label)
     return result
 
-def get_four_position_fig(four_pos_results, positions, figsize, group_label=None, figwidth=None, fontsize=14):
+def get_four_position_fig(four_pos_results, positions, figsize, group_label=None, figwidth=None, xtick_fontsize=14, ytick_fontsize=14):
     position_sets = list(combinations(positions, 4))
     assert len(position_sets) == 1
     rel_entropies = [four_pos_results[position_sets[0]]['rel_entropy']]
@@ -350,11 +403,13 @@ def get_four_position_fig(four_pos_results, positions, figsize, group_label=None
 
     heights = get_re_char_heights(rets, re_positionwise=position_re)
     logo.draw_multi_position(char_heights=heights.T, characters=characters,
-                             position_indices=indices, ax=ax, ylim=ylim)
+                             position_indices=indices, ax=ax, ylim=ylim,
+                             xtick_fontsize=xtick_fontsize,
+                             ytick_fontsize=ytick_fontsize)
 
     return fig
 
-def single_group(counts_table, outpath, group_label, positions, dry_run):
+def single_group(counts_table, outpath, group_label, positions, plot_config, dry_run):
     # Collect statistical analysis results
     summary = []
     
@@ -370,11 +425,18 @@ def single_group(counts_table, outpath, group_label, positions, dry_run):
         util.dump_loglin_stats(single_results, outfilename)
         LOGGER.output_file(outfilename, label="analysis1")
     
-    fig = get_single_position_fig(single_results, positions, (9,3), group_label=group_label, figwidth=2.25)
-    fig.tight_layout()
+    fig = get_single_position_fig(single_results, positions,
+                plot_config.get('1-way plot', 'figsize'),
+                group_label=group_label,
+                figwidth=plot_config.get('1-way plot', 'figwidth'),
+                xlabel_fontsize=plot_config.get('1-way plot', 'xlabel_fontsize'),
+                ylabel_fontsize=plot_config.get('1-way plot', 'ylabel_fontsize'),
+                xtick_fontsize=plot_config.get('1-way plot', 'xtick_fontsize'),
+                ytick_fontsize=plot_config.get('1-way plot', 'ytick_fontsize'))
+    format_offset(fig, int(plot_config.get('1-way plot', 'ytick_fontsize') * .8))
     if not dry_run:
         outfilename = os.path.join(outpath, "1.pdf")
-        fig.savefig(outfilename)
+        fig.savefig(outfilename, bbox_inches='tight')
         print "Wrote", outfilename
         fig.clf() # refresh for next section
     
@@ -388,13 +450,20 @@ def single_group(counts_table, outpath, group_label, positions, dry_run):
         util.dump_loglin_stats(results, outfilename)
         LOGGER.output_file(outfilename, label="analysis2")
     
-    fig = get_two_position_fig(results, positions, (9,9), group_label=group_label)
-    fig.set_figwidth(9)
-    fig.text(0.5, 0.05, 'Position', ha='center', va='center', fontsize=14)
-    fig.text(0.01, 0.5, 'RE', ha='center', va='center', rotation='vertical', fontsize=14)
+    fig = get_two_position_fig(results, positions,
+                plot_config.get('2-way plot', 'figsize'),
+                group_label=group_label,
+                xtick_fontsize=plot_config.get('2-way plot', 'xtick_fontsize'),
+                ytick_fontsize=plot_config.get('2-way plot', 'ytick_fontsize'))
+    fig.set_figwidth(plot_config.get('2-way plot', 'figwidth'))
+    x_fsz = plot_config.get('2-way plot', 'xlabel_fontsize')
+    y_fsz = plot_config.get('2-way plot', 'ylabel_fontsize')
+    fig.text(0.5, plot_config.get('2-way plot', 'xlabel_pad'), 'Position', ha='center', va='center', fontsize=x_fsz)
+    fig.text(plot_config.get('2-way plot', 'ylabel_pad'), 0.5, 'RE', ha='center', va='center', rotation='vertical', fontsize=y_fsz)
+    format_offset(fig, int(plot_config.get('2-way plot', 'ytick_fontsize') * .8))
     if not dry_run:
         outfilename = os.path.join(outpath, "2.pdf")
-        fig.savefig(outfilename)
+        fig.savefig(outfilename, bbox_inches='tight')
         print "Wrote", outfilename
         fig.clf() # refresh for next section
     
@@ -408,13 +477,20 @@ def single_group(counts_table, outpath, group_label, positions, dry_run):
         util.dump_loglin_stats(results, outfilename)
         LOGGER.output_file(outfilename, label="analysis3")
 
-    fig = get_three_position_fig(results, positions, (9,9), group_label=group_label)
-    fig.set_figwidth(9)
-    fig.text(0.5, 0.05, 'Position', ha='center', va='center', fontsize=14)
-    fig.text(0.01, 0.5, 'RE', ha='center', va='center', rotation='vertical', fontsize=14)
+    fig = get_three_position_fig(results, positions,
+                        plot_config.get('3-way plot', 'figsize'),
+                        group_label=group_label,
+                        xtick_fontsize=plot_config.get('3-way plot', 'xtick_fontsize'),
+                        ytick_fontsize=plot_config.get('3-way plot', 'ytick_fontsize'))
+    fig.set_figwidth(plot_config.get('3-way plot', 'figwidth'))
+    x_fsz = plot_config.get('3-way plot', 'xlabel_fontsize')
+    y_fsz = plot_config.get('3-way plot', 'ylabel_fontsize')
+    fig.text(0.5, plot_config.get('3-way plot', 'xlabel_pad'), 'Position', ha='center', va='center', fontsize=x_fsz)
+    fig.text(plot_config.get('3-way plot', 'ylabel_pad'), 0.5, 'RE', ha='center', va='center', rotation='vertical', fontsize=y_fsz)
+    format_offset(fig, int(plot_config.get('3-way plot', 'ytick_fontsize') * .8))
     if not dry_run:
         outfilename = os.path.join(outpath, "3.pdf")
-        fig.savefig(outfilename)
+        fig.savefig(outfilename, bbox_inches='tight')
         print "Wrote", outfilename
         fig.clf() # refresh for next section
     
@@ -428,31 +504,51 @@ def single_group(counts_table, outpath, group_label, positions, dry_run):
         util.dump_loglin_stats(results, outfilename)
         LOGGER.output_file(outfilename, label="analysis4")
     
-    fig = get_four_position_fig(results, positions, (9,9), group_label=group_label)
-    fig.set_figwidth(9)
+    fig = get_four_position_fig(results, positions,
+            plot_config.get('4-way plot', 'figsize'),
+            group_label=group_label)
+    fig.set_figwidth(plot_config.get('4-way plot', 'figwidth'))
     ax = fig.gca()
-    ax.set_xlabel('Position', fontsize=14)
-    ax.set_ylabel('RE', fontsize=14)
+    x_fsz = plot_config.get('4-way plot', 'xlabel_fontsize')
+    y_fsz = plot_config.get('4-way plot', 'ylabel_fontsize')
+    ax.set_xlabel('Position', fontsize=x_fsz)
+    ax.set_ylabel('RE', fontsize=y_fsz)
+    format_offset(fig, int(plot_config.get('4-way plot', 'ytick_fontsize') * .8))
     if not dry_run:
         outfilename = os.path.join(outpath, "4.pdf")
-        fig.savefig(outfilename)
+        fig.savefig(outfilename, bbox_inches='tight')
         print "Wrote", outfilename
         fig.clf() # refresh for next section
     
     # now generate summary plot
     bar_width = 0.5
     index = numpy.arange(4)
+    y_lim = max(max_results.values())
+    y_fmt = util.FixedOrderFormatter(numpy.floor(numpy.log10(y_lim)))
+    
+    fig = pyplot.figure()
+    ax = fig.gca()
+    ax.yaxis.set_major_formatter(y_fmt)
+    
     bar = pyplot.bar(index, [max_results[i] for i in range(1,5)], bar_width)
-    pyplot.xticks(index+(bar_width/2.), range(1,5))
-    pyplot.ylabel("RE$_{max}$")
-    pyplot.xlabel("Motif Length")
+    pyplot.xticks(index+(bar_width/2.), range(1,5), fontsize=plot_config.get('summary plot', 'xtick_fontsize'))
+    x_sz = plot_config.get('summary plot', 'xlabel_fontsize')
+    y_sz = plot_config.get('summary plot', 'ylabel_fontsize')
+    ax.set_xlabel("Motif Length", fontsize=x_sz)
+    ax.set_ylabel("RE$_{max}$", fontsize=y_sz)
+    
+    x_sz = plot_config.get('summary plot', 'xtick_fontsize')
+    y_sz = plot_config.get('summary plot', 'ytick_fontsize')
+    ax.tick_params(axis='x', labelsize=x_sz, pad=x_sz//2, length=0)
+    ax.tick_params(axis='y', labelsize=y_sz, pad=y_sz//2)
+    format_offset(fig, int(plot_config.get('summary plot', 'ytick_fontsize') * .8))
     if not dry_run:
         outfilename = os.path.join(outpath, "summary.pdf")
-        pyplot.savefig(outfilename)
+        pyplot.savefig(outfilename, bbox_inches='tight')
         print "Wrote", outfilename
     
     summary = LoadTable(header=['Position', 'RE', 'Deviance', 'df', 'prob', 'formula'],
-            rows=summary)
+            rows=summary, digits=2, space=2)
     if not dry_run:
         outfilename = os.path.join(outpath, "summary.txt")
         summary.writeToFile(outfilename, sep='\t')
@@ -482,6 +578,7 @@ script_info['optional_options'] = [
         help='second group motif counts file.'),
     make_option('-s','--strand_symmetry', action='store_true', default=False,
         help='single counts file but second group is strand.'),
+    make_option('--plot_cfg', default=None, help='Plot size, font size settings.'),
     make_option('--format', default='pdf', choices=['pdf', 'png'],
         help='Plot format.'),
     make_option('-F','--force_overwrite', action='store_true', default=False,
@@ -553,5 +650,6 @@ def main():
         print counts_table
         print
     
-    single_group(counts_table, outpath, group_label, positions, opts.dry_run)
+    plot_config = get_plot_configs(cfg_path=opts.plot_cfg)
+    single_group(counts_table, outpath, group_label, positions, plot_config, opts.dry_run)
     

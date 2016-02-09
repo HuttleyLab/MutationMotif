@@ -1,4 +1,4 @@
-from numpy import matrix, fabs, array, ceil, around
+from numpy import matrix, fabs, array, ceil, around, floor, log10
 
 from matplotlib import pyplot
 #pyplot.switch_backend('Agg')
@@ -10,6 +10,7 @@ from mpl_toolkits.axes_grid1.anchored_artists import AnchoredText
 from cogent.align.weights.util import AlnToProfile, DNA, DNA_ORDER
 
 from mutation_motif.text import set_axis_scale, add_letter
+from mutation_motif.util import FixedOrderFormatter
 
 __author__ = "Jeremy Widman"
 __copyright__ = "Copyright 2013, Jeremy Widman"
@@ -122,7 +123,7 @@ def draw_alignment(char_heights, characters=None, ax=None, figsize=None, ylim=No
     
     return fig
 
-def draw_multi_position(char_heights, characters, position_indices, ax=None, figsize=None, ylim=None, figwidth=None, fig_callback=None, set_ticks_func=set_anchored_ticks, fontsize=14, verbose=False):
+def draw_multi_position(char_heights, characters, position_indices, ax=None, figsize=None, ylim=None, figwidth=None, fig_callback=None, set_ticks_func=set_anchored_ticks, xtick_fontsize=14, ytick_fontsize=14, verbose=False):
     """Takes in an alignment and creates an image from the alignment profile.
     """
     if ylim is None:
@@ -147,13 +148,10 @@ def draw_multi_position(char_heights, characters, position_indices, ax=None, fig
         fig.set_figwidth(figwidth)
     
     ax.set_yticks(array([0.0, ylim / 2, ylim]))
-    ax.set_yticklabels([0.0, ylim / 2, ylim], fontsize=14)
-    ylabels = [ylabel.get_text() for ylabel in ax.get_yticklabels()]
-    ax.set_yticklabels(ylabels, fontsize=14)
-    ax.set_xticks(array([i+0.5 for i in range(orig_len)]))
-    ax.set_xticklabels([str(i) for i in range(orig_len)], rotation=-90)
-    if set_ticks_func:
-        set_ticks_func(ax, fontsize=fontsize)
+    ax.set_yticklabels([0.0, ylim / 2, ylim])
+    
+    y_fmt = FixedOrderFormatter(floor(log10(ylim)))
+    ax.yaxis.set_major_formatter(y_fmt)
     
     if fig_callback:
         fig_callback(fig)
@@ -162,5 +160,12 @@ def draw_multi_position(char_heights, characters, position_indices, ax=None, fig
         draw_position(position_index,
             char_heights[position_index],
             characters=characters[position_index], ax=ax)
+    
+    ax.tick_params(axis='y', labelsize=ytick_fontsize, pad=ytick_fontsize//2)
+    ax.tick_params(axis='x', length=0)
+    ax.set_xticks(array([i+0.5 for i in range(orig_len)]))
+    ax.set_xticklabels([str(i) for i in range(orig_len)], rotation=-90)
+    if set_ticks_func:
+        set_ticks_func(ax, fontsize=xtick_fontsize)
     
     return fig
