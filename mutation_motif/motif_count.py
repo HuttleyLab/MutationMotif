@@ -61,42 +61,40 @@ def get_count_table(observed, control, k):
     return table
 
 def reduced_multiple_positions(table, *positions):
-    counts = Counter()
-    for row in table:
-        count = row['count']
-        motif = tuple(row[pos] for pos in positions)
-        counts[motif] += count
-    return counts
+    base_counts = {'M': Counter(), 'R': Counter()}
+    columns = ['count', 'mut'] + list(positions)
+    for row in table.getRawData(columns):
+        count = row[0]
+        mut = row[1]
+        motif = tuple(row[2:])
+        base_counts[mut][motif] += count
+    return base_counts
 
 def reduced_one_position(table, pos):
     '''returns base counts for one position'''
-    base_counts = Counter()
-    for row in table:
-        count = row['count']
-        base = row[pos]
-        base_counts[base] += count
+    base_counts = {'M': Counter(), 'R': Counter()}
+    for count, base, mut in table.getRawData(["count", pos, 'mut']):
+        base_counts[mut][base] += count
     return base_counts
 
 def get_combined_counts(table, positions):
-    mutated = table.filtered("mut=='M'")
-    unmutated = table.filtered("mut=='R'")
     if type(positions) == str:
-        mut_counts = reduced_one_position(mutated, positions)
-        unmut_counts = reduced_one_position(unmutated, positions)
+        counts = reduced_one_position(table, positions)
+        mut_counts = counts['M']
+        unmut_counts = counts['R']
         positions = [positions]
         states = 'ACGT'
         header = ['mut', 'base', 'count']
     else:
-        mut_counts = reduced_multiple_positions(mutated, *positions)
-        unmut_counts = reduced_multiple_positions(unmutated, *positions)
-        states = product('ACGT', repeat=len(positions))
+        counts = reduced_multiple_positions(table, *positions)
+        mut_counts = counts['M']
+        unmut_counts = counts['R']
+        states = set(mut_counts.keys()) | set(unmut_counts.keys())
         header = ['mut'] + ['base%d' % (i+1) for i in range(len(positions))] + ['count']
         
     
     combined = []
-    n = 0
     for state in states:
-        n += 1
         combined.append(['R'] + list(state) + [unmut_counts[state]])
         combined.append(['M'] + list(state) + [mut_counts[state]])
     

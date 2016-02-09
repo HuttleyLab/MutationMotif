@@ -42,7 +42,15 @@ def align_to_counts(opts):
     orig_seqs = load_from_fasta(os.path.abspath(opts.align_path))
     seqs = orig_seqs.ArraySeqs
     seqs = just_nucs(seqs)
-    orig, ctl = profile.get_profiles(seqs, chosen_base=chosen_base, step=step,
+    if not opts.randomise:
+        orig, ctl = profile.get_profiles(seqs, chosen_base=chosen_base, step=step,
+                                     flank_size=opts.flank_size, seed=opts.seed)
+    else:
+        LOGGER.write("A randomised selection of starting base locations use for observed counts.")
+        # we are setting a randomised set of locations as our observed SNPs
+        ctl = profile.get_control(seqs, chosen_base=chosen_base, step=step,
+                                     flank_size=opts.flank_size, seed=opts.seed)
+        orig = profile.get_control(seqs, chosen_base=chosen_base, step=step,
                                      flank_size=opts.flank_size, seed=opts.seed)
     
     # convert profiles to a motif count table
@@ -70,6 +78,8 @@ script_info['required_options'] = [
 script_info['optional_options'] = [
     make_option('-S', '--seed',
         help='Seed for random number generator (e.g. 17, or 2015-02-13). Defaults to system time.'),
+    make_option('-R', '--randomise', action='store_true', default=False,
+        help='Randomises the observed data, observed and reference counts distributions should match.'),
     make_option('--step', default='1', choices=['1', '2', '3'],
         help='Specifies a "frame" for selecting the random base. [default=%default]'),
     make_option('-D','--dry_run', action='store_true', default=False,

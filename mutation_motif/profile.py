@@ -109,7 +109,9 @@ def MakeControl(data, chosen_base, step, flank_size):
                 sample_indices=sample_indices, circle_range=circle_range)
     return call
 
-def get_control(seq_array, chosen_base, step, flank_size, sample_indices=None, circle_range=None):
+def get_control(seq_array, chosen_base, step, flank_size, sample_indices=None, circle_range=None, seed=None):
+    assert seed is not None, "Must provide a random number seed"
+    set_seed(seed)
     if sample_indices is None:
         sample_indices = chosen_base_indices(seq_array, chosen_base, step)
         seq_array, sample_indices = filter_seqs_by_chosen_base(seq_array, sample_indices, 1)
@@ -127,10 +129,8 @@ def get_control(seq_array, chosen_base, step, flank_size, sample_indices=None, c
 
 def get_profiles(data, chosen_base, step, flank_size, circle_range=None, seed=None):
     """returns matched profile and control profile"""
-    assert seed is not None, "Must provide a random number seed"
-    set_seed(seed)
     ctl = get_control(data, chosen_base, step, flank_size,
-                        circle_range=circle_range)
+                        circle_range=circle_range, seed=seed)
     length = data.shape[1]
     mid_pt = (length - 1) / 2
     assert 2 * mid_pt + 1 == length, 'Funny length'

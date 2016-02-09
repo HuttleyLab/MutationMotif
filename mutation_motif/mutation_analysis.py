@@ -617,7 +617,7 @@ def main():
         LOGGER.write(str(vars(opts)), label='vars')
     
     counts_filename = util.abspath(opts.countsfile)
-    counts_table = LoadTable(counts_filename, sep='\t')
+    counts_table = util.load_table_from_delimited_file(counts_filename, sep='\t')
     
     LOGGER.input_file(counts_filename, label="countsfile1_path")
     
@@ -641,7 +641,7 @@ def main():
                                     columns=counts_table.Header[0])
         
         fn2 = util.abspath(opts.countsfile2)
-        counts_table2 = LoadTable(fn2, sep='\t')
+        counts_table2 = util.load_table_from_delimited_file(fn2, sep='\t')
         
         LOGGER.input_file(fn2, label="countsfile2_path")
         
@@ -667,3 +667,6 @@ def main():
     plot_config = get_plot_configs(cfg_path=opts.plot_cfg)
     msg = single_group(counts_table, outpath, group_label, positions, plot_config, opts.first_order, opts.dry_run)
     print msg
+
+if __name__ == "__main__":
+    main()

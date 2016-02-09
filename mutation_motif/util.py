@@ -21,6 +21,19 @@ class FixedOrderFormatter(ScalarFormatter):
         """Over-riding this to avoid having orderOfMagnitude reset elsewhere"""
         self.orderOfMagnitude = self._order_of_mag
 
+def load_table_from_delimited_file(path, sep='\t'):
+    '''returns a Table object after a quicker loading'''
+    with open_(path, 'r') as infile:
+        header = infile.readline().strip().split(sep)
+        count_index = header.index('count')
+        records = []
+        for line in infile:
+            line = line.strip().split(sep)
+            line[count_index] = int(line[count_index])
+            records.append(line)
+        table = LoadTable(header=header, rows=records)
+    return table
+
 def spectra_table(table, group_label):
     """returns a table with columns without position information"""
     assert 'direction' in table.Header
