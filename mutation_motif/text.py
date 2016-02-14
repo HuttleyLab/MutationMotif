@@ -2,6 +2,14 @@ from matplotlib.patches import Polygon
 from numpy import *
 from pylab import gca,draw
 
+__author__ = "Jeremy Widman"
+__copyright__ = "Copyright 2013, Jeremy Widman"
+__credits__ = ["Jeremy Widman", "Yicheng Zhu", "Gavin Huttley"]
+__license__ = "GPL"
+__version__ = "0.0.1"
+__maintainer__ = "Gavin Huttley"
+__email__ = "Gavin.Huttley@anu.edu.au"
+__status__ = "Development"
 
 class letter(Polygon):
     """Draws a letter using self.verts."""
