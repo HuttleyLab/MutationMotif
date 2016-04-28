@@ -88,7 +88,7 @@ def position_effect(counts_table, group_label=None, test=False):
     f = R.glm(null, data=d, family = "poisson")
     f_attr = dict(f.items())
     dev = f_attr['deviance'][0]
-    df = f_attr['df.null'][0]
+    df = f_attr['df.residual'][0]
     
     collated = convert_rdf_to_pandasdf(f_attr['data'])
     collated['fitted'] = list(f_attr['fitted.values'])
@@ -116,7 +116,7 @@ def spectra_difference(counts_table, group_label, test=False):
     f = R.glm(null, data=d, family = "poisson")
     f_attr = dict(f.items())
     dev = f_attr['deviance'][0]
-    df = f_attr['df.null'][0]
+    df = f_attr['df.residual'][0]
     
     collated = convert_rdf_to_pandasdf(f_attr['data'])
     collated['fitted'] = list(f_attr['fitted.values'])
