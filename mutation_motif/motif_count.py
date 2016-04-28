@@ -78,18 +78,19 @@ def reduced_one_position(table, pos):
     return base_counts
 
 def get_combined_counts(table, positions):
+    bases = 'ACGT'
     if type(positions) == str:
         counts = reduced_one_position(table, positions)
         mut_counts = counts['M']
         unmut_counts = counts['R']
         positions = [positions]
-        states = 'ACGT'
+        states = bases
         header = ['mut', 'base', 'count']
     else:
         counts = reduced_multiple_positions(table, *positions)
         mut_counts = counts['M']
         unmut_counts = counts['R']
-        states = set(mut_counts.keys()) | set(unmut_counts.keys())
+        states = product(*list([bases] * len(positions)))
         header = ['mut'] + ['base%d' % (i+1) for i in range(len(positions))] + ['count']
         
     
