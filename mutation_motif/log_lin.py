@@ -98,7 +98,7 @@ def position_effect(counts_table, group_label=None, test=False):
     
     collated['ret'] = calc_ret(collated['count'], collated['fitted'])
     collated = collated.reindex_axis(columns + ['fitted', 'ret'], axis=1)
-    collated = collated.sort(columns=columns[:-1])
+    collated = collated.sort_values(by=columns[:-1])
     return total_re, dev, df, collated, formula
 
 def spectra_difference(counts_table, group_label, test=False):
@@ -126,6 +126,6 @@ def spectra_difference(counts_table, group_label, test=False):
     
     collated['ret'] = calc_ret(collated['count'], collated['fitted'])
     collated = collated.reindex_axis(columns + ['fitted', 'ret'], axis=1)
-    collated = collated.sort(columns=columns[:-1])
+    collated = collated.sort_values(by=columns[:-1])
     return total_re, dev, df, collated, formula
 

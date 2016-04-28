@@ -53,7 +53,7 @@ def get_plot_data(single_results, positions):
         stats = single_results[pos]['stats']
         position_re[index] = single_results[pos]['rel_entropy']
         mut_stats = stats[get_selected_indices(stats)][['base', 'ret']]
-        mut_stats = mut_stats.sort('ret')
+        mut_stats = mut_stats.sort_values(by='ret')
         characters[index] = list(mut_stats['base'])
         rets[:,index] = mut_stats['ret']
 

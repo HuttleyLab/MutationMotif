@@ -166,7 +166,7 @@ def get_single_position_fig(single_results, positions, figsize, group_label=None
         stats = single_results[pos]['stats']
         position_re[index] = single_results[pos]['rel_entropy']
         mut_stats = stats[get_selected_indices(stats, group_label=group_label)][['base', 'ret']]
-        mut_stats = mut_stats.sort('ret')
+        mut_stats = mut_stats.sort_values(by='ret')
         characters[index] = list(mut_stats['base'])
         rets[:,index] = mut_stats['ret']
 
@@ -251,7 +251,7 @@ def get_two_position_fig(two_pos_results, positions, figsize, group_label=None, 
 
         stats = two_pos_results[pair]['stats']
         mut_stats = stats[get_selected_indices(stats, group_label=group_label)][['base1', 'base2', 'ret']]
-        mut_stats = mut_stats.sort(columns='ret')
+        mut_stats = mut_stats.sort_values(by='ret')
 
         characters[indices[0]] = list(mut_stats['base1'])
         characters[indices[1]] = list(mut_stats['base2'])
@@ -340,7 +340,7 @@ def get_three_position_fig(three_pos_results, positions, figsize, group_label=No
 
         stats = three_pos_results[motif]['stats']
         mut_stats = stats[get_selected_indices(stats, group_label=group_label)][['base1', 'base2', 'base3', 'ret']]
-        mut_stats = mut_stats.sort(columns='ret')
+        mut_stats = mut_stats.sort_values(by='ret')
 
         characters[indices[0]] = list(mut_stats['base1'])
         characters[indices[1]] = list(mut_stats['base2'])
@@ -391,7 +391,7 @@ def get_four_position_fig(four_pos_results, positions, figsize, group_label=None
     position_re.put(indices, rel_entropy)
     stats = four_pos_results[position_sets[0]]['stats']
     mut_stats = stats[get_selected_indices(stats, group_label=group_label)][['base1', 'base2', 'base3', 'base4', 'ret']]
-    mut_stats = mut_stats.sort(columns='ret')
+    mut_stats = mut_stats.sort_values(by='ret')
 
     characters[indices[0]] = list(mut_stats['base1'])
     characters[indices[1]] = list(mut_stats['base2'])
