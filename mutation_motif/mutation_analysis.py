@@ -14,51 +14,11 @@ from cogent.maths.stats import chisqprob
 
 from scitrack import CachingLogger
 
-from mutation_motif import profile, util, logo, motif_count, log_lin
+from mutation_motif import profile, util, logo, motif_count, log_lin, spectra_analysis
 
 from mutation_motif.height import get_re_char_heights
 
 LOGGER = CachingLogger(create_dir=True)
-
-def get_plot_configs(cfg_path=None):
-    """returns a config object with plotting settings"""
-    defaults = dict(xlabel_fontsize=14, ylabel_fontsize=14,
-                    xtick_fontsize=12, ytick_fontsize=12,
-                    xlabel_pad=0.01, ylabel_pad=0.01)
-    
-    figwidths = {'1-way plot': 2.25, '2-way plot': 9, '3-way plot': 9,
-                 '4-way plot': 9, 'summary plot': 9}
-    figsizes = {'1-way plot': (9,3), '2-way plot': (9,9), '3-way plot': (9,9),
-                 '4-way plot': (9,9), 'summary plot': (9,9)}
-    
-    config = RawConfigParser()
-    for section in ['1-way plot', '2-way plot', '3-way plot', '4-way plot',
-                    'summary plot']:
-        config.add_section(section)
-        config.set(section, 'figwidth', figwidths[section])
-        config.set(section, 'figsize', figsizes[section])
-        for arg, default in defaults.items():
-            config.set(section, arg, default)
-    
-    if cfg_path:
-        # load the user provided config
-        user_config = RawConfigParser(allow_no_value=True)
-        try:
-            user_config.read(cfg_path)
-        except ParsingError, err:
-            msg = 'Could not parse %s: %s' % (cfg_path, err)
-            raise ParsingError(msg)
-        
-        # update the default settings
-        for section in config.sections():
-            for key, val in config.items(section):
-                try:
-                    new_val = user_config.get(section, key)
-                    config.set(section, key, eval(new_val))
-                except (NoSectionError, NoOptionError):
-                    pass
-    
-    return config
 
 def format_offset(fig, fontsize):
     """formats the offset text for all axes"""
@@ -311,7 +271,6 @@ def get_three_position_fig(three_pos_results, positions, figsize, group_label=No
             ax.set_frame_on(False)
             ax.get_xaxis().set_visible(False)
             ax.get_yaxis().set_visible(False)
-
 
     num_pos = len(positions) + 1
     mid_pos = num_pos // 2
@@ -664,8 +623,8 @@ def main():
         print counts_table
         print
     
-    plot_config = get_plot_configs(cfg_path=opts.plot_cfg)
     msg = single_group(counts_table, outpath, group_label, positions, plot_config, opts.first_order, opts.dry_run)
+    plot_config = util.get_plot_configs(cfg_path=cfg_context.plot_cfg)
     print msg
 
 if __name__ == "__main__":

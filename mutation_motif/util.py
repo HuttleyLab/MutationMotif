@@ -1,5 +1,6 @@
 import os, gzip, bz2, sys, platform, json
 from traceback import format_exc
+from ConfigParser import RawConfigParser, NoSectionError, NoOptionError, ParsingError
 
 from pandas import read_json
 from matplotlib.ticker import ScalarFormatter
@@ -7,6 +8,48 @@ from matplotlib.ticker import ScalarFormatter
 from cogent import DNA, LoadTable
 from cogent.parse.fasta import MinimalFastaParser
 from cogent.core.alignment import Alignment, DenseAlignment
+
+def get_plot_configs(cfg_path=None):
+    """returns a config object with plotting settings"""
+    defaults = dict(xlabel_fontsize=14, ylabel_fontsize=14,
+                    xtick_fontsize=12, ytick_fontsize=12,
+                    xlabel_pad=0.01, ylabel_pad=0.01)
+    
+    figwidths = {'1-way plot': 2.25, '2-way plot': 9, '3-way plot': 9,
+                 '4-way plot': 9, 'summary plot': 9, 'grid': 8}
+    figsizes = {'1-way plot': (9,3), '2-way plot': (9,9), '3-way plot': (9,9),
+                 '4-way plot': (9,9), 'summary plot': (9,9),
+             'grid': (8,8)}
+    
+    config = RawConfigParser()
+    for section in ['1-way plot', '2-way plot', '3-way plot', '4-way plot',
+                    'summary plot', 'grid']:
+        config.add_section(section)
+        config.set(section, 'figwidth', figwidths[section])
+        config.set(section, 'figsize', figsizes[section])
+        for arg, default in defaults.items():
+            config.set(section, arg, default)
+    
+    if cfg_path:
+        # load the user provided config
+        user_config = RawConfigParser(allow_no_value=True)
+        try:
+            user_config.read(cfg_path)
+        except ParsingError, err:
+            msg = 'Could not parse %s: %s' % (cfg_path, err)
+            raise ParsingError(msg)
+        
+        # update the default settings
+        for section in config.sections():
+            for key, val in config.items(section):
+                try:
+                    new_val = user_config.get(section, key)
+                    config.set(section, key, eval(new_val))
+                except (NoSectionError, NoOptionError):
+                    pass
+    
+    return config
+
 
 # Code from Joe Kington's answer to
 # http://stackoverflow.com/questions/3677368/matplotlib-format-axis-offset-values-to-whole-numbers-or-specific-number
