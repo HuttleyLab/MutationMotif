@@ -504,7 +504,7 @@ def single_group(counts_table, outpath, group_label, positions, plot_config, fir
     pyplot.xticks(index+(bar_width/2.), range(1,5), fontsize=plot_config.get('summary plot', 'xtick_fontsize'))
     x_sz = plot_config.get('summary plot', 'xlabel_fontsize')
     y_sz = plot_config.get('summary plot', 'ylabel_fontsize')
-    ax.set_xlabel("Motif Length", fontsize=x_sz)
+    ax.set_xlabel("Effect Order", fontsize=x_sz)
     ax.set_ylabel("RE$_{max}$", fontsize=y_sz)
     
     x_sz = plot_config.get('summary plot', 'xtick_fontsize')
