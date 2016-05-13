@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 import os, time
 from itertools import permutations, combinations
-from optparse import make_option
+
+import click
+
 from ConfigParser import RawConfigParser, NoSectionError, NoOptionError, ParsingError
 
 import numpy
@@ -44,11 +46,13 @@ def make_summary(results):
         rows.append([position, re, dev, df, prob, formula])
     return rows
 
-def get_selected_indices(stats, group_label=None):
+def get_selected_indices(stats, group_label=None, group_ref=None):
     """returns indices for selecting dataframe records for display"""
-    if group_label: # TODO this logic needs improving
+    if group_label and group_ref is None: # TODO this logic needs improving
         val = dict(strand='+').get(group_label, '1')
         indices = numpy.logical_and(stats['mut'] == 'M', stats[group_label] == val)
+    elif group_label and group_ref:
+        indices = numpy.logical_and(stats['mut'] == 'M', stats[group_label] == group_ref)
     else:
         indices = stats['mut'] == 'M'
     return indices
@@ -112,7 +116,7 @@ def single_position_effects(table, positions, group_label=None):
     single_results = get_position_effects(table, positions, group_label=group_label)
     return single_results
 
-def get_single_position_fig(single_results, positions, figsize, group_label=None, figwidth=None, xlabel_fontsize=14, ylabel_fontsize=14, xtick_fontsize=14, ytick_fontsize=14):
+def get_single_position_fig(single_results, positions, figsize, group_label=None, group_ref=None, figwidth=None, xlabel_fontsize=14, ylabel_fontsize=14, xtick_fontsize=14, ytick_fontsize=14):
     num_pos = len(positions) + 1
     mid = num_pos // 2
 
@@ -125,7 +129,7 @@ def get_single_position_fig(single_results, positions, figsize, group_label=None
 
         stats = single_results[pos]['stats']
         position_re[index] = single_results[pos]['rel_entropy']
-        mut_stats = stats[get_selected_indices(stats, group_label=group_label)][['base', 'ret']]
+        mut_stats = stats[get_selected_indices(stats, group_label=group_label, group_ref=group_ref)][['base', 'ret']]
         mut_stats = mut_stats.sort_values(by='ret')
         characters[index] = list(mut_stats['base'])
         rets[:,index] = mut_stats['ret']
@@ -168,7 +172,7 @@ def get_two_position_effects(table, positions, group_label=None):
     two_pos_results = get_position_effects(table, list(combinations(positions, 2)), group_label=group_label)
     return two_pos_results
 
-def get_two_position_fig(two_pos_results, positions, figsize, group_label=None, figwidth=None, xtick_fontsize=14, ytick_fontsize=14):
+def get_two_position_fig(two_pos_results, positions, figsize, group_label=None, group_ref=None, figwidth=None, xtick_fontsize=14, ytick_fontsize=14):
     position_sets = list(combinations(positions, 2))
     array_coords = get_resized_array_coordinates2(positions, position_sets)
     coords = array_coords.values()
@@ -210,7 +214,7 @@ def get_two_position_fig(two_pos_results, positions, figsize, group_label=None, 
         position_re.put(indices, two_pos_results[pair]['rel_entropy'])
 
         stats = two_pos_results[pair]['stats']
-        mut_stats = stats[get_selected_indices(stats, group_label=group_label)][['base1', 'base2', 'ret']]
+        mut_stats = stats[get_selected_indices(stats, group_label=group_label, group_ref=group_ref)][['base1', 'base2', 'ret']]
         mut_stats = mut_stats.sort_values(by='ret')
 
         characters[indices[0]] = list(mut_stats['base1'])
@@ -252,7 +256,7 @@ def get_three_position_effects(table, positions, group_label=None):
     three_pos_results = get_position_effects(table, list(combinations(positions, 3)), group_label=group_label)
     return three_pos_results
 
-def get_three_position_fig(three_pos_results, positions, figsize, group_label=None, figwidth=None, xtick_fontsize=14, ytick_fontsize=14):
+def get_three_position_fig(three_pos_results, positions, figsize, group_label=None, group_ref=None, figwidth=None, xtick_fontsize=14, ytick_fontsize=14):
     position_sets = list(combinations(positions, 3))
     array_coords = get_resized_array_coordinates3(positions, position_sets)
 
@@ -298,7 +302,7 @@ def get_three_position_fig(three_pos_results, positions, figsize, group_label=No
         position_re.put(indices, three_pos_results[motif]['rel_entropy'])
 
         stats = three_pos_results[motif]['stats']
-        mut_stats = stats[get_selected_indices(stats, group_label=group_label)][['base1', 'base2', 'base3', 'ret']]
+        mut_stats = stats[get_selected_indices(stats, group_label=group_label, group_ref=group_ref)][['base1', 'base2', 'base3', 'ret']]
         mut_stats = mut_stats.sort_values(by='ret')
 
         characters[indices[0]] = list(mut_stats['base1'])
@@ -321,7 +325,7 @@ def get_four_position_effects(table, positions, group_label=None):
     result = get_position_effects(table, list(combinations(positions, 4)), group_label=group_label)
     return result
 
-def get_four_position_fig(four_pos_results, positions, figsize, group_label=None, figwidth=None, xtick_fontsize=14, ytick_fontsize=14):
+def get_four_position_fig(four_pos_results, positions, figsize, group_label=None, group_ref=None, figwidth=None, xtick_fontsize=14, ytick_fontsize=14):
     position_sets = list(combinations(positions, 4))
     assert len(position_sets) == 1
     rel_entropies = [four_pos_results[position_sets[0]]['rel_entropy']]
@@ -349,7 +353,7 @@ def get_four_position_fig(four_pos_results, positions, figsize, group_label=None
 
     position_re.put(indices, rel_entropy)
     stats = four_pos_results[position_sets[0]]['stats']
-    mut_stats = stats[get_selected_indices(stats, group_label=group_label)][['base1', 'base2', 'base3', 'base4', 'ret']]
+    mut_stats = stats[get_selected_indices(stats, group_label=group_label, group_ref=group_ref)][['base1', 'base2', 'base3', 'base4', 'ret']]
     mut_stats = mut_stats.sort_values(by='ret')
 
     characters[indices[0]] = list(mut_stats['base1'])
@@ -368,7 +372,7 @@ def get_four_position_fig(four_pos_results, positions, figsize, group_label=None
 
     return fig
 
-def single_group(counts_table, outpath, group_label, positions, plot_config, first_order, dry_run):
+def single_group(counts_table, outpath, group_label, group_ref, positions, plot_config, first_order, dry_run):
     # Collect statistical analysis results
     summary = []
     
@@ -386,7 +390,7 @@ def single_group(counts_table, outpath, group_label, positions, plot_config, fir
     
     fig = get_single_position_fig(single_results, positions,
                 plot_config.get('1-way plot', 'figsize'),
-                group_label=group_label,
+                group_label=group_label, group_ref=group_ref,
                 figwidth=plot_config.get('1-way plot', 'figwidth'),
                 xlabel_fontsize=plot_config.get('1-way plot', 'xlabel_fontsize'),
                 ylabel_fontsize=plot_config.get('1-way plot', 'ylabel_fontsize'),
@@ -422,7 +426,7 @@ def single_group(counts_table, outpath, group_label, positions, plot_config, fir
     
     fig = get_two_position_fig(results, positions,
                 plot_config.get('2-way plot', 'figsize'),
-                group_label=group_label,
+                group_label=group_label, group_ref=group_ref,
                 xtick_fontsize=plot_config.get('2-way plot', 'xtick_fontsize'),
                 ytick_fontsize=plot_config.get('2-way plot', 'ytick_fontsize'))
     fig.set_figwidth(plot_config.get('2-way plot', 'figwidth'))
@@ -449,7 +453,7 @@ def single_group(counts_table, outpath, group_label, positions, plot_config, fir
 
     fig = get_three_position_fig(results, positions,
                         plot_config.get('3-way plot', 'figsize'),
-                        group_label=group_label,
+                        group_label=group_label, group_ref=group_ref,
                         xtick_fontsize=plot_config.get('3-way plot', 'xtick_fontsize'),
                         ytick_fontsize=plot_config.get('3-way plot', 'ytick_fontsize'))
     fig.set_figwidth(plot_config.get('3-way plot', 'figwidth'))
@@ -476,7 +480,7 @@ def single_group(counts_table, outpath, group_label, positions, plot_config, fir
     
     fig = get_four_position_fig(results, positions,
             plot_config.get('4-way plot', 'figsize'),
-            group_label=group_label)
+            group_label=group_label, group_ref=group_ref)
     fig.set_figwidth(plot_config.get('4-way plot', 'figwidth'))
     ax = fig.gca()
     x_fsz = plot_config.get('4-way plot', 'xlabel_fontsize')
@@ -528,78 +532,91 @@ def single_group(counts_table, outpath, group_label, positions, plot_config, fir
     pyplot.close('all')
     msg = "Done! Check %s for your results" % outpath
     return  msg
+
+class Config(object):
+    def __init__(self):
+        super(Config, self).__init__()
+        self.force_overwrite = False
+        self.dry_run = False
+
+pass_config = click.make_pass_decorator(Config, ensure=True)
+
+@click.group()
+@click.option('-1', '--countsfile', help='tab delimited file of counts.')
+@click.option('-o', '--outpath', help='Directory path to write data.')
+@click.option('-2','--countsfile2', help='second group motif counts file.')
+@click.option('-s','--strand_symmetry', is_flag=True,
+        help='single counts file but second group is strand.')
+@click.option('-F', '--force_overwrite', is_flag=True, help='Overwrite existing files.')
+@click.option('-D', '--dry_run', is_flag=True, help='Do a dry run of the analysis without writing output.')
+@click.option('-v', '--verbose', is_flag=True, help='Display more output.')
+@pass_config
+def main(cfg_context, countsfile, outpath, countsfile2, strand_symmetry, force_overwrite, dry_run, verbose):
+    cfg_context.countsfile = countsfile
+    cfg_context.countsfile2 = countsfile2
+    cfg_context.outpath = outpath
+    cfg_context.strand_symmetry = strand_symmetry
+    cfg_context.force_overwrite = force_overwrite
+    cfg_context.dry_run = dry_run
+    cfg_context.verbose = verbose
+
+@main.command()
+@click.option('--first_order', is_flag=True,
+    help='Consider only first order effects. Defaults to considering up to 4th order interactions.')
+@click.option('-g','--group_label', help='second group label.')
+@click.option('-r','--group_ref', default=None, help='reference group value for results presentation.')
+@click.option('--plot_cfg', help='Config file for plot size, font size settings.')
+@click.option('--format', default='pdf', type=click.Choice(['pdf', 'png']),
+        help='Plot format.')
+@pass_config
+def nbr(cfg_context, first_order, group_label, group_ref, plot_cfg, format):
+    '''log-linear analysis of neighbouring base influence on point mutation
     
-script_info = {}
-script_info['brief_description'] = ""
-script_info['script_description'] = "\n".join([
-"log-linear analysis of neighbouring base influence on point mutation",
-"",
-"Writes estimated statistics, figures and a run log to the specified",
-"directory outpath.",
-"",
-"See documentation for count table format requirements."])
-
-script_info['required_options'] = [
-     make_option('-1','--countsfile', help='tab delimited file of counts.'),
-     make_option('-o','--outpath', help='Directory path to write data.'),
-    ]
-
-script_info['optional_options'] = [
-    make_option('--first_order', action='store_true', default=False,
-        help='Consider only first order effects. Defaults to considering up to 4th order interactions [default=%default].'),
-    make_option('-2','--countsfile2',
-        help='second group motif counts file.'),
-    make_option('-s','--strand_symmetry', action='store_true', default=False,
-        help='single counts file but second group is strand.'),
-    make_option('--plot_cfg', default=None, help='Plot size, font size settings.'),
-    make_option('--format', default='pdf', choices=['pdf', 'png'],
-        help='Plot format.'),
-    make_option('-F','--force_overwrite', action='store_true', default=False,
-        help='Overwrite existing files.'),
-    make_option('-D','--dry_run', action='store_true', default=False,
-        help='Do a dry run of the analysis without writing output.'),
-    ]
-
-script_info['version'] = '0.1'
-script_info['authors'] = 'Gavin Huttley'
-
-def main():
-    option_parser, opts, args =\
-       parse_command_line_parameters(disallow_positional_arguments=False,
-                               **script_info)
+    Writes estimated statistics, figures and a run log to the specified
+    directory outpath.
     
-    outpath = util.abspath(opts.outpath)
-    if not opts.dry_run:
+    See documentation for count table format requirements.
+    '''
+    
+    outpath = util.abspath(cfg_context.outpath)
+    
+    if not cfg_context.dry_run:
         util.create_path(outpath)
         runlog_path = os.path.join(outpath, "analysis.log")
         LOGGER.log_file_path = runlog_path
-        LOGGER.write(str(vars(opts)), label='vars')
+        args = vars(cfg_context)
+        args.update(dict(first_order=first_order, strand_symmetry=cfg_context.strand_symmetry,
+            plot_cfg=plot_cfg, format=format, group_label=group_label, group_ref=group_ref))
+        
+        LOGGER.write(str(args), label='vars')
     
-    counts_filename = util.abspath(opts.countsfile)
+    counts_filename = util.abspath(cfg_context.countsfile)
     counts_table = util.load_table_from_delimited_file(counts_filename, sep='\t')
     
     LOGGER.input_file(counts_filename, label="countsfile1_path")
     
     positions = [c for c in counts_table.Header if c.startswith('pos')]
-    if not opts.first_order and len(positions) != 4:
+    if not first_order and len(positions) != 4:
         raise ValueError("Requires four positions for analysis")
     
-    group_label = None
-    
-    if opts.strand_symmetry:
+    group_label = group_label or None
+    group_ref = group_ref or None
+    if cfg_context.strand_symmetry:
         group_label = 'strand'
+        group_ref = group_ref or '+'
         if group_label not in counts_table.Header:
             print "ERROR: no column named 'strand', exiting."
             exit(-1)
         
     
-    if opts.countsfile2:
+    if cfg_context.countsfile2:
         print "Performing 2 group analysis"
-        group_label = 'group'
+        group_label = group_label or 'group'
+        group_ref = group_ref or '1'
         counts_table1 = counts_table.withNewColumn(group_label, lambda x: '1',
                                     columns=counts_table.Header[0])
         
-        fn2 = util.abspath(opts.countsfile2)
+        fn2 = util.abspath(cfg_context.countsfile2)
         counts_table2 = util.load_table_from_delimited_file(fn2, sep='\t')
         
         LOGGER.input_file(fn2, label="countsfile2_path")
@@ -612,20 +629,25 @@ def main():
         raw2 = counts_table2.getRawData(header)
         counts_table = LoadTable(header=header, rows=raw1+raw2)
         
-        if not opts.dry_run:
+        if not cfg_context.dry_run:
             outfile = os.path.join(outpath, 'group_counts_table.txt')
             counts_table.writeToFile(outfile, sep='\t')
             LOGGER.output_file(outfile, label="group_counts")
             
     
-    if opts.dry_run or opts.verbose:
+    if cfg_context.dry_run or cfg_context.verbose:
         print
         print counts_table
         print
     
-    msg = single_group(counts_table, outpath, group_label, positions, plot_config, opts.first_order, opts.dry_run)
     plot_config = util.get_plot_configs(cfg_path=cfg_context.plot_cfg)
+    msg = single_group(counts_table, outpath, group_label, group_ref, positions, plot_config, cfg_context.first_order,
+                         cfg_context.dry_run)
     print msg
 
-if __name__ == "__main__":
-    main()
+@main.command()
+@pass_config
+def spectra(cfg_context):
+    '''log-linear analysis of mutation spectra between groups
+    '''
+    spectra_analysis.main(cfg_context.countsfile, cfg_context.outpath, cfg_context.countsfile2, cfg_context.strand_symmetry, cfg_context.force_overwrite, cfg_context.dry_run, cfg_context.verbose)

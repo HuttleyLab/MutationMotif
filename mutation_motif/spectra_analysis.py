@@ -22,58 +22,31 @@ def dump_json(data, outfile_path):
     with open(outfile_path, mode="w") as outfile:
         json.dump(data, outfile)
 
-script_info = {}
-script_info['brief_description'] = ""
-script_info['script_description'] = "\n".join([
-"log-linear analysis of point mutation spectra",
-"",
-"The spectra is simply the total number of mutations for each point mutation.",
-"These counts are compared between groups. Writes estimated",
-"statistics, figures and a run log to the specified directory outpath.",
-"",
-"See documentation for count table format requirements."])
 
-script_info['required_options'] = [
-     make_option('-1','--countsfile', help='tab delimited file of counts.'),
-     make_option('-o','--outpath', help='Directory path to write data.'),
-    ]
-
-script_info['optional_options'] = [
-    make_option('-2','--countsfile2',
-        help='second group motif counts file.'),
-    make_option('-s','--strand_symmetry', action='store_true', default=False,
-        help='Second group is strand symmetry.'),
-    make_option('-F','--force_overwrite', action='store_true', default=False,
-        help='Overwrite existing files.'),
-    make_option('-D','--dry_run', action='store_true', default=False,
-        help='Do a dry run of the analysis without writing output.'),
-    ]
-
-script_info['version'] = '0.1'
-script_info['authors'] = 'Gavin Huttley'
-
-def main():
-    option_parser, opts, args =\
-       parse_command_line_parameters(disallow_positional_arguments=False, **script_info)
+def main(countsfile, outpath, countsfile2, strand_symmetry, force_overwrite, dry_run, verbose):
+    args = dict(countsfile=countsfile, outpath=outpath, 
+        countsfile2=countsfile2, force_overwrite=force_overwrite,
+        dry_run=dry_run, verbose=verbose)
     
-    table = LoadTable(opts.countsfile, sep='\t')
-    if not opts.dry_run:
-        log_file_path = os.path.join(util.abspath(opts.outpath),
+    table = LoadTable(countsfile, sep='\t')
+    if not dry_run:
+        log_file_path = os.path.join(util.abspath(outpath),
                                      'spectra_analysis.log')
         LOGGER.log_file_path = log_file_path
+        LOGGER.write(str(args), label='vars')
     
-    LOGGER.input_file(opts.countsfile)
+    LOGGER.input_file(countsfile)
     # if there's a strand symmetry argument then we don't need a second file
-    if opts.strand_symmetry:
+    if strand_symmetry:
         group_label = 'strand'
         counts_table = util.spectra_table(table, group_label)
     
-    if not opts.strand_symmetry:
+    if not strand_symmetry:
         group_label = 'group'
         
         # be sure there's two files
-        counts_table2 = LoadTable(opts.countsfile2, sep='\t')
-        LOGGER.input_file(opts.countsfile2)
+        counts_table2 = LoadTable(countsfile2, sep='\t')
+        LOGGER.input_file(countsfile2)
         counts_table2 = counts_table2.withNewColumn('group',
                                 lambda x: '2', columns=counts_table2.Header[0])
         counts_table1 = table.withNewColumn('group',
@@ -88,7 +61,7 @@ def main():
         raw2 = counts_table2.getRawData(header)
         counts_table = LoadTable(header=header, rows=raw1+raw2)
         
-        if opts.verbose:
+        if verbose:
             print counts_table
         
     # spectra table has [count, start, end, group] order
@@ -102,9 +75,9 @@ def main():
         total_re, dev, df, collated, formula = log_lin.spectra_difference(subtable, group_label)
         r = [list(x) for x in collated.to_records(index=False)]
         
-        if not opts.strand_symmetry:
-            grp_labels = {'1': opts.countsfile,
-                          '2': opts.countsfile2}
+        if not strand_symmetry:
+            grp_labels = {'1': countsfile,
+                          '2': countsfile2}
             grp_index = list(collated.columns).index('group')
             for row in r:
                 row[grp_index] = grp_labels[row[grp_index]]
@@ -133,8 +106,8 @@ def main():
                 rows=results, digits=5).sorted(columns='ret')
     json_path = None
     
-    outpath = util.abspath(opts.outpath)
-    if not opts.dry_run:
+    outpath = util.abspath(outpath)
+    if not dry_run:
         util.create_path(outpath)
         json_path = os.path.join(outpath, 'spectra_analysis.json')
         dump_json(saveable, json_path)
@@ -144,6 +117,3 @@ def main():
         LOGGER.output_file(table_path)
         LOGGER.write(str(significance), label="significance")
 
-
-if __name__ == "__main__":
-    main()
