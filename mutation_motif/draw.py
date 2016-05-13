@@ -1,15 +1,16 @@
 import os, sys
-from optparse import make_option
 from ConfigParser import SafeConfigParser
+
+import click
 
 import numpy
 from matplotlib import pyplot
-from matplotlib.ticker import FuncFormatter
+from matplotlib.ticker import FuncFormatter, MultipleLocator, FormatStrFormatter
 
 from cogent import LoadTable, DNA
 from cogent.util.option_parsing import parse_command_line_parameters
 
-from mutation_motif import util, mutation_analysis, logo
+from mutation_motif import util, mutation_analysis, logo, text
 from mutation_motif.height import get_re_char_heights
 
 from scitrack import CachingLogger
@@ -114,40 +115,41 @@ def draw_position_grid(directions, sample_size=False, width=8, height=8, title_s
     
     return f
 
-script_info = {}
-script_info['brief_description'] = ""
-script_info['script_description'] = "\n".join([
-"draw grid of neighbour effect logos",
-"",
-"Takes the 1.json files produced by mutation_nbr for all mutation directions."])
 
-script_info['required_options'] = [
-     make_option('-p','--paths_cfg',
-                 help='Text file listing path for 1.json file for each '\
-                 'mutation direction (e.g. AtoG).'),
-    ]
+class Config(object):
+    def __init__(self):
+        super(Config, self).__init__()
+        self.force_overwrite = False
+        self.dry_run = False
 
-script_info['optional_options'] = [
-     make_option('--figpath', help='Filename for grid plot. Overides format.'),
-    make_option('--format', default='pdf', choices=['pdf', 'png'],
-        help='Plot format [default:%default].'),
-    make_option('--sample_size', action='store_true', default=False,
-        help='Include sample size on each subplot.'),
-    make_option('-F','--force_overwrite', action='store_true', default=False,
-        help='Overwrite existing files.'),
-    make_option('-D','--dry_run', action='store_true', default=False,
-        help='Do a dry run of the analysis without writing output.'),
-    ]
+pass_config = click.make_pass_decorator(Config, ensure=True)
 
-script_info['version'] = '0.1'
-script_info['authors'] = 'Gavin Huttley'
+@click.group()
+@click.option('--figpath', help='Filename for grid plot. Overides format.')
+@click.option('--plot_cfg', help='Config file for plot size, font size settings.')
+@click.option('--format', default='pdf', type=click.Choice(['pdf', 'png']), help='Plot figure format.')
+@click.option('--sample_size', is_flag=True, help='Include sample size on each subplot.')
+@click.option('-F', '--force_overwrite', is_flag=True, help='Overwrite existing files.')
+@click.option('-D', '--dry_run', is_flag=True, help='Do a dry run of the analysis without writing output.')
+@pass_config
+def main(cfg_context, plot_cfg, figpath, format, sample_size, force_overwrite, dry_run):
+    cfg_context.dry_run = dry_run
+    cfg_context.plot_cfg = plot_cfg
+    cfg_context.force_overwrite = force_overwrite
+    cfg_context.sample_size = sample_size
+    cfg_context.figpath = figpath
+    cfg_context.format = format
 
-
-def main():
-    option_parser, opts, args =\
-       parse_command_line_parameters(disallow_positional_arguments=False, **script_info)
+@main.command()
+@click.option('--paths_cfg', required=True, help='Text file listing path for 1.json file for each '\
+                 'mutation direction (e.g. AtoG).')
+@pass_config
+def nbr_grid(cfg_context, paths_cfg):
+    '''draws grid of sequence logo's from neighbour analysis'''
+    # option_parser, opts, args =\
+       # parse_command_line_parameters(disallow_positional_arguments=False, **script_info)
     
-    config_path = util.abspath(opts.paths_cfg)
+    config_path = util.abspath(paths_cfg)
     indir = os.path.dirname(config_path)
     parser = SafeConfigParser()
     parser.optionxform = str # stops automatic conversion to lower case
@@ -164,11 +166,11 @@ def main():
         
         json_paths[direction] = path
     
-    if not opts.figpath:
-        figpath = os.path.join(indir, "mutation_grid.%s" % opts.format)
+    if not cfg_context.figpath:
+        figpath = os.path.join(indir, "mutation_grid.%s" % cfg_context.format)
         log_file_path = os.path.join(indir, "mutation_grid_draw.log")
     else:
-        figpath = util.abspath(opts.figpath)
+        figpath = util.abspath(cfg_context.figpath)
         log_file_path = "%s.log" % ".".join(figpath.split(".")[:-1])
     
     LOGGER.log_file_path = log_file_path
@@ -178,12 +180,124 @@ def main():
         data = util.load_loglin_stats(path)
         plot_data[direction] = data
     
-    fig = draw_position_grid(plot_data, opts.sample_size)
+    fig = draw_position_grid(plot_data, cfg_context.sample_size)
     
     fig.savefig(figpath)
     LOGGER.output_file(figpath)
     print "Wrote", figpath
 
-if __name__ == "__main__":
-    main()
+def draw_spectrum_grid(data, plot_cfg=None, sample_size=False, width=8, height=8, title_space=1.1, axis_font_size=20, tick_font_size=10, ylim=None):
+    all_bases = 'ACGT'
+    bases = list(data)
+    bases.sort()
+    assert set(data.keys()) <= set(all_bases)
+    num_bases = len(data)
+    figsize = list(plot_cfg.get('grid', 'figsize'))
+    if num_bases == 2:
+        figsize[1] = figsize[1] // 2
     
+    f, arr = pyplot.subplots(num_bases, 4, sharex=True, sharey=True, figsize=figsize)
+    f.subplots_adjust(hspace=.2, wspace=0.2)
+    if ylim is None:
+        ylim = 0
+        for base in bases:
+            ylim = max(ylim, max(data[base].values()))
+        
+        ylim *= 1.2
+    
+    major_loc = MultipleLocator(ylim/2.)
+    yformat = FuncFormatter(format_float(1e-3, float_places=2))
+    
+    for i in range(num_bases):
+        a = arr[i][0]
+        r = a.yaxis.set_major_locator(major_loc)
+        r = a.yaxis.set_major_formatter(yformat)
+        a.set_ylim([0, ylim])
+    
+    xtick_labels = []
+    xlim = None
+    x, y = None, 0
+    dx = None
+    letter_pad = 0.1
+    for i in range(num_bases):
+        for j in range(4):
+            a = arr[i][j]
+            r = [a.tick_params(axis='x', which='major', bottom='off', top='off')]
+            xtick_labels.append(a.get_xticklabels())
+            xlim = xlim or a.get_xlim()
+            if x is None and xlim:
+                x = letter_pad * xlim[1]
+                dx = xlim[1] - (2 * letter_pad)
+
+            if i == j:
+                continue
+            
+            dy = data[bases[i]][all_bases[j]]
+            if dy < 0:
+                invert = True
+                dy *= -1
+            else:
+                invert = False
+            
+            text.add_letter(all_bases[j], x, y, dx, dy, ax=a, invert=invert)
+        
+        pyplot.setp(xtick_labels, visible=False)
+    
+    for i in range(num_bases):
+        a = arr[i][0]
+        a.set_ylabel(bases[i], rotation=0, labelpad=20, fontsize=24)
+    
+    for i in range(4):
+        a = arr[0][i]
+        a.set_title(all_bases[i], fontsize=24)
+    
+    f.tight_layout()
+    return f
+
+
+def load_spectra_data(json_path, selected_group):
+    # for each starting base, we need the total relative entropy
+    # we need the ret's for each ending base
+    data = util.load_loglin_stats(json_path)
+    bases = list(data)
+    bases.sort()
+    assert set(data.keys()) <= set('CTAG')
+    num_bases = len(data)
+    
+    if 'group' in data[bases[0]]['stats'].columns:
+        group_col = 'group'
+        selected_group = selected_group or '1'
+    else:
+        group_col = 'strand'
+        selected_group = selected_group or '+'
+    
+    result = {}
+    for base in bases:
+        total_re = data[base]['rel_entropy']
+        subset = data[base]['stats'][data[base]['stats'][group_col].apply(str) == selected_group].copy()
+        if subset.empty:
+            print "No entries equal to '%s'" % str(selected_group)
+            exit(-1)
+        
+        total_ret = numpy.fabs(subset["ret"]).sum()
+        subset['prop'] = total_re * subset['ret'] / total_ret
+        subset['end'] = [d[-1:] for d in subset['direction']]
+        result[base] = dict((b, v) for i, b, v in subset[['end', 'prop']].to_records())
+    
+    return result
+
+@main.command()
+@click.option('--json_path', required=True, help="Path to spectra analysis spectra_analysis.json")
+@click.option('--group_label', default='1', help="Id for reference group")
+@pass_config
+def spectra_grid(cfg_context, json_path, group_label):
+    """draws logo from mutation spectra analysis"""
+    # the following is for logging
+    args = vars(cfg_context)
+    args.update(dict(json_path=json_path, group_label=group_label))
+    
+    data = load_spectra_data(json_path, group_label)
+    plot_cfg = util.get_plot_configs(cfg_path=cfg_context.plot_cfg)
+    f = draw_spectrum_grid(data, sample_size=cfg_context.sample_size, plot_cfg=plot_cfg)
+    f.savefig(cfg_context.figpath)
+

@@ -62,7 +62,7 @@ setup(
             'console_scripts': ['mutation_analysis=mutation_motif.mutation_analysis:main',
                                 'aln_to_counts=mutation_motif.aln_to_counts:main',
                                 'all_counts=mutation_motif.all_counts:main',
-                                'mutation_grid=mutation_motif.draw:main',
+                                'mutation_draw=mutation_motif.draw:main',
                             ],
         }
     )
