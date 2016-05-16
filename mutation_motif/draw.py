@@ -182,6 +182,11 @@ def nbr_grid(cfg_context, paths_cfg):
     
     fig = draw_position_grid(plot_data, cfg_context.sample_size)
     
+    fig.text(0.4, 0.955, "Ending Base", fontsize=20)
+    fig.text(0.03, 0.55, "Starting Base", rotation=90, fontsize=20)
+    fig.tight_layout(rect=(0.06, 0, 0.95, 0.95))
+    
+    
     fig.savefig(figpath)
     LOGGER.output_file(figpath)
     print "Wrote", figpath
@@ -251,7 +256,19 @@ def draw_spectrum_grid(data, plot_cfg=None, sample_size=False, width=8, height=8
         a = arr[0][i]
         a.set_title(all_bases[i], fontsize=24)
     
-    f.tight_layout()
+    if num_bases == 4:
+        rect = (0.06, 0, 0.95, 0.95)
+        title_y = 0.955
+    elif num_bases == 2:
+        rect = (0.06, 0, 0.95, 0.9)
+        title_y = 0.9
+    else:
+        raise ValueError("Number of bases must be 4 or 2, not %d" % num_bases)
+    
+    f.text(0.4, title_y, "Ending Base", fontsize=20)
+    f.text(0.03, 0.55, "Starting Base", rotation=90, fontsize=20)
+    f.tight_layout(rect=rect)
+    
     return f
 
 
