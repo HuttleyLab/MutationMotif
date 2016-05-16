@@ -255,7 +255,7 @@ def draw_spectrum_grid(data, plot_cfg=None, sample_size=False, width=8, height=8
     return f
 
 
-def load_spectra_data(json_path, selected_group):
+def load_spectra_data(json_path, group_col):
     # for each starting base, we need the total relative entropy
     # we need the ret's for each ending base
     data = util.load_loglin_stats(json_path)
@@ -264,12 +264,16 @@ def load_spectra_data(json_path, selected_group):
     assert set(data.keys()) <= set('CTAG')
     num_bases = len(data)
     
+    if group_col:
+        assert group_col in "strand group", "group_col must be 'group' or 'strand', got %s" % group_col
+    
     if 'group' in data[bases[0]]['stats'].columns:
         group_col = 'group'
-        selected_group = selected_group or '1'
     else:
         group_col = 'strand'
-        selected_group = selected_group or '+'
+    
+    selected_group = {'strand': '+', 'group': '1'}.get(group_col, None)
+    assert selected_group is not None, selected_group
     
     result = {}
     for base in bases:
