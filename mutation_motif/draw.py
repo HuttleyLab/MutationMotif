@@ -321,4 +321,5 @@ def spectra_grid(cfg_context, json_path, group_label):
     plot_cfg = util.get_plot_configs(cfg_path=cfg_context.plot_cfg)
     f = draw_spectrum_grid(data, sample_size=cfg_context.sample_size, plot_cfg=plot_cfg)
     f.savefig(cfg_context.figpath)
+    print "Wrote", cfg_context.figpath
 
