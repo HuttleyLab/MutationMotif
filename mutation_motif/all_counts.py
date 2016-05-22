@@ -82,7 +82,7 @@ def main():
             create_path(split_dir)
         
         LOGGER.log_file_path = runlog_path
-        LOGGER.write(str(vars(opts)), label='vars')
+        LOGGER.log_message(str(vars(opts)), label='vars')
         for fn in counts_files:
             LOGGER.input_file(fn, label="count_file")
     
@@ -138,6 +138,6 @@ def main():
     # determine runtime
     duration = time.time() - start_time
     if not opts.dry_run:
-        LOGGER.write("%.2f" % (duration/60.), label="run duration (minutes)")
+        LOGGER.log_message("%.2f" % (duration/60.), label="run duration (minutes)")
     
     print "Done!"

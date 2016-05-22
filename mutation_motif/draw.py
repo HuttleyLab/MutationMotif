@@ -146,8 +146,9 @@ def main(cfg_context, plot_cfg, figpath, format, sample_size, force_overwrite, d
 @pass_config
 def nbr_grid(cfg_context, paths_cfg):
     '''draws grid of sequence logo's from neighbour analysis'''
-    # option_parser, opts, args =\
-       # parse_command_line_parameters(disallow_positional_arguments=False, **script_info)
+    args = vars(cfg_context)
+    args.update(dict(paths_cfg=paths_cfg))
+    LOGGER.log_message(str(args), label='vars')
     
     config_path = util.abspath(paths_cfg)
     indir = os.path.dirname(config_path)

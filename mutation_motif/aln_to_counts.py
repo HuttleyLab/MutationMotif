@@ -46,7 +46,7 @@ def align_to_counts(opts):
         orig, ctl = profile.get_profiles(seqs, chosen_base=chosen_base, step=step,
                                      flank_size=opts.flank_size, seed=opts.seed)
     else:
-        LOGGER.write("A randomised selection of starting base locations use for observed counts.")
+        LOGGER.log_message("A randomised selection of starting base locations use for observed counts.")
         # we are setting a randomised set of locations as our observed SNPs
         ctl = profile.get_control(seqs, chosen_base=chosen_base, step=step,
                                      flank_size=opts.flank_size, seed=opts.seed)
@@ -112,7 +112,7 @@ def main():
         
         create_path(opts.output_path)
         
-        LOGGER.write(str(vars(opts)), label='vars')
+        LOGGER.log_message(str(vars(opts)), label='vars')
         LOGGER.input_file(opts.align_path, label="align_path")
     
     start_time = time.time()
@@ -128,4 +128,4 @@ def main():
     # determine runtime
     duration = time.time() - start_time
     if not opts.dry_run:
-        LOGGER.write("%.2f" % (duration/60.), label="run duration (minutes)")
+        LOGGER.log_message("%.2f" % (duration/60.), label="run duration (minutes)")

@@ -588,7 +588,7 @@ def nbr(cfg_context, first_order, group_label, group_ref, plot_cfg, format):
         args.update(dict(first_order=first_order, strand_symmetry=cfg_context.strand_symmetry,
             plot_cfg=plot_cfg, format=format, group_label=group_label, group_ref=group_ref))
         
-        LOGGER.write(str(args), label='vars')
+        LOGGER.log_message(str(args), label='vars')
     
     counts_filename = util.abspath(cfg_context.countsfile)
     counts_table = util.load_table_from_delimited_file(counts_filename, sep='\t')

@@ -33,7 +33,7 @@ def main(countsfile, outpath, countsfile2, strand_symmetry, force_overwrite, dry
         log_file_path = os.path.join(util.abspath(outpath),
                                      'spectra_analysis.log')
         LOGGER.log_file_path = log_file_path
-        LOGGER.write(str(args), label='vars')
+        LOGGER.log_message(str(args), label='vars')
     
     LOGGER.input_file(countsfile)
     # if there's a strand symmetry argument then we don't need a second file
@@ -115,5 +115,5 @@ def main(countsfile, outpath, countsfile2, strand_symmetry, force_overwrite, dry
         table_path = os.path.join(outpath, 'spectra_summary.txt')
         table.writeToFile(table_path, sep='\t')
         LOGGER.output_file(table_path)
-        LOGGER.write(str(significance), label="significance")
+        LOGGER.log_message(str(significance), label="significance")
 
