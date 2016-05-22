@@ -1,7 +1,6 @@
 from numpy import matrix, fabs, array, ceil, around, floor, log10
 
 from matplotlib import pyplot
-#pyplot.switch_backend('Agg')
 
 import matplotlib.pyplot as plt
 from pylab import savefig, gcf, gca, clf
