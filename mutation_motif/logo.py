@@ -122,7 +122,7 @@ def draw_alignment(char_heights, characters=None, ax=None, figsize=None, ylim=No
     
     return fig
 
-def draw_multi_position(char_heights, characters, position_indices, ax=None, figsize=None, ylim=None, figwidth=None, fig_callback=None, set_ticks_func=set_anchored_ticks, xtick_fontsize=14, ytick_fontsize=14, verbose=False):
+def draw_multi_position(char_heights, characters, position_indices, ax=None, figsize=None, ylim=None, figwidth=None, fig_callback=None, set_ticks_func=set_anchored_ticks, xtick_fontsize=14, ytick_fontsize=14, sort_data=False, verbose=False):
     """Takes in an alignment and creates an image from the alignment profile.
     """
     if ylim is None:
@@ -158,7 +158,8 @@ def draw_multi_position(char_heights, characters, position_indices, ax=None, fig
     for position_index in position_indices:
         draw_position(position_index,
             char_heights[position_index],
-            characters=characters[position_index], ax=ax)
+            characters=characters[position_index], ax=ax,
+            sort_data=sort_data)
     
     ax.tick_params(axis='y', labelsize=ytick_fontsize, pad=ytick_fontsize//2)
     ax.tick_params(axis='x', length=0)

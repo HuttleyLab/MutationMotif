@@ -5,13 +5,13 @@ import click
 
 import numpy
 from matplotlib import pyplot
+
 from matplotlib.ticker import FuncFormatter, MultipleLocator, FormatStrFormatter
 
 from cogent import LoadTable, DNA
-from cogent.util.option_parsing import parse_command_line_parameters
 
-from mutation_motif import util, mutation_analysis, logo, text
-from mutation_motif.height import get_re_char_heights
+from mutation_motif import util, mutation_analysis, logo, text, entropy
+from mutation_motif.height import get_re_char_heights, get_mi_char_heights
 
 from scitrack import CachingLogger
 
@@ -125,7 +125,7 @@ class Config(object):
 pass_config = click.make_pass_decorator(Config, ensure=True)
 
 @click.group()
-@click.option('--figpath', help='Filename for grid plot. Overides format.')
+@click.option('--figpath', help='Filename for plot file. Overides format.')
 @click.option('--plot_cfg', help='Config file for plot size, font size settings.')
 @click.option('--format', default='pdf', type=click.Choice(['pdf', 'png']), help='Plot figure format.')
 @click.option('--sample_size', is_flag=True, help='Include sample size on each subplot.')
@@ -337,6 +337,82 @@ def spectra_grid(cfg_context, json_path, group_label):
         LOGGER.input_file(cfg_context.plot_cfg)
     f = draw_spectrum_grid(data, sample_size=cfg_context.sample_size, plot_cfg=plot_cfg)
     f.savefig(cfg_context.figpath)
+    LOGGER.output_file(cfg_context.figpath)
+    print "Wrote", cfg_context.figpath
+
+@main.command()
+@click.option('--json_path', required=True,
+        help="Path to 1.json produced by mutation_analysis nbr")
+@pass_config
+def mi(cfg_context, json_path):
+    """draws conventional sequence logo, using MI, from first order effects"""
+    # the following is for logging
+    json_path = util.abspath(json_path)
+    args = vars(cfg_context)
+    args.update(dict(json_path=json_path))
+    
+    if not cfg_context.figpath:
+        dirname = os.path.dirname(json_path)
+        figpath = os.path.join(dirname, "MI.%s" % cfg_context.format)
+        log_file_path = os.path.join(dirname, "MI.log")
+    else:
+        figpath = util.abspath(cfg_context.figpath)
+        log_file_path = "%s.log" % ".".join(figpath.split(".")[:-1])
+    
+    LOGGER.log_file_path = log_file_path
+    
+    if cfg_context.plot_cfg:
+        LOGGER.input_file(cfg_context.plot_cfg)
+    
+    plot_config = util.get_plot_configs(cfg_path=cfg_context.plot_cfg)
+    
+    LOGGER.log_message(str(args), label='vars')
+    
+    data = util.load_loglin_stats(json_path)
+    positions = data.keys()
+    positions.sort()
+    num_pos = len(positions) + 1
+    mp = num_pos // 2
+    counts_array = numpy.zeros((4, num_pos), int)
+    for i, pos in enumerate(positions):
+        if i >= mp:
+            i += 1
+        pos_stats = data[pos]['stats']
+        counts = pos_stats[pos_stats['mut'] == 'M'][["base", "count"]]
+        counts = dict(zip(counts['base'], counts['count']))
+        for base in counts:
+            base_index = DNA.Alphabet.index(base)
+            counts_array[base_index, i] = counts[base]
+        
+    freq_matrix = entropy.counts_to_freq_matrix(counts_array)
+    mit = entropy.get_mit(freq_matrix, freq_matrix=True)
+    mi = mit.sum(axis=0)
+    char_hts = get_mi_char_heights(numpy.fabs(mit), mi)
+    
+    plot_cfg = util.get_plot_configs(cfg_path=cfg_context.plot_cfg)
+    
+    ytick_font = plot_config.get('1-way plot', 'ytick_fontsize')
+    xtick_font = plot_config.get('1-way plot', 'xtick_fontsize')
+    ylabel_font = plot_config.get('1-way plot', 'ylabel_fontsize')
+    xlabel_font = plot_config.get('1-way plot', 'xlabel_fontsize')
+    fig = logo.draw_multi_position(char_hts.T,
+                    characters=[list(DNA)]*num_pos,
+                    position_indices=range(num_pos),
+                    figsize=plot_config.get('1-way plot', 'figsize'),
+                    xtick_fontsize=xtick_font,
+                    ytick_fontsize=ytick_font,
+                    sort_data=True)
+    
+    if cfg_context.plot_cfg:
+        LOGGER.input_file(cfg_context.plot_cfg)
+    
+    ax = fig.gca()
+    ax.tick_params(axis='y', labelsize=ytick_font)
+    ax.tick_params(axis='x', labelsize=xtick_font)
+    ax.set_ylabel("MI")
+    ax.set_xlabel("Position")
+    fig.tight_layout()
+    fig.savefig(cfg_context.figpath)
     LOGGER.output_file(cfg_context.figpath)
     print "Wrote", cfg_context.figpath
 

@@ -30,6 +30,17 @@ def get_ret(ref, ctl, pseudocount=1, check_valid=False):
     ret = p * log2(p/q)
     return ret
 
+def counts_to_freq_matrix(counts, pseudocount=0, check_valid=False):
+    """converts a counts array to a frequency matrix"""
+    col_sums = counts.sum(axis=0)
+    if check_valid:
+        assert len(set(col_sums)) == 1, "all counts columns should be identical"
+    
+    total = col_sums[0]
+    counts = counts.astype(float)
+    counts /= total
+    return counts
+
 def as_freq_matrix(data, pseudocount=0, check_valid=False):
     """returns data as a frequency matrix, using pseudocounts to adjust"""
     if check_valid:
@@ -47,16 +58,21 @@ def as_freq_matrix(data, pseudocount=0, check_valid=False):
     p = base_counts / (total + pseudocount * 4)
     return p
 
-def get_entropy_terms(data, pseudocount=0, check_valid=False):
+def get_entropy_terms(data, pseudocount=0, check_valid=False, freq_matrix=False):
     """returns Shannons entropy terms for axis=0"""
-    p = as_freq_matrix(data, pseudocount=pseudocount, check_valid=check_valid)
+    if freq_matrix:
+        p = data
+    else:
+        p = as_freq_matrix(data, pseudocount=pseudocount, check_valid=check_valid)
+    
     et = -p * log2(p)
     return et
 
-def get_mit(data, pseudocount=0, check_valid=False):
+def get_mit(data, pseudocount=0, check_valid=False, freq_matrix=False):
     """returns MI terms for axis=0"""
     entropy_terms = get_entropy_terms(data, pseudocount=pseudocount, 
-                                        check_valid=check_valid)
+                                        check_valid=check_valid,
+                                        freq_matrix=freq_matrix)
     mit = 0.5 - entropy_terms
     mit[isnan(mit)] = 0
     return mit
