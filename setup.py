@@ -31,12 +31,13 @@ setup(
     author_email="gavin.huttley@anu.edu.au",
     description=short_description,
     long_description=long_description,
+    url="https://bitbucket.org/gavin.huttley/mutationmotif",
     platforms=["any"],
     license=["GPL"],
     keywords=["biology", "genomics", "genetics", "statistics", "evolution",
                 "bioinformatics"],
     classifiers=[
-            "Development Status :: 5 - Production/Stable",
+            "Development Status :: 3 - Alpha",
             "Intended Audience :: Science/Research",
             "License :: OSI Approved :: GNU General Public License (GPL)",
             "Topic :: Scientific/Engineering :: Bio-Informatics",
@@ -56,8 +57,7 @@ setup(
     # note: http://stackoverflow.com/questions/3472430/how-can-i-make-setuptools-install-a-package-thats-not-on-pypi
     # and http://stackoverflow.com/questions/17366784/setuptools-unable-to-use-link-from-dependency-links/17442663#17442663
     # changing it to http://github.com/mtai/python-gearman/tarball/master#egg=gearman-2.0.0beta instead
-    dependency_links=['https://github.com/GavinHuttley/pycogent/archive/master.zip#egg=cogent-1.5.3-dev',
-                      'hg+ssh://hg@bitbucket.org/gavin.huttley/scitrack'],
+    dependency_links=['https://github.com/GavinHuttley/pycogent/archive/master.zip#egg=cogent-1.5.3-dev'],
     entry_points={
             'console_scripts': ['mutation_analysis=mutation_motif.mutation_analysis:main',
                                 'aln_to_counts=mutation_motif.aln_to_counts:main',
