@@ -76,19 +76,6 @@ def get_grouped_combined_counts(table, position, group_label):
     counts.sorted(columns=[group_label, 'mut'])
     return counts
 
-def get_grouped_combined_counts_old(table, position, group_label):
-    """wraps motif_count.get_combined_counts for groups"""
-    counts1 = motif_count.get_combined_counts(table.filtered("%s in ('1', 1)" % group_label), position)
-    counts2 = motif_count.get_combined_counts(table.filtered("%s in ('2', 2)" % group_label), position)
-    header = list(counts1.Header)
-    counts1 = counts1.withNewColumn(group_label, lambda x : 1, columns=header[0])
-    counts2 = counts2.withNewColumn(group_label, lambda x : 2, columns=header[0])
-    header = [group_label] + header
-    counts = LoadTable(header=header,
-            rows=counts1.getRawData(header)+counts2.getRawData(header))
-    counts.sorted(columns=[group_label, 'mut'])
-    return counts
-
 def get_position_effects(table, position_sets, group_label=None):
     pos_results = {}
     grouped = group_label is not None
