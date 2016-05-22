@@ -168,8 +168,8 @@ def nbr_grid(cfg_context, paths_cfg):
         json_paths[direction] = path
     
     if not cfg_context.figpath:
-        figpath = os.path.join(indir, "mutation_grid.%s" % cfg_context.format)
-        log_file_path = os.path.join(indir, "mutation_grid_draw.log")
+        figpath = os.path.join(indir, "nbr_grid.%s" % cfg_context.format)
+        log_file_path = os.path.join(indir, "nbr_grid.log")
     else:
         figpath = util.abspath(cfg_context.figpath)
         log_file_path = "%s.log" % ".".join(figpath.split(".")[:-1])
@@ -276,6 +276,7 @@ def draw_spectrum_grid(data, plot_cfg=None, sample_size=False, width=8, height=8
 def load_spectra_data(json_path, group_col):
     # for each starting base, we need the total relative entropy
     # we need the ret's for each ending base
+    LOGGER.input_file(json_path)
     data = util.load_loglin_stats(json_path)
     bases = list(data)
     bases.sort()
@@ -318,9 +319,24 @@ def spectra_grid(cfg_context, json_path, group_label):
     args = vars(cfg_context)
     args.update(dict(json_path=json_path, group_label=group_label))
     
+    if not cfg_context.figpath:
+        dirname = os.path.dirname(json_path)
+        figpath = os.path.join(dirname, "spectra_grid.%s" % cfg_context.format)
+        log_file_path = os.path.join(dirname, "spectra_grid.log")
+    else:
+        figpath = util.abspath(cfg_context.figpath)
+        log_file_path = "%s.log" % ".".join(figpath.split(".")[:-1])
+    
+    LOGGER.log_file_path = log_file_path
+    
+    LOGGER.log_message(str(args), label='vars')
+    
     data = load_spectra_data(json_path, group_label)
     plot_cfg = util.get_plot_configs(cfg_path=cfg_context.plot_cfg)
+    if cfg_context.plot_cfg:
+        LOGGER.input_file(cfg_context.plot_cfg)
     f = draw_spectrum_grid(data, sample_size=cfg_context.sample_size, plot_cfg=plot_cfg)
     f.savefig(cfg_context.figpath)
+    LOGGER.output_file(cfg_context.figpath)
     print "Wrote", cfg_context.figpath
 
