@@ -2,13 +2,13 @@ from numpy import array, isnan, fabs
 from cogent.align.weights.util import AlnToProfile, DNA, DNA_ORDER
 
 # this for MI
-def get_mi_char_heights(probs, heights, zero_middle=True):
+def get_mi_char_heights(freq_matrix, mi, zero_middle=True):
     """returns char height for each position in aln.
     """
-    result = probs * heights
+    result = freq_matrix * mi
     if zero_middle:
         # zero the middle position
-        mid = (result.shape[1] -1 ) / 2
+        mid = (result.shape[1] -1) / 2
         result[:, mid] = 0
     return result
 
