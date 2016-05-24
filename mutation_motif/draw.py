@@ -412,7 +412,7 @@ def mi(cfg_context, json_path):
     ax.set_ylabel("MI")
     ax.set_xlabel("Position")
     fig.tight_layout()
-    fig.savefig(cfg_context.figpath)
-    LOGGER.output_file(cfg_context.figpath)
-    print "Wrote", cfg_context.figpath
+    fig.savefig(figpath)
+    LOGGER.output_file(figpath)
+    print "Wrote", figpath
 
