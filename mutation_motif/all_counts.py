@@ -110,7 +110,6 @@ def main():
         all_counts += new
     
     table = LoadTable(header=header, rows=all_counts)
-    assert table.Shape[0] == (12 * num_rows), "not all tables had the same number of rows: %s" % (12 * num_rows)
     
     if opts.strand_symmetric:
         table = make_strand_symmetric_table(table)
