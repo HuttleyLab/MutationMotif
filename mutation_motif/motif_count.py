@@ -32,7 +32,7 @@ def profile_to_seq_counts(data, flank_size):
     seqs = Counter(seqs)
     return seqs
 
-def get_count_table(observed, control, k):
+def get_count_table(observed, control, k=None):
     """return table of motif counts
     
     Each motif position is a separate column. All possible DNA motifs of length
@@ -43,6 +43,16 @@ def get_count_table(observed, control, k):
         - control: the control counts as {seq: count}
         - k: size of the motif"""
     rows = []
+    lengths = set(map(len, observed.keys()) + map(len, control.keys()))
+    if len(lengths) != 1:
+        raise ValueError("Motifs not all same length: %s" % str(lengths))
+    
+    length = list(lengths)[0]
+    if k and length != k:
+        raise ValueError("k[%d] doesn't match motif length [%d]" % (k, length))
+    elif k is None:
+        k = length
+    
     states = list(set(observed.keys()) | set(control.keys()))
     states.sort()
     for state in states:

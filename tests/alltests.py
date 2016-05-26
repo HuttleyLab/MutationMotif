@@ -24,6 +24,7 @@ def suite():
         'test_entropy',
         'test_util',
         'test_heights',
+        'test_motif_count',
         'test_complement',
         ]
 
