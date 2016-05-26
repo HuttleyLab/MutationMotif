@@ -1,4 +1,6 @@
 #!/usr/bin/env python2.7
+from cogent import LoadTable
+from cogent.util.unit_test import TestCase, main
 from mutation_motif.complement import _reverse_complement
 
 class TestEntropy(TestCase):
@@ -18,4 +20,10 @@ class TestEntropy(TestCase):
                 [1919, 'T', 'T', 'G', 'T', 'M', 'AtoC'],
                 [442, 'T', 'G', 'T', 'C', 'M', 'AtoC']]
         got = _reverse_complement(table)
-        assert self.assertEqual(got.getRawData(), ex)
+        raw_got = got.getRawData()
+        
+        self.assertEqual(raw_got, ex)
+
+if __name__ == '__main__':
+    main()
+
