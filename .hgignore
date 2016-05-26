@@ -15,5 +15,5 @@ build
 *htmlcov*
 *.idea
 draw_results
-*.coverage
+*cover*
 *mutation_motif.egg-info*
