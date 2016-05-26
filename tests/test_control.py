@@ -9,7 +9,7 @@ from cogent.core.alignment import DenseAlignment
 
 from mutation_motif.profile import get_control,\
             MakeCircleRange, get_random_indices, filter_seqs_by_chosen_base,\
-            chosen_base_indices
+            chosen_base_indices, get_zero_counts
 
 class TestChooseBases(TestCase):
     #aln = LoadSeqs('data/chosen_base_indices.fasta')
@@ -194,7 +194,14 @@ class TestIndices(TestCase):
         
         self.assertEqual(full_list, expect)
 
-
+class TestProfile(TestCase):
+    def test_zero_counts(self):
+        """zero profile constructed correctly"""
+        c = get_zero_counts(5, int, pseudo_count=0)
+        self.assertEqual(c.shape,(4, 5))
+        self.assertEqual(c.tolist(), [[0, 0, 0, 0, 0]] * 4)
+        c = get_zero_counts(5, int, pseudo_count=1)
+        self.assertEqual(c.tolist(), [[1, 1, 1, 1, 1]] * 4)
 
 if __name__ == '__main__':
     main()
