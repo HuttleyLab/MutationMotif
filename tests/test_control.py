@@ -135,6 +135,7 @@ class TestAlignSnpAnnotation(TestCase):
     step = 3
     slice_side = 7
     direction = 'AtoC'
+    seed = '1234'
     chosen_base = direction[0]
     
     def test_get_control(self):
@@ -146,7 +147,7 @@ class TestAlignSnpAnnotation(TestCase):
         
         for i in range(5):
             control = get_control(self.d_aln, self.chosen_base,
-                                             self.step, self.slice_side)
+                                     self.step, self.slice_side, seed=self.seed)
             self.assertTrue(control.tolist() in expected)
     
 
