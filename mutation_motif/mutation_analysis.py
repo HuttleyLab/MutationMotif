@@ -593,7 +593,6 @@ def nbr(cfg_context, first_order, group_label, group_ref, plot_cfg, format):
             print "ERROR: no column named 'strand', exiting."
             exit(-1)
         
-    
     if cfg_context.countsfile2:
         print "Performing 2 group analysis"
         group_label = group_label or 'group'
@@ -619,15 +618,16 @@ def nbr(cfg_context, first_order, group_label, group_ref, plot_cfg, format):
             counts_table.writeToFile(outfile, sep='\t')
             LOGGER.output_file(outfile, label="group_counts")
             
-    
     if cfg_context.dry_run or cfg_context.verbose:
         print
         print counts_table
         print
     
-    plot_config = util.get_plot_configs(cfg_path=cfg_context.plot_cfg)
-    msg = single_group(counts_table, outpath, group_label, group_ref, positions, plot_config, cfg_context.first_order,
-                         cfg_context.dry_run)
+    plot_config = util.get_plot_configs(cfg_path=plot_cfg)
+    
+    msg = single_group(counts_table, outpath, group_label, group_ref, positions,
+                       plot_config, first_order,
+                       cfg_context.dry_run)
     print msg
 
 @main.command()

@@ -311,7 +311,7 @@ def load_spectra_data(json_path, group_col):
 
 @main.command()
 @click.option('--json_path', required=True, help="Path to spectra analysis spectra_analysis.json")
-@click.option('--group_label', default='1', help="Id for reference group")
+@click.option('--group_label', default='group', help="Id for reference group")
 @pass_config
 def spectra_grid(cfg_context, json_path, group_label):
     """draws logo from mutation spectra analysis"""
