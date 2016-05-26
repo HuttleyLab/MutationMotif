@@ -3,9 +3,9 @@ from __future__ import division
 
 import os, sys, time, re
 from itertools import permutations
-from optparse import make_option
 
-from cogent.util.option_parsing import parse_command_line_parameters
+import click
+
 from scitrack import CachingLogger
 
 from mutation_motif.util import open_, create_path, abspath, just_nucs,\
@@ -28,104 +28,99 @@ def get_counts_filename(align_path, output_dir):
     counts_filename = os.path.join(output_dir, fn)
     return counts_filename
 
-def align_to_counts(opts):
+def align_to_counts(align_path, output_path, flank_size, direction, step, seed, randomise, dry_run):
     '''returns counts table from alignment of sequences centred on a SNP'''
     
-    if not opts.dry_run:
-        create_path(opts.output_path)
+    if not dry_run:
+        create_path(output_path)
     
     print "Deriving counts from sequence file"
-    step = int(opts.step)
+    step = int(step)
     
-    direction = tuple(opts.direction.split('to'))
+    direction = tuple(direction.split('to'))
     chosen_base = direction[0]
-    orig_seqs = load_from_fasta(os.path.abspath(opts.align_path))
+    orig_seqs = load_from_fasta(os.path.abspath(align_path))
     seqs = orig_seqs.ArraySeqs
     seqs = just_nucs(seqs)
-    if not opts.randomise:
+    if not randomise:
         orig, ctl = profile.get_profiles(seqs, chosen_base=chosen_base, step=step,
-                                     flank_size=opts.flank_size, seed=opts.seed)
+                                     flank_size=flank_size, seed=seed)
     else:
         LOGGER.log_message("A randomised selection of starting base locations use for observed counts.")
         # we are setting a randomised set of locations as our observed SNPs
         ctl = profile.get_control(seqs, chosen_base=chosen_base, step=step,
-                                     flank_size=opts.flank_size, seed=opts.seed)
+                                     flank_size=flank_size, seed=seed)
         orig = profile.get_control(seqs, chosen_base=chosen_base, step=step,
-                                     flank_size=opts.flank_size, seed=opts.seed)
+                                     flank_size=flank_size, seed=seed)
     
     # convert profiles to a motif count table
-    orig_counts = motif_count.profile_to_seq_counts(orig, flank_size=opts.flank_size)
-    ctl_counts = motif_count.profile_to_seq_counts(ctl, flank_size=opts.flank_size)
-    counts_table = motif_count.get_count_table(orig_counts, ctl_counts, opts.flank_size*2)
+    orig_counts = motif_count.profile_to_seq_counts(orig, flank_size=flank_size)
+    ctl_counts = motif_count.profile_to_seq_counts(ctl, flank_size=flank_size)
+    counts_table = motif_count.get_count_table(orig_counts, ctl_counts, flank_size*2)
     counts_table = counts_table.sorted(columns='mut')
     return counts_table
 
-script_info = {}
-script_info['brief_description'] = ""
-script_info['script_description'] = "export tab delimited counts table from "\
-"alignment centred on SNP position. Output file is written to the same "\
-"path with just the file suffix changed from fasta to txt."
-
-script_info['required_options'] = [
-     make_option('-a','--align_path', help='fasta aligned file centred on mutated position.'),
-     make_option('-o','--output_path', help='Path to write data.'),
-     make_option('-f','--flank_size', type=int, help='Number of bases per side to include.'),
-     make_option('--direction', default=None,
-                 choices=['AtoC', 'AtoG', 'AtoT', 'CtoA', 'CtoG', 'CtoT', 'GtoA', 'GtoC',
-                          'GtoT', 'TtoA', 'TtoC', 'TtoG'], help='Mutation direction.'),
-    ]
-
-script_info['optional_options'] = [
-    make_option('-S', '--seed',
-        help='Seed for random number generator (e.g. 17, or 2015-02-13). Defaults to system time.'),
-    make_option('-R', '--randomise', action='store_true', default=False,
-        help='Randomises the observed data, observed and reference counts distributions should match.'),
-    make_option('--step', default='1', choices=['1', '2', '3'],
-        help='Specifies a "frame" for selecting the random base. [default=%default]'),
-    make_option('-D','--dry_run', action='store_true', default=False,
-        help='Do a dry run of the analysis without writing output.'),
-    make_option('-F','--force_overwrite', action='store_true', default=False,
-        help='Overwrite output and run.log files.'),
-    ]
-
-script_info['version'] = '0.1'
-script_info['authors'] = 'Gavin Huttley'
-
-def main():
-    option_parser, opts, args =\
-       parse_command_line_parameters(**script_info)
+@click.command()
+@click.option("-a", "--align_path", required=True,
+    help="fasta aligned file centred on mutated position.")
+@click.option('-o','--output_path', required=True, help='Path to write data.')
+@click.option('-f','--flank_size', required=True, type=int,
+    help='Number of bases per side to include.')
+@click.option('--direction', required=True, default=None,
+    type=click.Choice(['AtoC', 'AtoG', 'AtoT', 'CtoA', 'CtoG', 'CtoT',
+                       'GtoA', 'GtoC', 'GtoT', 'TtoA', 'TtoC', 'TtoG']),
+    help='Mutation direction.')
+@click.option('-S', '--seed',
+    help='Seed for random number generator (e.g. 17, or 2015-02-13). Defaults to system time.')
+@click.option('-R', '--randomise', is_flag=True,
+    help='Randomises the observed data, observed and reference counts '\
+    +'distributions should match.')
+@click.option('--step', default='1', type=click.Choice(['1', '2', '3']),
+        help='Specifies a "frame" for selecting the random base.')
+@click.option('-D','--dry_run', is_flag=True,
+        help='Do a dry run of the analysis without writing output.')
+@click.option('-F','--force_overwrite', is_flag=True,
+        help='Overwrite output and run.log files.')
+def main(align_path, output_path, flank_size, direction, seed, randomise, step, dry_run, force_overwrite):
+    """Export tab delimited counts table from alignment centred on SNP position.
     
-    if not opts.seed:
-        opts.seed = str(time.time())
+    Output file is written to the same path with just the file suffix changed
+    from fasta to txt."""
     
-    opts.align_path = abspath(opts.align_path)
-    opts.output_path = abspath(opts.output_path)
+    if not seed:
+        seed = str(time.time())
     
-    counts_filename = get_counts_filename(opts.align_path, opts.output_path)
+    align_path = abspath(align_path)
+    output_path = abspath(output_path)
+    
+    counts_filename = get_counts_filename(align_path, output_path)
     runlog_path = counts_filename.replace(".txt", ".log")
     LOGGER.log_file_path = runlog_path
     
-    if not opts.dry_run:
-        if not opts.force_overwrite and (os.path.exists(counts_filename) or os.path.exists(runlog_path)):
+    if not dry_run:
+        if not force_overwrite and (os.path.exists(counts_filename) or os.path.exists(runlog_path)):
             msg = "Either %s or %s already exist. Force overwrite of existing files with -F."
             raise ValueError(msg % (counts_filename, runlog_path))
         
-        create_path(opts.output_path)
+        create_path(output_path)
         
         LOGGER.log_message(str(vars(opts)), label='vars')
-        LOGGER.input_file(opts.align_path, label="align_path")
+        LOGGER.input_file(align_path, label="align_path")
+        LOGGER.log_message(str(seed), label="random_number_seed")
     
     start_time = time.time()
     
     # run the program
-    counts_table = align_to_counts(opts)
     
-    if not opts.dry_run:
+    counts_table = align_to_counts(align_path, output_path, flank_size,
+                    direction, step, seed, randomise, dry_run)
+    
+    if not dry_run:
         counts_table.writeToFile(counts_filename, sep='\t')
         LOGGER.output_file(counts_filename)
     
     
     # determine runtime
     duration = time.time() - start_time
-    if not opts.dry_run:
+    if not dry_run:
         LOGGER.log_message("%.2f" % (duration/60.), label="run duration (minutes)")
