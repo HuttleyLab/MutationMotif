@@ -19,7 +19,10 @@ def _reverse_complement(table):
         seq = list(seq.rc())
         for i, index in enumerate(pos_indices):
             row[index] = seq[i]
-    new = LoadTable(header=table.Header, rows=rows)
+    if rows:
+        new = LoadTable(header=table.Header, rows=rows)
+    else:
+        new = None
     return new
 
 def add_strand_column(rows, strand):
@@ -41,6 +44,8 @@ def make_strand_symmetric_table(table):
         new_data.extend(plus_data)
         
         minus_table = table.filtered('direction=="%s"' % minus)
+        if minus_table.Shape[0] == 0:
+            continue
         minus_table = _reverse_complement(minus_table)
         minus_data = minus_table.getRawData()
         for row in minus_data:
