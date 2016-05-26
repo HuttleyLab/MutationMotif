@@ -2,49 +2,98 @@
 Mutation Motif
 ##############
 
-This library controls log-linear analysis of neighbourhood base influences on mutation and provides a sequence logo like representation of influences.
+This library provides capabilities for analysis of mutation properties. Two different analysis approaches are supported: (1) log-linear analysis of neighbourhood base influences on mutation coupled with a sequence logo like representation of influences; (2) log-linear analysis of mutation spectra, the relative proportions of different mutation directioons from a starting base. A logo-like visualisation of the latter is also supported.
+
+The models and applicatiuons of them are described in *Statistical methods for identifying sequence motifs affecting point mutations* by Zhu, Neeman, Yap and Huttley.
+
+************
+Installation
+************
+
+Installation via pip into virtualenv's has been tested and is described below. You will need to have R installed also. Check the `rpy2 installation`_ instructions.
+
+Because PyCogent requires numpy be installed prior to running PyCogent's setup.py, the following steps are recommended.
+
+::
+
+    $ pip install numpy
+    $ pip install --process-dependency-links hg+https://gavin.huttley@bitbucket.org/gavin.huttley/mutationmotif
+    
+**NOTE:** Due to a conflict between ``matplotlib`` and ``virtualenv``'s on OSX, the installation is configured for ``matplotlib`` version 1.4.3.
+
+
+.. _`rpy2 installation`: http://rpy2.readthedocs.io/en/version_2.8.x/overview.html#installation
 
 *****
 Usage
 *****
 
-The primary tool is installed as a command line executable, ``mutation_analysis``. It requires a counts table where the table contains counts for a specified flank size (maximum of 2 bases, presumed to be either side of the mutated base). It assumes the counts all reflect a specific mutation direction (e.g. A to G) and that counts from a control distribution are also included.
+The primary tool is installed as a command line executable, ``mutation_analysis``. It requires a counts table where the table contains counts for a specified flank size (maximum of 2 bases, presumed to be either side of the mutated base). It assumes the counts all reflect a specific mutation direction (e.g. A to G) and that counts from a control distribution are also included. Two subcommands are available: ``nbr`` and ``spectra``. The first examines the influence of neighbouring bases up to fourth order interactions. The latter contrasts the mutations from specified starting bases between groups.
 
-A secondary command line tool is ``aln_to_counts``. This converts a fasta formatted alignment of equal length sequences to the required counts table format.
+Data processing command line tools are ``aln_to_counts`` and ``all_counts``. The first converts a fasta formatted alignment of equal length sequences to the required counts table format. The latter combines the separate counts tables into a larger table suitable for spectra analyses.
 
-To see the options for these commands do::
+Visualisation of mutation motifs, or mutation spectra, in a grid is provided by ``mutation_draw`` with ``nbr_grid`` and ``spectra_grid`` subcommands.
+
+To see the options for the above commands do, for example::
 
     $ mutation_analysis --help
     $ aln_to_counts --help
 
-.. TODO specify the format requirements for the counts table
-
-********************
-testing full spectra
-********************
-
-for strand symmetry, this requires the combined counts file
-
-Testing the entire spectra positionally means loading a table that contains a direction column. We then have the glm ``count ~ pos * dir * mut - pos : dir : mut``.
-
-********
-Analyses
-********
-
-Position effects
-================
-
-Full spectrum
--------------
-
-
-This is an analysis of position influences at each position, but for all directions. So the glm is ``count ~ pos * dir * mut - pos : dir : mut``.
-
-If that is significant, after correcting for 4 tests (one per position), one can sensibly proceed to examine individual directions.
-
-Approach to that would be to have a script that can take the combined counts file, iterate over the direction sub-tables, perform the log-lin analysis for each, writing each to it's own sub-directory. That script could also, as a convenience, write the config text file specifying paths to json data for each direction so the grid drawing script can easily load all.
-
-Interpreting logo's
+Counts table format
 ===================
 
-If it's a group comparison, the relative entropy terms (which specify the stack height, letter size and orientation) are taken from the mutated class belonging to group 1 (which is the counts file path assigned to the ``-1`` option). For example, if you specified ``-1 file_a.txt -2 file_b.txt``, then large upright letters in the display indicate an excess in the mutated class from ``file_a.txt`` relative to ``file_b.txt``.
+The counts table format has a simple structure, illustrated by the following:
+
+.. csv-table::
+    :header: count,pos0,pos1,pos2,pos3,mut
+    
+    5663, C, T, T, T, M
+    2639, G, C, A, T, M
+    2425, G, C, A, G, M
+    ...,...,...,...,...,...
+    882, G, G, G, T, R
+    6932, A, G, T, G, R
+    10550, A, A, A, A, R
+    
+The mutation status **must** be indicated by ``R`` (reference) and ``M`` (mutated). In this instance, the flank size is 2 and mutation was bewteeen ``pos1`` and ``pos2``. Tables with this format are generated by ``aln_to_counts``.
+
+Sequence file format
+====================
+
+At present, the code reads in a fasta formatted file where each sequence has identicial length. The length is an odd number and the mutation occurred at the middle base. The application assumes each sequence file contains sequences that experienced the same point mutation at this central position.
+
+***********************************************
+Evaluating the effect of neighbours on mutation
+***********************************************
+
+Sample data files are included as ``tests/data/counts-CtoT.txt`` and ``tests/data/counts-CtoT-ss.txt`` with the latter being appropriate for analysis of the occurrence of strand asymmetric neighbour effects.
+
+The simple analysis is invoked as::
+    
+    $ mutation_analysis -1 path/to/tests/data/counts-CtoT.txt -o path/for/results/ nbr
+
+This will write 11 files into the results directory. Files such as ``1.pdf`` and ``2.pdf`` are the mutation mtofis for the first and second order effects from the log-linear models. Files ending in ``.json`` contain the raw data used to produce these figures and may be used for subsequent analyses, such as generating grids of mutation motifs. The summary files summarises the full log-linear modelling heirarchy. The ``.log`` files track the command used to generate these files, including the input files and the settings used.
+
+Testing for strand symmetry (or asymmetry) is done as::
+    
+    $ mutation_analysis -1 path/to/tests/data/counts-CtoT.txt -o path/for/results/ --strand_symmetry nbr
+
+Similar output to the above is generated. The difference here is that the reference group for display are bases on the ``+`` strand.
+
+If comparing between groups, such as chromosomal regions, then there are two separate counts files and the second count file is indicated using a ``-2`` command line option.
+
+********************
+Testing Full Spectra
+********************
+
+Testing for strand symmetry requires the combined counts file, produced using the provided ``all_counts`` script. A sample such file is included as ``tests/data/counts-combined.txt``. In this instance, a test of consistency in mutation spectra between strands is specified.
+
+This analysis is run as:
+
+    $ mutation_analysis -1 path/to/tests/data/counts-combined.txt -o another/path/for/results/ --strand_symmetry spectra
+
+*******************
+Interpreting logo's
+*******************
+
+If the plot is derived from a group comparison, the relative entropy terms (which specify the stack height, letter size and orientation) are taken from the mutated class belonging to group 1 (which is the counts file path assigned to the ``-1`` option). For example, if you specified ``-1 file_a.txt -2 file_b.txt``, then large upright letters in the display indicate an excess in the mutated class from ``file_a.txt`` relative to ``file_b.txt``.
