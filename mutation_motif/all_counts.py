@@ -43,7 +43,7 @@ def check_found_filenames(filenames):
 def main(counts_pattern, output_path, strand_symmetric, split_dir, dry_run, force_overwrite):
     """export tab delimited combined counts table by appending the 12 mutation
     direction tables, adding a new column ``direction``."""
-    
+    args = locals()
     output_path = abspath(output_path)
     if strand_symmetric and split_dir:
         split_dir = abspath(split_dir)
@@ -67,7 +67,7 @@ def main(counts_pattern, output_path, strand_symmetric, split_dir, dry_run, forc
             create_path(split_dir)
         
         LOGGER.log_file_path = runlog_path
-        LOGGER.log_message(str(vars(opts)), label='vars')
+        LOGGER.log_message(str(args), label='vars')
         for fn in counts_files:
             LOGGER.input_file(fn, label="count_file")
     

@@ -86,7 +86,7 @@ def main(align_path, output_path, flank_size, direction, seed, randomise, step, 
     
     Output file is written to the same path with just the file suffix changed
     from fasta to txt."""
-    
+    args = locals()
     if not seed:
         seed = str(time.time())
     
@@ -104,7 +104,7 @@ def main(align_path, output_path, flank_size, direction, seed, randomise, step, 
         
         create_path(output_path)
         
-        LOGGER.log_message(str(vars(opts)), label='vars')
+        LOGGER.log_message(str(args), label='vars')
         LOGGER.input_file(align_path, label="align_path")
         LOGGER.log_message(str(seed), label="random_number_seed")
     
