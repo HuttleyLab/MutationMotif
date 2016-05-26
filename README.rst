@@ -10,7 +10,7 @@ The models and applicatiuons of them are described in *Statistical methods for i
 Installation
 ************
 
-Installation via pip into virtualenv's has been tested and is described below. You will need to have R installed also. Check the `rpy2 installation`_ instructions.
+Installation via pip into virtualenv's has been tested and is described below. You will need to have R installed also (check the `rpy2 installation`_ instructions). This library is Python2.7 only at present. It will be migrated to Py3 when PyCogent does.
 
 Because PyCogent requires numpy be installed prior to running PyCogent's setup.py, the following steps are recommended.
 
