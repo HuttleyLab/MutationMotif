@@ -155,10 +155,3 @@ def get_control_counts(seq_array, chosen_base, step, flank_size, sample_indices=
         counts.add_seq(seq_array[i].take(indices))
     
     return counts
-
-if __name__ == "__main__":
-    c = get_zero_counts(5, int)
-    n = array([0,1,2,3,0])
-    c.add_seq(n)
-    print c
-    
