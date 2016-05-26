@@ -564,6 +564,8 @@ def nbr(cfg_context, first_order, group_label, group_ref, plot_cfg, format):
     
     See documentation for count table format requirements.
     '''
+    args = locals()
+    args.update(vars(cfg_context))
     
     outpath = util.abspath(cfg_context.outpath)
     
@@ -571,10 +573,6 @@ def nbr(cfg_context, first_order, group_label, group_ref, plot_cfg, format):
         util.create_path(outpath)
         runlog_path = os.path.join(outpath, "analysis.log")
         LOGGER.log_file_path = runlog_path
-        args = vars(cfg_context)
-        args.update(dict(first_order=first_order, strand_symmetry=cfg_context.strand_symmetry,
-            plot_cfg=plot_cfg, format=format, group_label=group_label, group_ref=group_ref))
-        
         LOGGER.log_message(str(args), label='vars')
     
     counts_filename = util.abspath(cfg_context.countsfile)

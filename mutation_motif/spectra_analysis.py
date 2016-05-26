@@ -24,9 +24,7 @@ def dump_json(data, outfile_path):
 
 
 def main(countsfile, outpath, countsfile2, strand_symmetry, force_overwrite, dry_run, verbose):
-    args = dict(countsfile=countsfile, outpath=outpath, 
-        countsfile2=countsfile2, force_overwrite=force_overwrite,
-        dry_run=dry_run, verbose=verbose)
+    args = locals()
     
     table = LoadTable(countsfile, sep='\t')
     if not dry_run:
