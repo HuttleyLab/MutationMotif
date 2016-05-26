@@ -20,6 +20,7 @@ def my_import(name):
 
 def suite():
     modules_to_test = [
+        'test_apps',
         'test_control',
         'test_entropy',
         'test_util',
