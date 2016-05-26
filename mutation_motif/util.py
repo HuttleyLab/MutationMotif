@@ -29,7 +29,6 @@ def get_plot_configs(cfg_path=None):
         config.set(section, 'figsize', figsizes[section])
         for arg, default in defaults.items():
             config.set(section, arg, default)
-    
     if cfg_path:
         # load the user provided config
         user_config = RawConfigParser(allow_no_value=True)
@@ -47,7 +46,6 @@ def get_plot_configs(cfg_path=None):
                     config.set(section, key, eval(new_val))
                 except (NoSectionError, NoOptionError):
                     pass
-    
     return config
 
 
@@ -173,12 +171,6 @@ def seqs_to_array(d_aln):
     just_bases = just_nucs(d_aln.ArraySeqs)
     return just_bases
 
-def gaps_omitted_alignment(aln):
-    """get rid of gaps from alignment sequences"""
-    aln = Alignment(aln)
-    aln = aln.filtered(lambda x: '-' not in x)
-    return aln
-
 def just_nucs(seqs):
     """eliminate sequences containing gaps/Ns,
     along the 1st axis, match each base in seqs to <= 3 element-wise,
@@ -203,11 +195,3 @@ def create_path(path):
         os.makedirs(path)
     except OSError, e:
         pass
-
-def sibling_path(ref_path, new_dir):
-    """returns a new path string with of dirname(ref_path)/basename(new_dir)"""
-    ref_path = abspath(ref_path)
-    new_dir = abspath(new_dir)
-    dirname = os.path.dirname(ref_path)
-    basename = os.path.basename(new_dir)
-    return os.path.join(dirname, basename)
