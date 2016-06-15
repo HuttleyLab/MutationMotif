@@ -17,10 +17,9 @@ Because PyCogent requires numpy be installed prior to running PyCogent's setup.p
 ::
 
     $ pip install numpy
-    $ pip install --process-dependency-links hg+https://gavin.huttley@bitbucket.org/gavin.huttley/mutationmotif
+    $ pip install hg+https://gavin.huttley@bitbucket.org/gavin.huttley/mutationmotif
     
-**NOTE:** Due to a conflict between ``matplotlib`` and ``virtualenv``'s on OSX, the installation is configured for ``matplotlib`` version 1.4.3.
-
+:NOTE: Due to a conflict between ``matplotlib`` and ``virtualenv``'s on OSX, the installation is configured for ``matplotlib`` version 1.4.3.
 
 .. _`rpy2 installation`: http://rpy2.readthedocs.io/en/version_2.8.x/overview.html#installation
 
