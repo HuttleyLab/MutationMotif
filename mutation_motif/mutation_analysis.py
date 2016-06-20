@@ -535,10 +535,11 @@ pass_config = click.make_pass_decorator(Config, ensure=True)
 @click.option('-s','--strand_symmetry', is_flag=True,
         help='single counts file but second group is strand.')
 @click.option('-F', '--force_overwrite', is_flag=True, help='Overwrite existing files.')
+@util.no_type3_font
 @click.option('-D', '--dry_run', is_flag=True, help='Do a dry run of the analysis without writing output.')
 @click.option('-v', '--verbose', is_flag=True, help='Display more output.')
 @pass_config
-def main(cfg_context, countsfile, outpath, countsfile2, strand_symmetry, force_overwrite, dry_run, verbose):
+def main(cfg_context, countsfile, outpath, countsfile2, strand_symmetry, force_overwrite, no_type3, dry_run, verbose):
     cfg_context.countsfile = countsfile
     cfg_context.countsfile2 = countsfile2
     cfg_context.outpath = outpath
@@ -546,6 +547,8 @@ def main(cfg_context, countsfile, outpath, countsfile2, strand_symmetry, force_o
     cfg_context.force_overwrite = force_overwrite
     cfg_context.dry_run = dry_run
     cfg_context.verbose = verbose
+    if no_type3:
+        util.exclude_type3_fonts()
 
 @main.command()
 @click.option('--first_order', is_flag=True,

@@ -2,12 +2,27 @@ import os, gzip, bz2, sys, platform, json
 from traceback import format_exc
 from ConfigParser import RawConfigParser, NoSectionError, NoOptionError, ParsingError
 
+import click
 from pandas import read_json
+from matplotlib import rcParams
 from matplotlib.ticker import ScalarFormatter
 
 from cogent import DNA, LoadTable
 from cogent.parse.fasta import MinimalFastaParser
 from cogent.core.alignment import Alignment, DenseAlignment
+
+# to be used as a decorator for click commands
+no_type3_font = click.option('--no_type3', is_flag=True,
+    help='Exclude Type 3 fonts from pdf, necessary for ScholarOne figures')
+
+def exclude_type3_fonts():
+    """stops matplotlib from using Type 3 fonts"""
+    # this is because ScholarOne does not allow embedding of Type 3 fonts in
+    # pdf's, a royal PITA. Thanks ScholarOne!!
+    
+    rcParams['pdf.fonttype'] = 42
+    rcParams['ps.fonttype'] = 42
+
 
 def get_plot_configs(cfg_path=None):
     """returns a config object with plotting settings"""

@@ -129,16 +129,20 @@ pass_config = click.make_pass_decorator(Config, ensure=True)
 @click.option('--plot_cfg', help='Config file for plot size, font size settings.')
 @click.option('--format', default='pdf', type=click.Choice(['pdf', 'png']), help='Plot figure format.')
 @click.option('--sample_size', is_flag=True, help='Include sample size on each subplot.')
+@util.no_type3_font
 @click.option('-F', '--force_overwrite', is_flag=True, help='Overwrite existing files.')
 @click.option('-D', '--dry_run', is_flag=True, help='Do a dry run of the analysis without writing output.')
 @pass_config
-def main(cfg_context, plot_cfg, figpath, format, sample_size, force_overwrite, dry_run):
+def main(cfg_context, plot_cfg, figpath, format, sample_size, force_overwrite, no_type3, dry_run):
     cfg_context.dry_run = dry_run
     cfg_context.plot_cfg = plot_cfg
     cfg_context.force_overwrite = force_overwrite
     cfg_context.sample_size = sample_size
     cfg_context.figpath = figpath
     cfg_context.format = format
+    if no_type3:
+        util.exclude_type3_fonts()
+
 
 @main.command()
 @click.option('--paths_cfg', required=True, help='Text file listing path for 1.json file for each '\
