@@ -8,7 +8,7 @@ from matplotlib import pyplot
 
 from matplotlib.ticker import FuncFormatter, MultipleLocator, FormatStrFormatter
 
-from cogent import LoadTable, DNA
+from cogent3 import LoadTable, DNA
 
 from mutation_motif import util, mutation_analysis, logo, text, entropy
 from mutation_motif.height import get_re_char_heights, get_mi_char_heights
@@ -385,7 +385,7 @@ def mi(cfg_context, json_path):
         counts = pos_stats[pos_stats['mut'] == 'M'][["base", "count"]]
         counts = dict(list(zip(counts['base'], counts['count'])))
         for base in counts:
-            base_index = DNA.Alphabet.index(base)
+            base_index = DNA.alphabet.index(base)
             counts_array[base_index, i] = counts[base]
         
     freq_matrix = entropy.counts_to_freq_matrix(counts_array)

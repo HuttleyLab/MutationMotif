@@ -1,6 +1,6 @@
-from cogent import DNA
-from cogent.core.alignment import Alignment, DenseAlignment
-from cogent.util.unit_test import TestCase, main
+from cogent3 import DNA
+from cogent3.core.alignment import Alignment, ArrayAlignment
+from cogent3.util.unit_test import TestCase, main
 
 from mutation_motif.motif_count import get_profiles, counts_from_seqs,\
     profile_to_seq_counts, get_count_table, reduced_multiple_positions,\
@@ -32,7 +32,7 @@ ctl = [("s%s" % i, s) for i, s in enumerate(ctl) if s]
 
 def _get_seq_array(data):
     """returns [(n, seq), ...] as DenseArray"""
-    return DenseAlignment(data=data, MolType=DNA).ArraySeqs
+    return ArrayAlignment(data=data, moltype=DNA).array_seqs
 
 class TestMotifCount(TestCase):
     obs_count = profile_to_seq_counts(_get_seq_array(obs), 2)
@@ -52,10 +52,10 @@ class TestMotifCount(TestCase):
         ctl_count = profile_to_seq_counts(_get_seq_array(ctl), 2)
         
         r = get_count_table(obs_count, ctl_count, 4)
-        self.assertEqual(r.getDistinctValues("mut"), set("MR"))
+        self.assertEqual(r.distinct_values("mut"), set("MR"))
         # because the motifs are unique in ctl and obs
         # total number should double
-        self.assertEqual(r.Shape[0], 2 * (len(obs_count) + len(ctl_count)))
+        self.assertEqual(r.shape[0], 2 * (len(obs_count) + len(ctl_count)))
     
     def test_reduced(self):
         """reduced across positions should produce correct counts"""
@@ -103,9 +103,9 @@ class TestMotifCount(TestCase):
     def test_combined_counts(self):
         """combining counts completes missing states"""
         combined = get_combined_counts(self.table, 'pos0')
-        self.assertEqual(combined.Shape[0], 8)
+        self.assertEqual(combined.shape[0], 8)
         combined = get_combined_counts(self.table, ['pos0', 'pos1'])
-        self.assertEqual(combined.Shape[0], 32)
+        self.assertEqual(combined.shape[0], 32)
         
         # the following states are not present in either group for pos0/1
         # and so should be missing

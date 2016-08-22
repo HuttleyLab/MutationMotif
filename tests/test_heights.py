@@ -1,6 +1,6 @@
 #!/usr/bin/env python2.7
 from numpy import array
-from cogent.util.unit_test import TestCase, main
+from cogent3.util.unit_test import TestCase, main
 
 from mutation_motif.height import get_mi_char_heights, get_re_char_heights
 

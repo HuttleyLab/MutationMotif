@@ -9,10 +9,9 @@ from configparser import RawConfigParser, NoSectionError, NoOptionError, Parsing
 import numpy
 from matplotlib import pyplot
 
-from cogent import LoadSeqs, DNA, LoadTable
-from cogent.core.alignment import DenseAlignment
-from cogent.util.option_parsing import parse_command_line_parameters
-from cogent.maths.stats import chisqprob
+from cogent3 import LoadSeqs, DNA, LoadTable
+from cogent3.core.alignment import ArrayAlignment
+from cogent3.maths.stats import chisqprob
 
 from scitrack import CachingLogger
 
@@ -59,18 +58,18 @@ def get_selected_indices(stats, group_label=None, group_ref=None):
 
 def get_grouped_combined_counts(table, position, group_label):
     """wraps motif_count.get_combined_counts for groups"""
-    group_cats = table.getDistinctValues(group_label)
+    group_cats = table.distinct_values(group_label)
     all_data = []
     header = None
     for category in group_cats:
         subtable = table.filtered(lambda x: x == category, columns=group_label)
         counts = motif_count.get_combined_counts(subtable, position)
         if header is None:
-            header = [group_label] + list(counts.Header)
+            header = [group_label] + list(counts.header)
         
-        counts = counts.withNewColumn(group_label, lambda x : category,
-                                     columns=counts.Header[0])
-        all_data.extend(counts.getRawData(header))
+        counts = counts.with_new_column(group_label, lambda x : category,
+                                     columns=counts.header[0])
+        all_data.extend(counts.tolist(header))
     counts = LoadTable(header=header,
             rows=all_data)
     counts.sorted(columns=[group_label, 'mut'])
@@ -80,7 +79,7 @@ def get_position_effects(table, position_sets, group_label=None):
     pos_results = {}
     grouped = group_label is not None
     if grouped:
-        assert len(table.getDistinctValues(group_label)) == 2
+        assert len(table.distinct_values(group_label)) == 2
     
     for position_set in position_sets:
         if not grouped:
@@ -396,7 +395,7 @@ def single_group(counts_table, outpath, group_label, group_ref, positions, plot_
                 rows=summary, digits=2, space=2)
         if not dry_run:
             outfilename = os.path.join(outpath, "summary.txt")
-            summary.writeToFile(outfilename, sep='\t')
+            summary.write(outfilename, sep='\t')
             LOGGER.output_file(outfilename, label="summary")
         
         return msg
@@ -512,7 +511,7 @@ def single_group(counts_table, outpath, group_label, group_ref, positions, plot_
             rows=summary, digits=2, space=2)
     if not dry_run:
         outfilename = os.path.join(outpath, "summary.txt")
-        summary.writeToFile(outfilename, sep='\t')
+        summary.write(outfilename, sep='\t')
         LOGGER.output_file(outfilename, label="summary")
     
     print(summary)
@@ -583,7 +582,7 @@ def nbr(cfg_context, first_order, group_label, group_ref, plot_cfg, format):
     
     LOGGER.input_file(counts_filename, label="countsfile1_path")
     
-    positions = [c for c in counts_table.Header if c.startswith('pos')]
+    positions = [c for c in counts_table.header if c.startswith('pos')]
     if not first_order and len(positions) != 4:
         raise ValueError("Requires four positions for analysis")
     
@@ -592,7 +591,7 @@ def nbr(cfg_context, first_order, group_label, group_ref, plot_cfg, format):
     if cfg_context.strand_symmetry:
         group_label = 'strand'
         group_ref = group_ref or '+'
-        if group_label not in counts_table.Header:
+        if group_label not in counts_table.header:
             print("ERROR: no column named 'strand', exiting.")
             exit(-1)
         
@@ -600,25 +599,25 @@ def nbr(cfg_context, first_order, group_label, group_ref, plot_cfg, format):
         print("Performing 2 group analysis")
         group_label = group_label or 'group'
         group_ref = group_ref or '1'
-        counts_table1 = counts_table.withNewColumn(group_label, lambda x: '1',
-                                    columns=counts_table.Header[0])
+        counts_table1 = counts_table.with_new_column(group_label, lambda x: '1',
+                                    columns=counts_table.header[0])
         
         fn2 = util.abspath(cfg_context.countsfile2)
         counts_table2 = util.load_table_from_delimited_file(fn2, sep='\t')
         
         LOGGER.input_file(fn2, label="countsfile2_path")
         
-        counts_table2 = counts_table2.withNewColumn(group_label, lambda x: '2',
-                                    columns=counts_table2.Header[0])
+        counts_table2 = counts_table2.with_new_column(group_label, lambda x: '2',
+                                    columns=counts_table2.header[0])
         # now combine
-        header = [group_label] + counts_table2.Header[:-1]
-        raw1 = counts_table1.getRawData(header)
-        raw2 = counts_table2.getRawData(header)
+        header = [group_label] + counts_table2.header[:-1]
+        raw1 = counts_table1.tolist(header)
+        raw2 = counts_table2.tolist(header)
         counts_table = LoadTable(header=header, rows=raw1+raw2)
         
         if not cfg_context.dry_run:
             outfile = os.path.join(outpath, 'group_counts_table.txt')
-            counts_table.writeToFile(outfile, sep='\t')
+            counts_table.write(outfile, sep='\t')
             LOGGER.output_file(outfile, label="group_counts")
             
     if cfg_context.dry_run or cfg_context.verbose:

@@ -3,7 +3,7 @@ import os, shutil
 import click
 from click.testing import CliRunner
 
-from cogent.util.unit_test import TestCase, main
+from cogent3.util.unit_test import TestCase, main
 
 from mutation_motif.mutation_analysis import main as mut_main
 from mutation_motif.draw import main as draw_main

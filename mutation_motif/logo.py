@@ -6,8 +6,6 @@ import matplotlib.pyplot as plt
 from pylab import savefig, gcf, gca, clf
 from mpl_toolkits.axes_grid1.anchored_artists import AnchoredText
 
-from cogent.align.weights.util import AlnToProfile, DNA, DNA_ORDER
-
 from mutation_motif.text import set_axis_scale, add_letter
 from mutation_motif.util import FixedOrderFormatter
 

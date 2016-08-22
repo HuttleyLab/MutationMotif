@@ -5,24 +5,23 @@ sys.path.append('..')
 import glob
 import numpy
 from numpy import matrix, array
-from cogent import LoadSeqs, DNA
-from cogent.core.alignment import DenseAlignment
-from cogent.util.unit_test import TestCase, main
-from cogent.align.weights.util import AlnToProfile
+from cogent3 import LoadSeqs, DNA
+from cogent3.core.alignment import ArrayAlignment
+from cogent3.util.unit_test import TestCase, main
 from mutation_motif.entropy import is_valid, get_ret, as_freq_matrix, get_entropy_terms, get_mit
 
 class TestEntropy(TestCase):
-    ref_aln = LoadSeqs('data/entropy/ref.fasta', aligned=DenseAlignment, 
+    ref_aln = LoadSeqs('data/entropy/ref.fasta', array_align=True, 
                        moltype=DNA)
-    ref_data = ref_aln.SeqData
+    ref_data = ref_aln.seq_data
     
-    ctl_aln = LoadSeqs('data/entropy/control.fasta', aligned=DenseAlignment, 
+    ctl_aln = LoadSeqs('data/entropy/control.fasta', array_align=True, 
                        moltype=DNA)
-    ctl_data = ctl_aln.SeqData
+    ctl_data = ctl_aln.seq_data
     
-    gap_aln = LoadSeqs('data/entropy/gap.fasta', aligned=DenseAlignment, 
+    gap_aln = LoadSeqs('data/entropy/gap.fasta', array_align=True,
                        moltype=DNA)
-    gap_data = gap_aln.SeqData
+    gap_data = gap_aln.seq_data
     
     def test_validity(self):
         """returns True if all elements satisfy 0 <= e < 4

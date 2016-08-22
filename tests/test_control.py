@@ -3,16 +3,15 @@ import sys, os
 
 import numpy
 from numpy import array
-from cogent import LoadSeqs, DNA
-from cogent.util.unit_test import TestCase, main
-from cogent.core.alignment import DenseAlignment
+from cogent3 import LoadSeqs, DNA
+from cogent3.util.unit_test import TestCase, main
+from cogent3.core.alignment import ArrayAlignment
 
 from mutation_motif.profile import get_control,\
             MakeCircleRange, get_random_indices, filter_seqs_by_chosen_base,\
             chosen_base_indices, get_zero_counts
 
 class TestChooseBases(TestCase):
-    #aln = LoadSeqs('data/chosen_base_indices.fasta')
     data_even = array([(2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2),
                        (1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1),
                        (3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3),
@@ -131,7 +130,7 @@ class TestRandomIndices(TestCase):
 class TestAlignSnpAnnotation(TestCase):
     seqs = [('seq_0', 'ATCAACATATAAAAAGGAAAT')]
     
-    d_aln = LoadSeqs(data=seqs, aligned=DenseAlignment, moltype=DNA).ArraySeqs
+    d_aln = LoadSeqs(data=seqs, array_align=True, moltype=DNA).array_seqs
     step = 3
     slice_side = 7
     direction = 'AtoC'

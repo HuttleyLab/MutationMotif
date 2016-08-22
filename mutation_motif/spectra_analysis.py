@@ -7,10 +7,9 @@ import numpy
 from pandas import read_json
 from matplotlib import pyplot
 
-from cogent import LoadSeqs, DNA, LoadTable
-from cogent.core.alignment import DenseAlignment
-from cogent.util.option_parsing import parse_command_line_parameters
-from cogent.maths.stats import chisqprob
+from cogent3 import LoadSeqs, DNA, LoadTable
+from cogent3.core.alignment import ArrayAlignment
+from cogent3.maths.stats import chisqprob
 
 from scitrack import CachingLogger
 
@@ -45,18 +44,18 @@ def main(countsfile, outpath, countsfile2, strand_symmetry, force_overwrite, dry
         # be sure there's two files
         counts_table2 = LoadTable(countsfile2, sep='\t')
         LOGGER.input_file(countsfile2)
-        counts_table2 = counts_table2.withNewColumn('group',
-                                lambda x: '2', columns=counts_table2.Header[0])
-        counts_table1 = table.withNewColumn('group',
-                                lambda x: '1', columns=table.Header[0])
+        counts_table2 = counts_table2.with_new_column('group',
+                                lambda x: '2', columns=counts_table2.header[0])
+        counts_table1 = table.with_new_column('group',
+                                lambda x: '1', columns=table.header[0])
         
         counts_table1 = util.spectra_table(counts_table1, group_label)
         counts_table2 = util.spectra_table(counts_table2, group_label)
         
         # now combine
-        header = ['group'] + counts_table2.Header[:-1]
-        raw1 = counts_table1.getRawData(header)
-        raw2 = counts_table2.getRawData(header)
+        header = ['group'] + counts_table2.header[:-1]
+        raw1 = counts_table1.tolist(header)
+        raw2 = counts_table2.tolist(header)
         counts_table = LoadTable(header=header, rows=raw1+raw2)
         
         if verbose:
@@ -66,10 +65,10 @@ def main(countsfile, outpath, countsfile2, strand_symmetry, force_overwrite, dry
     # we reduce comparisons to a start base
     results = []
     saveable = {}
-    for start_base in counts_table.getDistinctValues('start'):
+    for start_base in counts_table.distinct_values('start'):
         subtable = counts_table.filtered('start == "%s"' % start_base)
-        columns = [c for c in counts_table.Header if c != 'start']
-        subtable = subtable.getColumns(columns)
+        columns = [c for c in counts_table.header if c != 'start']
+        subtable = subtable.get_columns(columns)
         total_re, dev, df, collated, formula = log_lin.spectra_difference(subtable, group_label)
         r = [list(x) for x in collated.to_records(index=False)]
         
@@ -111,7 +110,7 @@ def main(countsfile, outpath, countsfile2, strand_symmetry, force_overwrite, dry
         dump_json(saveable, json_path)
         LOGGER.output_file(json_path)
         table_path = os.path.join(outpath, 'spectra_summary.txt')
-        table.writeToFile(table_path, sep='\t')
+        table.write(table_path, sep='\t')
         LOGGER.output_file(table_path)
         LOGGER.log_message(str(significance), label="significance")
 

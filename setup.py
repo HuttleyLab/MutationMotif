@@ -31,7 +31,7 @@ setup(
     author_email="gavin.huttley@anu.edu.au",
     description=short_description,
     long_description=long_description,
-    url="https://bitbucket.org/gavin.huttley/mutationmotif",
+    url="https://bitbucket.org/gavin.huttley/mutationmotif3",
     platforms=["any"],
     license=["GPL"],
     keywords=["biology", "genomics", "genetics", "statistics", "evolution",
@@ -47,11 +47,11 @@ setup(
     packages=['mutation_motif'],
     install_requires=[
               'numpy',
-              'cogent',
+              'cogent3',
               'click',
               'pandas',
               'rpy2',
-              'matplotlib==1.4.3',
+              'matplotlib',
               'scitrack',
           ],
     # note: http://stackoverflow.com/questions/3472430/how-can-i-make-setuptools-install-a-package-thats-not-on-pypi

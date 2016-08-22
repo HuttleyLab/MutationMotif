@@ -1,8 +1,8 @@
 #!/usr/bin/env python
-import doctest, cogent.util.unit_test as unittest, sys, os
-from cogent.util.misc import app_path
+import doctest, cogent3.util.unit_test as unittest, sys, os
+from cogent3.util.misc import app_path
 
-# edited copy of cogent's alltests
+# edited copy of cogent3's alltests
 
 def my_import(name):
     """Imports a module, possibly qualified with periods. Returns the module.

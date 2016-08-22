@@ -4,9 +4,8 @@ from numpy import logical_and, flatnonzero, zeros, array, matrix, prod, \
     ndarray, asarray
 from random import choice, seed as set_seed
 
-from cogent import LoadSeqs, DNA, LoadTable
-from cogent.align.weights.util import AlnToProfile
-from cogent.core.alignment import DenseAlignment, seqs_from_array
+from cogent3 import LoadSeqs, DNA, LoadTable
+from cogent3.core.alignment import ArrayAlignment, seqs_from_array
 
 from mutation_motif.util import seqs_to_array as load_seqs_to_array, array_to_str
 
@@ -60,13 +59,13 @@ def chosen_base_indices(data, chosen_base, step):
     if type(chosen_base) == str:
         assert len(chosen_base) == 1, "single base only"
 
-        chosen_base = DNA.Alphabet.toIndices(chosen_base)[0]
+        chosen_base = DNA.alphabet.to_indices(chosen_base)[0]
 
     indices = zeros(data.shape, dtype=bool)
 
     # define in-frame columns
-    for column in range(data.shape[1] / 2 % step, data.shape[1], step):
-        if column == data.shape[1] / 2:
+    for column in range(data.shape[1] // 2 % step, data.shape[1], step):
+        if column == data.shape[1] // 2:
             continue
         indices[:, column] = True
 

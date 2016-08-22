@@ -1,7 +1,7 @@
 from collections import Counter
 from itertools import product
 
-from cogent import DNA, LoadTable
+from cogent3 import DNA, LoadTable
 
 from mutation_motif.util import array_to_str, load_from_fasta, just_nucs
 from mutation_motif.profile import get_profiles
@@ -9,7 +9,7 @@ from mutation_motif.profile import get_profiles
 def counts_from_seqs(fn, chosen_base, flank_size, seed):
     """returns a counts table of motifs for mutated, control seqs"""
     orig_seqs = load_from_fasta(fn)
-    seqs = orig_seqs.ArraySeqs
+    seqs = orig_seqs.array_seqs
     seqs = just_nucs(seqs)
     orig, ctl = get_profiles(seqs, chosen_base=chosen_base, step=1,
                                     flank_size=flank_size, seed=seed)
@@ -73,7 +73,7 @@ def get_count_table(observed, control, k=None):
 def reduced_multiple_positions(table, *positions):
     base_counts = {'M': Counter(), 'R': Counter()}
     columns = ['count', 'mut'] + list(positions)
-    for row in table.getRawData(columns):
+    for row in table.tolist(columns):
         count = row[0]
         mut = row[1]
         motif = tuple(row[2:])
@@ -83,7 +83,7 @@ def reduced_multiple_positions(table, *positions):
 def reduced_one_position(table, pos):
     '''returns base counts for one position'''
     base_counts = {'M': Counter(), 'R': Counter()}
-    for count, base, mut in table.getRawData(["count", pos, 'mut']):
+    for count, base, mut in table.tolist(["count", pos, 'mut']):
         base_counts[mut][base] += count
     return base_counts
 

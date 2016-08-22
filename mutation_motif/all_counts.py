@@ -6,7 +6,7 @@ from collections import Counter
 
 import click
 
-from cogent import LoadTable
+from cogent3 import LoadTable
 from scitrack import CachingLogger
 
 from mutation_motif.util import open_, create_path, abspath, get_subtables
@@ -83,11 +83,11 @@ def main(counts_pattern, output_path, strand_symmetric, split_dir, dry_run, forc
         mutation = direction.findall(fn)[0]
         table = LoadTable(fn, sep='\t')
         if header is None:
-            header = list(table.Header)
+            header = list(table.header)
             header.append('direction')
-            num_rows = table.Shape[0]
+            num_rows = table.shape[0]
         
-        data = table.getRawData()
+        data = table.tolist()
         new = []
         for row in data:
             row.append(mutation)
@@ -103,7 +103,7 @@ def main(counts_pattern, output_path, strand_symmetric, split_dir, dry_run, forc
         group_subtables = get_subtables(table, group_label='direction')
     
     if not dry_run:
-        table.writeToFile(counts_filename, sep='\t')
+        table.write(counts_filename, sep='\t')
         LOGGER.output_file(counts_filename)
         
         if split_dir:
@@ -116,7 +116,7 @@ def main(counts_pattern, output_path, strand_symmetric, split_dir, dry_run, forc
                     fn = "%s.txt" % group
                 
                 counts_filename = os.path.join(split_dir, fn)
-                subtable.writeToFile(counts_filename, sep='\t')
+                subtable.write(counts_filename, sep='\t')
                 LOGGER.output_file(counts_filename)
     
     # determine runtime

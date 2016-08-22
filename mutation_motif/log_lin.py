@@ -7,7 +7,7 @@ import numpy
 
 def as_dataframe(table):
     '''returns a DataFrame instance. Requires counts to be [[col1, col2, col3, ..]]'''
-    data = dict(list(zip(table.Header, list(zip(*table.getRawData())))))
+    data = dict(list(zip(table.header, list(zip(*table.tolist())))))
     for column in data:
         if type(data[column][0]) in (str, str):
             klass = StrVector
@@ -63,7 +63,7 @@ def position_effect(counts_table, group_label=None, test=False):
     Arguments:
         - group_label: name of column containing group data
     """
-    num_pos = sum(1 for c in counts_table.Header if c.startswith('base'))
+    num_pos = sum(1 for c in counts_table.header if c.startswith('base'))
     assert 1 <= num_pos <= 4, "Can only handle 4 positions"
     
     if num_pos == 1:
@@ -72,7 +72,7 @@ def position_effect(counts_table, group_label=None, test=False):
         columns = ['mut'] + ['base%d' % (i + 1) for i in range(num_pos)] + ['count']
     
     # handle groups
-    if group_label and group_label in counts_table.Header:
+    if group_label and group_label in counts_table.header:
         columns.insert(0, group_label)
     
     factors = columns[:-1]
@@ -82,7 +82,7 @@ def position_effect(counts_table, group_label=None, test=False):
     if test:
         print(formula)
     
-    counts_table = counts_table.getColumns(columns)
+    counts_table = counts_table.get_columns(columns)
     d = as_dataframe(counts_table)
     
     f = R.glm(null, data=d, family = "poisson")
@@ -105,13 +105,13 @@ def spectra_difference(counts_table, group_label, test=False):
     """group_label is the column name for category"""
     # we compare direction between group
     columns = ['count', 'direction', group_label]
-    assert set(columns) <= set(counts_table.Header)
+    assert set(columns) <= set(counts_table.header)
     formula = "count ~ direction + %s" % group_label
     null = Formula(formula)
     if test:
         print(formula)
     
-    counts_table = counts_table.getColumns(columns)
+    counts_table = counts_table.get_columns(columns)
     d = as_dataframe(counts_table)
     f = R.glm(null, data=d, family = "poisson")
     f_attr = dict(list(f.items()))

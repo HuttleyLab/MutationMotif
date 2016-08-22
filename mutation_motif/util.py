@@ -7,9 +7,9 @@ from pandas import read_json
 from matplotlib import rcParams
 from matplotlib.ticker import ScalarFormatter
 
-from cogent import DNA, LoadTable
-from cogent.parse.fasta import MinimalFastaParser
-from cogent.core.alignment import Alignment, DenseAlignment
+from cogent3 import DNA, LoadTable
+from cogent3.parse.fasta import MinimalFastaParser
+from cogent3.core.alignment import Alignment, ArrayAlignment
 
 # to be used as a decorator for click commands
 no_type3_font = click.option('--no_type3', is_flag=True,
@@ -92,18 +92,18 @@ def load_table_from_delimited_file(path, sep='\t'):
 
 def spectra_table(table, group_label):
     """returns a table with columns without position information"""
-    assert 'direction' in table.Header
-    if 'mut' in table.Header:
+    assert 'direction' in table.header
+    if 'mut' in table.header:
         # remove redundant category (counts of M == R)
         table = table.filtered("mut=='M'")
     
     columns = ['count', 'direction', group_label]
-    table = table.getColumns(columns)
+    table = table.get_columns(columns)
     # so we have a table with counts per direction
     results = []
-    group_categories = table.getDistinctValues(group_label)
+    group_categories = table.distinct_values(group_label)
     filter_template = "direction=='%(direction)s' and %(label)s=='%(category)s'"
-    for direction in table.getDistinctValues('direction'):
+    for direction in table.distinct_values('direction'):
         start = direction[0]
         for group_category in group_categories:
             condition = dict(direction=direction, label=group_label,
@@ -117,7 +117,7 @@ def spectra_table(table, group_label):
 
 def get_subtables(table, group_label='direction'):
     """returns [(group, subtable),...] for distinct values of group_label"""
-    groups = table.getDistinctValues(group_label)
+    groups = table.distinct_values(group_label)
     tables = []
     for group in groups:
         subtable = table.filtered(lambda x: x == group, columns=group_label)
@@ -170,20 +170,20 @@ def load_from_fasta(filename):
     infile = open_(filename)
     parser = MinimalFastaParser(infile)
     seqs = [(n, s) for n, s in parser]
-    return DenseAlignment(data=seqs, MolType=DNA)
+    return ArrayAlignment(data=seqs, moltype=DNA)
 
 def array_to_str(data):
     """convert numpy array back to DNA sequence"""
-    return [''.join(DNA.Alphabet.fromIndices(v)) for v in data]
+    return [''.join(DNA.alphabet.from_indices(v)) for v in data]
 
 def seqs_to_array(d_aln):
-    """get input Dense alignment data, transfer them into a numpy array matrix,
+    """get input array alignment data, transfer them into a numpy array matrix,
     whith accordant numbers for DNA bases
     also
     filter sequences and save just_nuc sequences.
     """
     expect = set([str(s) for s in list(d_aln.values()) if set(s) <= set(DNA)])
-    just_bases = just_nucs(d_aln.ArraySeqs)
+    just_bases = just_nucs(d_aln.array_seqs)
     return just_bases
 
 def just_nucs(seqs):

@@ -1,6 +1,6 @@
 #!/usr/bin/env python2.7
-from cogent import LoadTable, DNA
-from cogent.util.unit_test import TestCase, main
+from cogent3 import LoadTable, DNA
+from cogent3.util.unit_test import TestCase, main
 from mutation_motif.complement import _reverse_complement,\
                     make_strand_symmetric_table
 
@@ -22,7 +22,7 @@ class TestEntropy(TestCase):
                 [1919, 'T', 'T', 'G', 'T', 'M', 'AtoC'],
                 [442, 'T', 'G', 'T', 'C', 'M', 'AtoC']]
         got = _reverse_complement(table)
-        raw_got = got.getRawData()
+        raw_got = got.tolist()
         
         self.assertEqual(raw_got, ex)
     
@@ -48,7 +48,7 @@ class TestEntropy(TestCase):
         
         table = LoadTable(header=self.header, rows=self.data+data)
         r = make_strand_symmetric_table(table)
-        self.assertEqual(r.getRawData(), exp)
+        self.assertEqual(r.tolist(), exp)
 
 if __name__ == '__main__':
     main()

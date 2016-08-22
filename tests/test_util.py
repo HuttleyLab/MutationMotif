@@ -1,14 +1,14 @@
 from numpy import array
 
-from cogent import LoadSeqs, DNA
-from cogent.core.alignment import DenseAlignment
-from cogent.util.unit_test import TestCase, main
+from cogent3 import LoadSeqs, DNA
+from cogent3.core.alignment import ArrayAlignment
+from cogent3.util.unit_test import TestCase, main
 
 from mutation_motif.util import array_to_str, seqs_to_array,\
                                 just_nucs
 
 class TestJustNucs(TestCase):
-    aln = LoadSeqs('data/just_nuc.fasta')
+    aln = LoadSeqs('data/just_nuc.fasta', array_align=True, moltype=DNA)
     
     def test_seqs_to_array(self):
         """in the input alignment profile,
@@ -18,9 +18,7 @@ class TestJustNucs(TestCase):
         seq1 and seq8 contains both N and gap,
         seq1, seq6 to seq8 are expected to be eliminated by the code
         """
-        d_aln = DenseAlignment(data=self.aln, MolType=DNA)
-        
-        nucs = just_nucs(d_aln.ArraySeqs)
+        nucs = just_nucs(self.aln.array_seqs)
         
         self.assertEqual(nucs,
                     [[2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2],
@@ -31,7 +29,7 @@ class TestJustNucs(TestCase):
 
 
 class TestAlignSnpAnnotation(TestCase):
-    d_aln = LoadSeqs('data/load_seqs_to_array.fasta', aligned=DenseAlignment, moltype=DNA)
+    d_aln = LoadSeqs('data/load_seqs_to_array.fasta', array_align=True, moltype=DNA)
     
     def test_seqs_to_array(self):
         """in the input alignment profile,

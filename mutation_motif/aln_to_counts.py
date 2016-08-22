@@ -40,7 +40,7 @@ def align_to_counts(align_path, output_path, flank_size, direction, step, seed, 
     direction = tuple(direction.split('to'))
     chosen_base = direction[0]
     orig_seqs = load_from_fasta(os.path.abspath(align_path))
-    seqs = orig_seqs.ArraySeqs
+    seqs = orig_seqs.array_seqs
     seqs = just_nucs(seqs)
     if not randomise:
         orig, ctl = profile.get_profiles(seqs, chosen_base=chosen_base, step=step,
@@ -116,7 +116,7 @@ def main(align_path, output_path, flank_size, direction, seed, randomise, step, 
                     direction, step, seed, randomise, dry_run)
     
     if not dry_run:
-        counts_table.writeToFile(counts_filename, sep='\t')
+        counts_table.write(counts_filename, sep='\t')
         LOGGER.output_file(counts_filename)
     
     

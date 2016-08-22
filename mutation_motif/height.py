@@ -1,5 +1,4 @@
 from numpy import array, isnan, fabs
-from cogent.align.weights.util import AlnToProfile, DNA, DNA_ORDER
 
 # this for MI
 def get_mi_char_heights(freq_matrix, mi, zero_middle=True):
