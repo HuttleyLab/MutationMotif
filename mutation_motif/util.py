@@ -170,6 +170,7 @@ def load_from_fasta(filename):
     infile = open_(filename)
     parser = MinimalFastaParser(infile)
     seqs = [(n, s) for n, s in parser]
+    infile.close()
     return ArrayAlignment(data=seqs, moltype=DNA)
 
 def array_to_str(data):

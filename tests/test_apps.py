@@ -6,15 +6,20 @@ from click.testing import CliRunner
 from cogent3.util.unit_test import TestCase, main
 from cogent3 import LoadTable
 
+from mutation_motif.util import create_path
 from mutation_motif.mutation_analysis import main as mut_main
 from mutation_motif.draw import main as draw_main
 from mutation_motif.all_counts import main as all_count_main
+from mutation_motif.aln_to_counts import main as aln_to_counts_main
 
 
 class TestCounting(TestCase):
     dirname = "_delme_counts"
     def test_all_counts(self):
         """exercising all_acounts"""
+        if os.path.exists(self.dirname):
+            shutil.rmtree(self.dirname)
+        
         runner = CliRunner()
         # should fail, as data files not in this directory
         r = runner.invoke(all_count_main, ["-cdata/*.txt", "-o%s" % self.dirname])
@@ -29,6 +34,25 @@ class TestCounting(TestCase):
         # 4**4 nbrs x 12 mutations x 2 (M/R groups) = 6144
         counts = LoadTable(os.path.join(self.dirname, "combined_counts.txt"), sep="\t")
         self.assertEqual(counts.shape[0], 6144)
+        shutil.rmtree(self.dirname)
+
+    def test_aln_to_counts(self):
+        """exercising aln_to_counts"""
+        if os.path.exists(self.dirname):
+            shutil.rmtree(self.dirname)
+        
+        create_path(self.dirname)
+        runner = CliRunner()
+        # should fail, as data files not in this directory
+        r = runner.invoke(aln_to_counts_main, ["-adata/sample_AtoC.fasta", "-o%s" % self.dirname,
+                          "-f1", "--direction=AtoC", "-S111", "-F"])
+        dirlist = os.listdir(self.dirname)
+        self.assertEqual(r.exit_code, 0)
+        self.assertEqual(set(dirlist),
+                         set(["sample_AtoC.txt", "sample_AtoC.log"]))
+        counts = LoadTable(os.path.join(self.dirname, "sample_AtoC.txt"), sep="\t")
+        # two columns with pos, two groups giving shape=2*16
+        self.assertEqual(counts.shape[0], 32)
         shutil.rmtree(self.dirname)
 
 

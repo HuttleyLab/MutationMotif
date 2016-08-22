@@ -131,7 +131,7 @@ def get_profiles(data, chosen_base, step, flank_size, circle_range=None, seed=No
     ctl = get_control(data, chosen_base, step, flank_size,
                         circle_range=circle_range, seed=seed)
     length = data.shape[1]
-    mid_pt = (length - 1) / 2
+    mid_pt = (length - 1) // 2
     assert 2 * mid_pt + 1 == length, 'Funny length'
     
     start = mid_pt - flank_size
