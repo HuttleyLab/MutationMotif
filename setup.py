@@ -6,7 +6,7 @@ __author__ = "Gavin Huttley"
 __copyright__ = "Copyright 2014, Gavin Huttley"
 __credits__ = ["Gavin Huttley"]
 __license__ = "GPL"
-__version__ = "0.1"
+__version__ = "0.2"
 __maintainer__ = "Gavin Huttley"
 __email__ = "Gavin.Huttley@anu.edu.au"
 __status__ = "Development"
@@ -40,6 +40,7 @@ setup(
             "Development Status :: 3 - Alpha",
             "Intended Audience :: Science/Research",
             "License :: OSI Approved :: GNU General Public License (GPL)",
+            "Programming Language :: Python :: 3",
             "Topic :: Scientific/Engineering :: Bio-Informatics",
             "Topic :: Software Development :: Libraries :: Python Modules",
             "Operating System :: OS Independent",
