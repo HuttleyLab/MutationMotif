@@ -4,9 +4,32 @@ import click
 from click.testing import CliRunner
 
 from cogent3.util.unit_test import TestCase, main
+from cogent3 import LoadTable
 
 from mutation_motif.mutation_analysis import main as mut_main
 from mutation_motif.draw import main as draw_main
+from mutation_motif.all_counts import main as all_count_main
+
+
+class TestCounting(TestCase):
+    dirname = "_delme_counts"
+    def test_all_counts(self):
+        """exercising all_acounts"""
+        runner = CliRunner()
+        # should fail, as data files not in this directory
+        r = runner.invoke(all_count_main, ["-cdata/*.txt", "-o%s" % self.dirname])
+        self.assertNotEqual(r.exit_code, 0)
+        r = runner.invoke(all_count_main, ["-cdata/directions/*.txt", "-o%s" % self.dirname])
+        # should produce directory containing two files
+        dirlist = os.listdir(self.dirname)
+        self.assertEqual(set(dirlist),
+                         set(["combined_counts.txt", "combined_counts.log"]))
+        # check the contents of combined_counts
+        counts = LoadTable(os.path.join(self.dirname, "combined_counts.txt"), sep="\t")
+        # 4**4 nbrs x 12 mutations x 2 (M/R groups) = 6144
+        counts = LoadTable(os.path.join(self.dirname, "combined_counts.txt"), sep="\t")
+        self.assertEqual(counts.shape[0], 6144)
+        shutil.rmtree(self.dirname)
 
 
 class TestMutationAnalysis(TestCase):
