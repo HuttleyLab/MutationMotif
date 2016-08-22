@@ -1,5 +1,5 @@
 """combines counts from each mutation direction into a single table"""
-from __future__ import division
+
 
 import os, sys, time, re, glob
 from collections import Counter
@@ -25,8 +25,8 @@ def check_found_filenames(filenames):
         found.update(d)
     total = sum(found.values())
     if total != 12 or set(found) != set(_directions):
-        print "ERROR: counts_pattern did not identify 12 files -- %s" % filenames
-        print "Note that each file must contain a single direction pattern, e.g. CtoT, AtoG"
+        print("ERROR: counts_pattern did not identify 12 files -- %s" % filenames)
+        print("Note that each file must contain a single direction pattern, e.g. CtoT, AtoG")
         exit(-1)
 
 @click.command()
@@ -124,4 +124,4 @@ def main(counts_pattern, output_path, strand_symmetric, split_dir, dry_run, forc
     if not dry_run:
         LOGGER.log_message("%.2f" % (duration/60.), label="run duration (minutes)")
     
-    print "Done!"
+    print("Done!")

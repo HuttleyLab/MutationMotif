@@ -1,6 +1,6 @@
 import os, gzip, bz2, sys, platform, json
 from traceback import format_exc
-from ConfigParser import RawConfigParser, NoSectionError, NoOptionError, ParsingError
+from configparser import RawConfigParser, NoSectionError, NoOptionError, ParsingError
 
 import click
 from pandas import read_json
@@ -42,14 +42,14 @@ def get_plot_configs(cfg_path=None):
         config.add_section(section)
         config.set(section, 'figwidth', figwidths[section])
         config.set(section, 'figsize', figsizes[section])
-        for arg, default in defaults.items():
+        for arg, default in list(defaults.items()):
             config.set(section, arg, default)
     if cfg_path:
         # load the user provided config
         user_config = RawConfigParser(allow_no_value=True)
         try:
             user_config.read(cfg_path)
-        except ParsingError, err:
+        except ParsingError as err:
             msg = 'Could not parse %s: %s' % (cfg_path, err)
             raise ParsingError(msg)
         
@@ -131,7 +131,7 @@ def dump_loglin_stats(data, outfile_path):
     for position_set in data:
         curr = {}
         new_key = str(position_set)
-        for key, value in data[position_set].items():
+        for key, value in list(data[position_set].items()):
             if key == 'stats':
                 value = data[position_set][key].to_json()
             curr[key] = value
@@ -155,7 +155,7 @@ def load_loglin_stats(infile_path):
             new_key = position_set
         
         new_data[new_key] = {}
-        for key, value in data[position_set].items():
+        for key, value in list(data[position_set].items()):
             if key == 'stats':
                 value = read_json(value)
             new_data[new_key][key] = value
@@ -182,7 +182,7 @@ def seqs_to_array(d_aln):
     also
     filter sequences and save just_nuc sequences.
     """
-    expect = set([str(s) for s in d_aln.values() if set(s) <= set(DNA)])
+    expect = set([str(s) for s in list(d_aln.values()) if set(s) <= set(DNA)])
     just_bases = just_nucs(d_aln.ArraySeqs)
     return just_bases
 
@@ -208,5 +208,5 @@ def create_path(path):
     """creates dir path"""
     try:
         os.makedirs(path)
-    except OSError, e:
+    except OSError as e:
         pass

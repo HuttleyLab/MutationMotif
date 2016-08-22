@@ -36,7 +36,7 @@ def MakeCircleRange(circle_size, slice_side):
     assert (circle_size - 1) % 2 == 0
 
     slice_collection = {}
-    full_indices = range(0, circle_size)
+    full_indices = list(range(0, circle_size))
     for centre_index in range(circle_size):
         left = centre_index - slice_side
         right = centre_index + slice_side + 1

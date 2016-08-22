@@ -7,9 +7,9 @@ import numpy
 
 def as_dataframe(table):
     '''returns a DataFrame instance. Requires counts to be [[col1, col2, col3, ..]]'''
-    data = dict(zip(table.Header, zip(*table.getRawData())))
+    data = dict(list(zip(table.Header, list(zip(*table.getRawData())))))
     for column in data:
-        if type(data[column][0]) in (unicode, str):
+        if type(data[column][0]) in (str, str):
             klass = StrVector
         else:
             klass = IntVector
@@ -26,7 +26,7 @@ def get_rpy2_factorvector_index_map(fac):
 def convert_rdf_to_pandasdf(r_df):
     '''converts an rpy2 dataframe to a pandas dataframe'''
     converted = {}
-    for col_name, col_vector in r_df.items():
+    for col_name, col_vector in list(r_df.items()):
         if type(col_vector) == FactorVector:
             index_factor_map = get_rpy2_factorvector_index_map(col_vector)
             col_vector = [index_factor_map[val] for val in col_vector]
@@ -80,13 +80,13 @@ def position_effect(counts_table, group_label=None, test=False):
     formula = "count ~ %s" % formula
     null = Formula(formula)
     if test:
-        print formula
+        print(formula)
     
     counts_table = counts_table.getColumns(columns)
     d = as_dataframe(counts_table)
     
     f = R.glm(null, data=d, family = "poisson")
-    f_attr = dict(f.items())
+    f_attr = dict(list(f.items()))
     dev = f_attr['deviance'][0]
     df = f_attr['df.residual'][0]
     
@@ -109,12 +109,12 @@ def spectra_difference(counts_table, group_label, test=False):
     formula = "count ~ direction + %s" % group_label
     null = Formula(formula)
     if test:
-        print formula
+        print(formula)
     
     counts_table = counts_table.getColumns(columns)
     d = as_dataframe(counts_table)
     f = R.glm(null, data=d, family = "poisson")
-    f_attr = dict(f.items())
+    f_attr = dict(list(f.items()))
     dev = f_attr['deviance'][0]
     df = f_attr['df.residual'][0]
     

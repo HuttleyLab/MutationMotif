@@ -1,5 +1,5 @@
 """export seq files for different mutation types"""
-from __future__ import division
+
 
 import os, sys, time, re
 from itertools import permutations
@@ -34,7 +34,7 @@ def align_to_counts(align_path, output_path, flank_size, direction, step, seed, 
     if not dry_run:
         create_path(output_path)
     
-    print "Deriving counts from sequence file"
+    print("Deriving counts from sequence file")
     step = int(step)
     
     direction = tuple(direction.split('to'))

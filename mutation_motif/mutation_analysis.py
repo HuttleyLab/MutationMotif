@@ -4,7 +4,7 @@ from itertools import permutations, combinations
 
 import click
 
-from ConfigParser import RawConfigParser, NoSectionError, NoOptionError, ParsingError
+from configparser import RawConfigParser, NoSectionError, NoOptionError, ParsingError
 
 import numpy
 from matplotlib import pyplot
@@ -122,7 +122,7 @@ def get_single_position_fig(single_results, positions, figsize, group_label=None
         rets[:,index] = mut_stats['ret']
 
     heights = get_re_char_heights(rets, re_positionwise=position_re)
-    fig = logo.draw_multi_position(heights.T, characters=characters, position_indices=range(num_pos),
+    fig = logo.draw_multi_position(heights.T, characters=characters, position_indices=list(range(num_pos)),
                                figsize=figsize, figwidth=figwidth, verbose=False)
     
     if figwidth:
@@ -141,7 +141,7 @@ def get_resized_array_coordinates2(positions, motifs):
     num_pos = len(positions)
     a = numpy.zeros((num_pos, num_pos), object)
     for motif in motifs:
-        indices = map(positions.index, motif)
+        indices = list(map(positions.index, motif))
         indices.reverse()
         a[indices[0]][indices[1]] = motif
     
@@ -162,7 +162,7 @@ def get_two_position_effects(table, positions, group_label=None):
 def get_two_position_fig(two_pos_results, positions, figsize, group_label=None, group_ref=None, figwidth=None, xtick_fontsize=14, ytick_fontsize=14):
     position_sets = list(combinations(positions, 2))
     array_coords = get_resized_array_coordinates2(positions, position_sets)
-    coords = array_coords.values()
+    coords = list(array_coords.values())
     xdim = max(v[0] for v in coords) + 1
     ydim = max(v[1] for v in coords) + 1
     fig, axarr = pyplot.subplots(xdim, ydim, figsize=figsize, sharex=True, sharey=True)
@@ -189,7 +189,7 @@ def get_two_position_fig(two_pos_results, positions, figsize, group_label=None, 
 
     for pair in position_sets:
         rets = numpy.zeros((16, num_pos), float)
-        indices = map(positions.index, pair)
+        indices = list(map(positions.index, pair))
         row, col = array_coords[pair]
         ax = axarr[row, col]
 
@@ -224,7 +224,7 @@ def get_resized_array_coordinates3(positions, position_set):
     num_pos = len(positions)
     a = numpy.zeros((num_pos, num_pos, num_pos), object)
     for triple in position_set:
-        indices = map(positions.index, triple)
+        indices = list(map(positions.index, triple))
         indices.reverse()
         a[indices[0]][indices[1]][indices[2]] = triple
     
@@ -247,7 +247,7 @@ def get_three_position_fig(three_pos_results, positions, figsize, group_label=No
     position_sets = list(combinations(positions, 3))
     array_coords = get_resized_array_coordinates3(positions, position_sets)
 
-    coords = array_coords.values()
+    coords = list(array_coords.values())
     xdim = max(v[0] for v in coords) + 1
     ydim = max(v[1] for v in coords) + 1
 
@@ -277,7 +277,7 @@ def get_three_position_fig(three_pos_results, positions, figsize, group_label=No
 
     for motif in combinations(positions, 3):
         rets = numpy.zeros((64, num_pos), float)
-        indices = map(positions.index, motif)
+        indices = list(map(positions.index, motif))
         row, col = array_coords[motif]
         ax = axarr[row, col]
 
@@ -331,7 +331,7 @@ def get_four_position_fig(four_pos_results, positions, figsize, group_label=None
     characters = numpy.zeros((num_pos, 256), str)
 
     rets = numpy.zeros((256, num_pos), float)
-    indices = range(4)
+    indices = list(range(4))
 
     # now adjust indices to reflect position along sequence
     for i in range(len(indices)):
@@ -365,7 +365,7 @@ def single_group(counts_table, outpath, group_label, group_ref, positions, plot_
     
     max_results = {}
     # Single position analysis
-    print "Doing single position analysis"
+    print("Doing single position analysis")
     single_results = single_position_effects(counts_table, positions, group_label=group_label)
     summary += make_summary(single_results)
     
@@ -387,7 +387,7 @@ def single_group(counts_table, outpath, group_label, group_ref, positions, plot_
     if not dry_run:
         outfilename = os.path.join(outpath, "1.pdf")
         fig.savefig(outfilename, bbox_inches='tight')
-        print "Wrote", outfilename
+        print("Wrote", outfilename)
         fig.clf() # refresh for next section
     
     if first_order:
@@ -401,7 +401,7 @@ def single_group(counts_table, outpath, group_label, group_ref, positions, plot_
         
         return msg
     
-    print "Doing two positions analysis"
+    print("Doing two positions analysis")
     results = get_two_position_effects(counts_table, positions, group_label=group_label)
     summary += make_summary(results)
     
@@ -425,10 +425,10 @@ def single_group(counts_table, outpath, group_label, group_ref, positions, plot_
     if not dry_run:
         outfilename = os.path.join(outpath, "2.pdf")
         fig.savefig(outfilename, bbox_inches='tight')
-        print "Wrote", outfilename
+        print("Wrote", outfilename)
         fig.clf() # refresh for next section
     
-    print "Doing three positions analysis"
+    print("Doing three positions analysis")
     results = get_three_position_effects(counts_table, positions, group_label=group_label)
     summary += make_summary(results)
     
@@ -452,10 +452,10 @@ def single_group(counts_table, outpath, group_label, group_ref, positions, plot_
     if not dry_run:
         outfilename = os.path.join(outpath, "3.pdf")
         fig.savefig(outfilename, bbox_inches='tight')
-        print "Wrote", outfilename
+        print("Wrote", outfilename)
         fig.clf() # refresh for next section
     
-    print "Doing four positions analysis"
+    print("Doing four positions analysis")
     results = get_four_position_effects(counts_table, positions, group_label=group_label)
     summary += make_summary(results)
     
@@ -478,7 +478,7 @@ def single_group(counts_table, outpath, group_label, group_ref, positions, plot_
     if not dry_run:
         outfilename = os.path.join(outpath, "4.pdf")
         fig.savefig(outfilename, bbox_inches='tight')
-        print "Wrote", outfilename
+        print("Wrote", outfilename)
         fig.clf() # refresh for next section
     
     # now generate summary plot
@@ -492,7 +492,7 @@ def single_group(counts_table, outpath, group_label, group_ref, positions, plot_
     ax.yaxis.set_major_formatter(y_fmt)
     
     bar = pyplot.bar(index, [max_results[i] for i in range(1,5)], bar_width)
-    pyplot.xticks(index+(bar_width/2.), range(1,5), fontsize=plot_config.get('summary plot', 'xtick_fontsize'))
+    pyplot.xticks(index+(bar_width/2.), list(range(1,5)), fontsize=plot_config.get('summary plot', 'xtick_fontsize'))
     x_sz = plot_config.get('summary plot', 'xlabel_fontsize')
     y_sz = plot_config.get('summary plot', 'ylabel_fontsize')
     ax.set_xlabel("Effect Order", fontsize=x_sz)
@@ -506,7 +506,7 @@ def single_group(counts_table, outpath, group_label, group_ref, positions, plot_
     if not dry_run:
         outfilename = os.path.join(outpath, "summary.pdf")
         pyplot.savefig(outfilename, bbox_inches='tight')
-        print "Wrote", outfilename
+        print("Wrote", outfilename)
     
     summary = LoadTable(header=['Position', 'RE', 'Deviance', 'df', 'prob', 'formula'],
             rows=summary, digits=2, space=2)
@@ -515,7 +515,7 @@ def single_group(counts_table, outpath, group_label, group_ref, positions, plot_
         summary.writeToFile(outfilename, sep='\t')
         LOGGER.output_file(outfilename, label="summary")
     
-    print summary
+    print(summary)
     pyplot.close('all')
     msg = "Done! Check %s for your results" % outpath
     return  msg
@@ -593,11 +593,11 @@ def nbr(cfg_context, first_order, group_label, group_ref, plot_cfg, format):
         group_label = 'strand'
         group_ref = group_ref or '+'
         if group_label not in counts_table.Header:
-            print "ERROR: no column named 'strand', exiting."
+            print("ERROR: no column named 'strand', exiting.")
             exit(-1)
         
     if cfg_context.countsfile2:
-        print "Performing 2 group analysis"
+        print("Performing 2 group analysis")
         group_label = group_label or 'group'
         group_ref = group_ref or '1'
         counts_table1 = counts_table.withNewColumn(group_label, lambda x: '1',
@@ -622,16 +622,16 @@ def nbr(cfg_context, first_order, group_label, group_ref, plot_cfg, format):
             LOGGER.output_file(outfile, label="group_counts")
             
     if cfg_context.dry_run or cfg_context.verbose:
-        print
-        print counts_table
-        print
+        print()
+        print(counts_table)
+        print()
     
     plot_config = util.get_plot_configs(cfg_path=plot_cfg)
     
     msg = single_group(counts_table, outpath, group_label, group_ref, positions,
                        plot_config, first_order,
                        cfg_context.dry_run)
-    print msg
+    print(msg)
 
 @main.command()
 @pass_config

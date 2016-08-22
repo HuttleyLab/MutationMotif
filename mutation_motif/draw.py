@@ -1,5 +1,5 @@
 import os, sys
-from ConfigParser import SafeConfigParser
+from configparser import SafeConfigParser
 
 import click
 
@@ -59,7 +59,7 @@ def get_plot_data(single_results, positions):
         rets[:,index] = mut_stats['ret']
 
     heights = get_re_char_heights(rets, re_positionwise=position_re)
-    return heights.T, characters, range(num_pos)
+    return heights.T, characters, list(range(num_pos))
 
 def draw_position_grid(directions, sample_size=False, width=8, height=8, title_space=1.1, axis_font_size=20, tick_font_size=10, ylim=None):
     """docstring for draw_position_grid"""
@@ -73,7 +73,7 @@ def draw_position_grid(directions, sample_size=False, width=8, height=8, title_s
     for direction in directions:
         data = directions[direction]
         if positions is None:
-            positions = data.keys()
+            positions = list(data.keys())
             positions.sort()
         number = data[positions[0]]['stats']["count"].sum() / 2
         heights, characters, indices = get_plot_data(data, positions)
@@ -84,7 +84,7 @@ def draw_position_grid(directions, sample_size=False, width=8, height=8, title_s
         ylim = adaptive_y
     
     for direction, heights, characters, indices, number in plottables:
-        fr, to = map(bases.index, direction.split('to'))
+        fr, to = list(map(bases.index, direction.split('to')))
         ax = axes[fr, to]
         fig = logo.draw_multi_position(heights, characters=characters,
                         position_indices=indices, ylim=ylim, ax=ax, figwidth=width, verbose=False)
@@ -165,8 +165,8 @@ def nbr_grid(cfg_context, paths_cfg):
         # assumes paths are relative to indir
         path = os.path.join(indir, path)
         if not os.path.exists(path):
-            print "Couldn't find %s" % path
-            print "json file paths should be relative to paths_cfg"
+            print("Couldn't find %s" % path)
+            print("json file paths should be relative to paths_cfg")
             sys.exit(1)
         
         json_paths[direction] = path
@@ -180,7 +180,7 @@ def nbr_grid(cfg_context, paths_cfg):
     
     LOGGER.log_file_path = log_file_path
     plot_data = {}
-    for direction, path in json_paths.items():
+    for direction, path in list(json_paths.items()):
         LOGGER.input_file(path)
         data = util.load_loglin_stats(path)
         plot_data[direction] = data
@@ -194,7 +194,7 @@ def nbr_grid(cfg_context, paths_cfg):
     
     fig.savefig(figpath)
     LOGGER.output_file(figpath)
-    print "Wrote", figpath
+    print("Wrote", figpath)
 
 def draw_spectrum_grid(data, plot_cfg=None, sample_size=False, width=8, height=8, title_space=1.1, axis_font_size=20, tick_font_size=10, ylim=None):
     all_bases = 'ACGT'
@@ -303,7 +303,7 @@ def load_spectra_data(json_path, group_col):
         total_re = data[base]['rel_entropy']
         subset = data[base]['stats'][data[base]['stats'][group_col].apply(str) == selected_group].copy()
         if subset.empty:
-            print "No entries equal to '%s'" % str(selected_group)
+            print("No entries equal to '%s'" % str(selected_group))
             exit(-1)
         
         total_ret = numpy.fabs(subset["ret"]).sum()
@@ -342,7 +342,7 @@ def spectra_grid(cfg_context, json_path, group_label):
     f = draw_spectrum_grid(data, sample_size=cfg_context.sample_size, plot_cfg=plot_cfg)
     f.savefig(cfg_context.figpath)
     LOGGER.output_file(cfg_context.figpath)
-    print "Wrote", cfg_context.figpath
+    print("Wrote", cfg_context.figpath)
 
 @main.command()
 @click.option('--json_path', required=True,
@@ -373,7 +373,7 @@ def mi(cfg_context, json_path):
     LOGGER.log_message(str(args), label='vars')
     
     data = util.load_loglin_stats(json_path)
-    positions = data.keys()
+    positions = list(data.keys())
     positions.sort()
     num_pos = len(positions) + 1
     mp = num_pos // 2
@@ -383,7 +383,7 @@ def mi(cfg_context, json_path):
             i += 1
         pos_stats = data[pos]['stats']
         counts = pos_stats[pos_stats['mut'] == 'M'][["base", "count"]]
-        counts = dict(zip(counts['base'], counts['count']))
+        counts = dict(list(zip(counts['base'], counts['count'])))
         for base in counts:
             base_index = DNA.Alphabet.index(base)
             counts_array[base_index, i] = counts[base]
@@ -401,7 +401,7 @@ def mi(cfg_context, json_path):
     xlabel_font = plot_config.get('1-way plot', 'xlabel_fontsize')
     fig = logo.draw_multi_position(char_hts.T,
                     characters=[list(DNA)]*num_pos,
-                    position_indices=range(num_pos),
+                    position_indices=list(range(num_pos)),
                     figsize=plot_config.get('1-way plot', 'figsize'),
                     xtick_fontsize=xtick_font,
                     ytick_fontsize=ytick_font,
@@ -418,5 +418,5 @@ def mi(cfg_context, json_path):
     fig.tight_layout()
     fig.savefig(figpath)
     LOGGER.output_file(figpath)
-    print "Wrote", figpath
+    print("Wrote", figpath)
 

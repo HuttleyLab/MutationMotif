@@ -2,7 +2,7 @@
 
 Assumes bases recoded to ints in range 0 <= b < 4"""
 
-from __future__ import division
+
 
 from numpy import array, log, log2, isnan
 

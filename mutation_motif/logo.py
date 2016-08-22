@@ -58,7 +58,7 @@ def draw_position(idx, idx_char_heights, sort_data=False, characters=None, ax=No
     dx = 1.0
     x = idx
     y = 0
-    data = zip(idx_char_heights, characters)
+    data = list(zip(idx_char_heights, characters))
     if sort_data:
         data.sort()
     
@@ -98,10 +98,10 @@ def draw_alignment(char_heights, characters=None, ax=None, figsize=None, ylim=No
         figwidth = fig.get_figwidth()
         width_multiplier = orig_len / 20.
         fig.set_figwidth(width_multiplier*figwidth)
-        print fig.get_figwidth()
+        print(fig.get_figwidth())
     else:
         fig.set_figwidth(figwidth)
-        print figwidth
+        print(figwidth)
     
     ax.set_yticks(array([0.0, ylim / 2, ylim]))
     ax.set_yticklabels([0.0, ylim / 2, ylim], fontsize=14)

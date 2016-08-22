@@ -48,7 +48,7 @@ class BoobyTrappedStream(object):
 
     def write(self, text):
         self.output.write(text)
-        raise RuntimeError, "Output not allowed in tests"
+        raise RuntimeError("Output not allowed in tests")
         
     def flush(self):
         pass

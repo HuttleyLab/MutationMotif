@@ -86,15 +86,15 @@ class TestMotifCount(TestCase):
         r = reduced_multiple_positions(self.table, 'pos0')
         got = reduced_one_position(self.table, 'pos0')
         exp = {}
-        for m, counts in r.items():
-            counts = dict((k[0], c) for k, c in counts.items())
+        for m, counts in list(r.items()):
+            counts = dict((k[0], c) for k, c in list(counts.items()))
             exp[m] = counts
         self.assertEqual(got, exp)
         
         r = reduced_multiple_positions(self.table, 'pos2')
         exp = {}
-        for m, counts in r.items():
-            counts = dict((k[0], c) for k, c in counts.items())
+        for m, counts in list(r.items()):
+            counts = dict((k[0], c) for k, c in list(counts.items()))
             exp[m] = counts
         
         got = reduced_one_position(self.table, 'pos2')

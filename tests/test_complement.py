@@ -40,7 +40,7 @@ class TestEntropy(TestCase):
             n.append('+')
             exp.append(n)
         for row in data:
-            seq = map(DNA.complement, row[1:-2])
+            seq = list(map(DNA.complement, row[1:-2]))
             seq.reverse()
             n = [row[0]] + seq + ['M', 'AtoC']
             n.append('-')

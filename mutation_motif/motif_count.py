@@ -43,7 +43,7 @@ def get_count_table(observed, control, k=None):
         - control: the control counts as {seq: count}
         - k: size of the motif"""
     rows = []
-    lengths = set(map(len, observed.keys()) + map(len, control.keys()))
+    lengths = set(list(map(len, list(observed.keys()))) + list(map(len, list(control.keys()))))
     if len(lengths) != 1:
         raise ValueError("Motifs not all same length: %s" % str(lengths))
     

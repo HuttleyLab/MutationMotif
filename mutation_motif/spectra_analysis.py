@@ -60,7 +60,7 @@ def main(countsfile, outpath, countsfile2, strand_symmetry, force_overwrite, dry
         counts_table = LoadTable(header=header, rows=raw1+raw2)
         
         if verbose:
-            print counts_table
+            print(counts_table)
         
     # spectra table has [count, start, end, group] order
     # we reduce comparisons to a start base
@@ -96,7 +96,7 @@ def main(countsfile, outpath, countsfile2, strand_symmetry, force_overwrite, dry
                         "p=%s" % p]
     
         stats =  "  :  ".join(significance)
-        print "Start base=%s  %s" % (start_base, stats)
+        print("Start base=%s  %s" % (start_base, stats))
         saveable[start_base] = dict(rel_entropy=total_re, deviance=dev, df=df, prob=p,
                     formula=formula, stats=collated.to_json())
     

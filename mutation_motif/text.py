@@ -23,7 +23,7 @@ class letter(Polygon):
         verts = (100. - array(self.verts))/100.
         verts *= [dx, dy]
         verts += [x, y]
-        Polygon.__init__(self, map(tuple, verts), facecolor=self.color,
+        Polygon.__init__(self, list(map(tuple, verts)), facecolor=self.color,
             edgecolor=self.color,**kwargs)
 
 

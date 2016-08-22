@@ -38,7 +38,7 @@ def make_strand_symmetric_table(table):
     new_data = []
     direction_index = [i for i in range(len(table.Header))
                             if table.Header[i] == 'direction'][0]
-    for plus, minus in MUTATION_COMPLEMENTS.items():
+    for plus, minus in list(MUTATION_COMPLEMENTS.items()):
         plus_table = table.filtered('direction=="%s"' % plus)
         plus_data = add_strand_column(plus_table.getRawData(), '+')
         new_data.extend(plus_data)
