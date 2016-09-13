@@ -87,7 +87,7 @@ Testing Full Spectra
 
 Testing for strand symmetry requires the combined counts file, produced using the provided ``all_counts`` script. A sample such file is included as ``tests/data/counts-combined.txt``. In this instance, a test of consistency in mutation spectra between strands is specified.
 
-This analysis is run as:
+This analysis is run as::
 
     $ mutation_analysis -1 path/to/tests/data/counts-combined.txt -o another/path/for/results/ --strand_symmetry spectra
 
