@@ -1,4 +1,8 @@
-from numpy import isnan, fabs
+
+from warnings import filterwarnings
+from numpy import isnan, fabs, errstate
+
+filterwarnings("ignore", "invalid value encountered.*")
 
 
 def get_mi_char_heights(freq_matrix, mi, zero_middle=True):
@@ -23,7 +27,8 @@ def get_re_char_heights(rets, re_positionwise=None, zero_middle=True):
         - zero_middle: set the middle position to 0
     """
     pwise_intervals = fabs(rets).sum(axis=0)  # span of column terms
-    normalised = rets / pwise_intervals
+    with errstate(divide="ignore"):
+        normalised = rets / pwise_intervals
 
     if re_positionwise is None:
         re_positionwise = rets.sum(axis=0)
