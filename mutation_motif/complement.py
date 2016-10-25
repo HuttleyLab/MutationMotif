@@ -1,5 +1,4 @@
 from cogent3 import LoadTable, DNA
-from cogent3.core.moltype import IUPAC_DNA_ambiguities_complements as COMPLEMENTS
 
 MUTATION_COMPLEMENTS = {'CtoG': 'GtoC',
                         'CtoA': 'GtoT',
@@ -8,10 +7,12 @@ MUTATION_COMPLEMENTS = {'CtoG': 'GtoC',
                         'AtoC': 'TtoG',
                         'AtoG': 'TtoC'}
 
+
 def _reverse_complement(table):
     '''returns a table with sequences reverse complemented'''
-    pos_indices = [i for i, c in enumerate(table.header) if c.startswith('pos')]
-    
+    pos_indices = [i for i, c in enumerate(
+        table.header) if c.startswith('pos')]
+
     rows = table.tolist()
     for row in rows:
         # we use the cogent3 DnaSeq object to do reverse complementing
@@ -25,24 +26,27 @@ def _reverse_complement(table):
         new = None
     return new
 
+
 def add_strand_column(rows, strand):
     for row in rows:
         row.append(strand)
     return rows
 
+
 def make_strand_symmetric_table(table):
-    '''takes a combined counts table and returns a table with reverse complemented seqs
-    
+    '''takes a combined counts table and returns a table with reverse
+    complemented seqs
+
     Uses MUTATION_COMPLEMENTS'''
-    
+
     new_data = []
     direction_index = [i for i in range(len(table.header))
-                            if table.header[i] == 'direction'][0]
+                       if table.header[i] == 'direction'][0]
     for plus, minus in list(MUTATION_COMPLEMENTS.items()):
         plus_table = table.filtered('direction=="%s"' % plus)
         plus_data = add_strand_column(plus_table.tolist(), '+')
         new_data.extend(plus_data)
-        
+
         minus_table = table.filtered('direction=="%s"' % minus)
         if minus_table.shape[0] == 0:
             continue
@@ -52,5 +56,5 @@ def make_strand_symmetric_table(table):
             row[direction_index] = plus
         minus_data = add_strand_column(minus_data, '-')
         new_data.extend(minus_data)
-    
+
     return LoadTable(header=table.header[:] + ['strand'], rows=new_data)
