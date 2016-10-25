@@ -7,7 +7,7 @@ def get_mi_char_heights(freq_matrix, mi, zero_middle=True):
     result = freq_matrix * mi
     if zero_middle:
         # zero the middle position
-        mid = (result.shape[1] - 1) / 2
+        mid = (result.shape[1] - 1) // 2
         result[:, mid] = 0
     return result
 
@@ -32,7 +32,7 @@ def get_re_char_heights(rets, re_positionwise=None, zero_middle=True):
     result[isnan(result)] = 0
     if zero_middle:
         # zero the middle position
-        mid = (rets.shape[1] - 1) / 2
+        mid = (rets.shape[1] - 1) // 2
         result[:, mid] = 0
 
     return result
