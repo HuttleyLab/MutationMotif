@@ -1,7 +1,9 @@
 """measures of entropy for DNA sequences that are represented as numpy arrays.
 
 Assumes bases recoded to ints in range 0 <= b < 4"""
-from numpy import array, log2, isnan
+from warnings import filterwarnings
+
+from numpy import array, log2, isnan, errstate
 
 from mutation_motif.util import is_valid
 
@@ -14,6 +16,8 @@ __maintainer__ = "Gavin Huttley"
 __email__ = "Gavin.Huttley@anu.edu.au"
 __status__ = "Development"
 
+filterwarnings("ignore", "invalid value encountered in multiply")
+
 
 def get_ret(ref, ctl, pseudocount=1, check_valid=False):
     """returns relative entropy terms for axis=0
@@ -25,7 +29,8 @@ def get_ret(ref, ctl, pseudocount=1, check_valid=False):
     p = as_freq_matrix(ref, pseudocount=pseudocount, check_valid=check_valid)
     q = as_freq_matrix(ctl, pseudocount=pseudocount, check_valid=check_valid)
     # relative entropy terms
-    ret = p * log2(p / q)
+    with errstate(divide='ignore'):
+        ret = p * log2(p / q)
     return ret
 
 
@@ -69,7 +74,8 @@ def get_entropy_terms(data, pseudocount=0, check_valid=False,
         p = as_freq_matrix(data, pseudocount=pseudocount,
                            check_valid=check_valid)
 
-    et = -p * log2(p)
+    with errstate(divide='ignore'):
+        et = -p * log2(p)
     return et
 
 
