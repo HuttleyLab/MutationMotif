@@ -72,7 +72,7 @@ def set_anchored_ticks(ax, fontsize=14):
     """modifies the X-ticks to include negative numbers"""
     labels = ax.get_xticklabels()
     num = len(labels)
-    mid = (num - 1) / 2
+    mid = (num - 1) // 2
     assert 2 * mid + 1 == num, "Funny length"
     new_labels = [int(label.get_text()) - mid for label in labels]
     ax.set_xticklabels(new_labels, fontsize=fontsize)
