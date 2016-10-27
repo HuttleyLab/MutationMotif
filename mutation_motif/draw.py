@@ -3,18 +3,14 @@ import sys
 from configparser import SafeConfigParser
 
 import click
-
 import numpy
 from matplotlib import pyplot
-
 from matplotlib.ticker import FuncFormatter, MultipleLocator
-
 from cogent3 import DNA
+from scitrack import CachingLogger
 
 from mutation_motif import util, logo, text, entropy
 from mutation_motif.height import get_re_char_heights, get_mi_char_heights
-
-from scitrack import CachingLogger
 
 LOGGER = CachingLogger(create_dir=True)
 
