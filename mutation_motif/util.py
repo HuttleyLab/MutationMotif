@@ -88,7 +88,7 @@ class FixedOrderFormatter(ScalarFormatter):
 
 def load_table_from_delimited_file(path, sep='\t'):
     '''returns a Table object after a quicker loading'''
-    with open_(path, 'r') as infile:
+    with open_(path, 'rt') as infile:
         header = infile.readline().strip().split(sep)
         count_index = header.index('count')
         records = []
