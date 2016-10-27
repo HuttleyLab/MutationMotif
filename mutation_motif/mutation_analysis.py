@@ -425,19 +425,19 @@ def single_group(counts_table, outpath, group_label, group_ref, positions,
         LOGGER.output_file(outfilename, label="analysis1")
 
     fig = get_single_position_fig(
-                        single_results, positions,
-                        plot_config.get('1-way plot', 'figsize'),
-                        group_label=group_label,
-                        group_ref=group_ref,
-                        figwidth=plot_config.get('1-way plot', 'figwidth'),
-                        xlabel_fontsize=plot_config.get('1-way plot',
-                                                        'xlabel_fontsize'),
-                        ylabel_fontsize=plot_config.get('1-way plot',
-                                                        'ylabel_fontsize'),
-                        xtick_fontsize=plot_config.get('1-way plot',
-                                                        'xtick_fontsize'),
-                        ytick_fontsize=plot_config.get('1-way plot',
-                                                       'ytick_fontsize'))
+        single_results, positions,
+        plot_config.get('1-way plot', 'figsize'),
+        group_label=group_label,
+        group_ref=group_ref,
+        figwidth=plot_config.get('1-way plot', 'figwidth'),
+        xlabel_fontsize=plot_config.get('1-way plot',
+                                        'xlabel_fontsize'),
+        ylabel_fontsize=plot_config.get('1-way plot',
+                                        'ylabel_fontsize'),
+        xtick_fontsize=plot_config.get('1-way plot',
+                                       'xtick_fontsize'),
+        ytick_fontsize=plot_config.get('1-way plot',
+                                       'ytick_fontsize'))
 
     format_offset(fig, int(plot_config.get('1-way plot',
                                            'ytick_fontsize') * .8))
@@ -471,10 +471,11 @@ def single_group(counts_table, outpath, group_label, group_ref, positions,
         LOGGER.output_file(outfilename, label="analysis2")
 
     fig = get_two_position_fig(results, positions,
-                plot_config.get('2-way plot', 'figsize'),
-                group_label=group_label, group_ref=group_ref,
-                xtick_fontsize=plot_config.get('2-way plot', 'xtick_fontsize'),
-                ytick_fontsize=plot_config.get('2-way plot', 'ytick_fontsize'))
+                               plot_config.get('2-way plot', 'figsize'),
+                               group_label=group_label, group_ref=group_ref,
+                               xtick_fontsize=plot_config.get(
+                                   '2-way plot', 'xtick_fontsize'),
+                               ytick_fontsize=plot_config.get('2-way plot', 'ytick_fontsize'))
     fig.set_figwidth(plot_config.get('2-way plot', 'figwidth'))
     x_fsz = plot_config.get('2-way plot', 'xlabel_fontsize')
     y_fsz = plot_config.get('2-way plot', 'ylabel_fontsize')
@@ -502,16 +503,20 @@ def single_group(counts_table, outpath, group_label, group_ref, positions,
         LOGGER.output_file(outfilename, label="analysis3")
 
     fig = get_three_position_fig(results, positions,
-                        plot_config.get('3-way plot', 'figsize'),
-                        group_label=group_label, group_ref=group_ref,
-                        xtick_fontsize=plot_config.get('3-way plot', 'xtick_fontsize'),
-                        ytick_fontsize=plot_config.get('3-way plot', 'ytick_fontsize'))
+                                 plot_config.get('3-way plot', 'figsize'),
+                                 group_label=group_label, group_ref=group_ref,
+                                 xtick_fontsize=plot_config.get(
+                                     '3-way plot', 'xtick_fontsize'),
+                                 ytick_fontsize=plot_config.get('3-way plot', 'ytick_fontsize'))
     fig.set_figwidth(plot_config.get('3-way plot', 'figwidth'))
     x_fsz = plot_config.get('3-way plot', 'xlabel_fontsize')
     y_fsz = plot_config.get('3-way plot', 'ylabel_fontsize')
-    fig.text(0.5, plot_config.get('3-way plot', 'xlabel_pad'), 'Position', ha='center', va='center', fontsize=x_fsz)
-    fig.text(plot_config.get('3-way plot', 'ylabel_pad'), 0.5, 'RE', ha='center', va='center', rotation='vertical', fontsize=y_fsz)
-    format_offset(fig, int(plot_config.get('3-way plot', 'ytick_fontsize') * .8))
+    fig.text(0.5, plot_config.get('3-way plot', 'xlabel_pad'),
+             'Position', ha='center', va='center', fontsize=x_fsz)
+    fig.text(plot_config.get('3-way plot', 'ylabel_pad'), 0.5, 'RE',
+             ha='center', va='center', rotation='vertical', fontsize=y_fsz)
+    format_offset(fig,
+                  int(plot_config.get('3-way plot', 'ytick_fontsize') * .8))
     if not dry_run:
         outfilename = os.path.join(outpath, "3.pdf")
         fig.savefig(outfilename, bbox_inches='tight')
@@ -530,8 +535,8 @@ def single_group(counts_table, outpath, group_label, group_ref, positions,
         LOGGER.output_file(outfilename, label="analysis4")
 
     fig = get_four_position_fig(results, positions,
-            plot_config.get('4-way plot', 'figsize'),
-            group_label=group_label, group_ref=group_ref)
+                                plot_config.get('4-way plot', 'figsize'),
+                                group_label=group_label, group_ref=group_ref)
     fig.set_figwidth(plot_config.get('4-way plot', 'figwidth'))
     ax = fig.gca()
     x_fsz = plot_config.get('4-way plot', 'xlabel_fontsize')
@@ -557,7 +562,7 @@ def single_group(counts_table, outpath, group_label, group_ref, positions,
     ax.yaxis.set_major_formatter(y_fmt)
 
     bar = pyplot.bar(index, [max_results[i] for i in range(1, 5)], bar_width)
-    pyplot.xticks(index+(bar_width / 2.), list(range(1, 5)),
+    pyplot.xticks(index + (bar_width / 2.), list(range(1, 5)),
                   fontsize=plot_config.get('summary plot', 'xtick_fontsize'))
     x_sz = plot_config.get('summary plot', 'xlabel_fontsize')
     y_sz = plot_config.get('summary plot', 'ylabel_fontsize')
@@ -627,8 +632,8 @@ def main(cfg_context, countsfile, outpath, countsfile2, strand_symmetry,
 
 @main.command()
 @click.option('--first_order', is_flag=True,
-    help='Consider only first order effects. Defaults to considering up to '
-         '4th order interactions.')
+              help='Consider only first order effects. Defaults to '
+              'considering up to 4th order interactions.')
 @click.option('-g', '--group_label', help='second group label.')
 @click.option('-r', '--group_ref', default=None,
               help='reference group value for results presentation.')
@@ -680,7 +685,8 @@ def nbr(cfg_context, first_order, group_label, group_ref, plot_cfg, format):
         group_label = group_label or 'group'
         group_ref = group_ref or '1'
         counts_table1 = counts_table.with_new_column(group_label,
-                            lambda x: '1', columns=counts_table.header[0])
+                                                     lambda x: '1',
+                                                     columns=counts_table.header[0])
 
         fn2 = util.abspath(cfg_context.countsfile2)
         counts_table2 = util.load_table_from_delimited_file(fn2, sep='\t')
@@ -688,7 +694,8 @@ def nbr(cfg_context, first_order, group_label, group_ref, plot_cfg, format):
         LOGGER.input_file(fn2, label="countsfile2_path")
 
         counts_table2 = counts_table2.with_new_column(group_label,
-                            lambda x: '2', columns=counts_table2.header[0])
+                                                      lambda x: '2',
+                                                      columns=counts_table2.header[0])
         # now combine
         header = [group_label] + counts_table2.header[:-1]
         raw1 = counts_table1.tolist(header)
