@@ -283,7 +283,7 @@ def get_three_position_fig(three_pos_results, positions, figsize,
     xdim = max(v[0] for v in coords) + 1
     ydim = max(v[1] for v in coords) + 1
 
-    fig, axarr = pyplot.subplots(xdim, ydim, figsize=(9, 9), sharex=True,
+    fig, axarr = pyplot.subplots(xdim, ydim, figsize=figsize, sharex=True,
                                  sharey=True)
 
     for i in range(xdim):
@@ -362,7 +362,7 @@ def get_four_position_fig(four_pos_results, positions, figsize,
 
     rel_entropy = rel_entropies[0]
 
-    fig = pyplot.figure(figsize=(9, 9))
+    fig = pyplot.figure(figsize=figsize)
     ax = fig.gca()
 
     num_pos = len(positions) + 1
@@ -552,7 +552,7 @@ def single_group(counts_table, outpath, group_label, group_ref, positions,
     y_lim = max(max_results.values())
     y_fmt = util.FixedOrderFormatter(numpy.floor(numpy.log10(y_lim)))
 
-    fig = pyplot.figure()
+    fig = pyplot.figure(figsize=plot_config.get('summary plot', 'figsize'))
     ax = fig.gca()
     ax.yaxis.set_major_formatter(y_fmt)
 
