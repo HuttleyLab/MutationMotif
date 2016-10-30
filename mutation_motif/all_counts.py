@@ -10,7 +10,7 @@ import click
 from cogent3 import LoadTable
 from scitrack import CachingLogger
 
-from mutation_motif.util import create_path, abspath, get_subtables
+from mutation_motif.util import makedirs, abspath, get_subtables
 from mutation_motif.complement import make_strand_symmetric_table
 
 LOGGER = CachingLogger(create_dir=True)
@@ -74,9 +74,9 @@ def main(counts_pattern, output_path, strand_symmetric, split_dir, dry_run,
                   "existing files with -F."
             raise ValueError(msg % (counts_filename, runlog_path))
 
-        create_path(output_path)
+        makedirs(output_path)
         if split_dir:
-            create_path(split_dir)
+            makedirs(split_dir)
 
         LOGGER.log_file_path = runlog_path
         LOGGER.log_message(str(args), label='vars')

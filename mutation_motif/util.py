@@ -226,7 +226,7 @@ def abspath(path):
     return os.path.abspath(os.path.expanduser(path))
 
 
-def create_path(path):
+def makedirs(path):
     """creates dir path"""
     try:
         os.makedirs(path)

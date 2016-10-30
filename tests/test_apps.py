@@ -6,7 +6,7 @@ from click.testing import CliRunner
 from cogent3.util.unit_test import TestCase, main
 from cogent3 import LoadTable
 
-from mutation_motif.util import create_path
+from mutation_motif.util import makedirs
 from mutation_motif.mutation_analysis import main as mut_main
 from mutation_motif.draw import main as draw_main
 from mutation_motif.all_counts import main as all_count_main
@@ -41,7 +41,7 @@ class TestCounting(TestCase):
         if os.path.exists(self.dirname):
             shutil.rmtree(self.dirname)
         
-        create_path(self.dirname)
+        makedirs(self.dirname)
         runner = CliRunner()
         # should fail, as data files not in this directory
         r = runner.invoke(aln_to_counts_main, ["-adata/sample_AtoC.fasta", "-o%s" % self.dirname,

@@ -656,7 +656,7 @@ def nbr(cfg_context, first_order, group_label, group_ref, plot_cfg, format):
     outpath = util.abspath(cfg_context.outpath)
 
     if not cfg_context.dry_run:
-        util.create_path(outpath)
+        util.makedirs(outpath)
         runlog_path = os.path.join(outpath, "analysis.log")
         LOGGER.log_file_path = runlog_path
         LOGGER.log_message(str(args), label='vars')

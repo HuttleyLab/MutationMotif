@@ -104,7 +104,7 @@ def main(countsfile, outpath, countsfile2, strand_symmetry, force_overwrite,
 
     outpath = util.abspath(outpath)
     if not dry_run:
-        util.create_path(outpath)
+        util.makedirs(outpath)
         json_path = os.path.join(outpath, 'spectra_analysis.json')
         dump_json(saveable, json_path)
         LOGGER.output_file(json_path)

@@ -9,7 +9,7 @@ import click
 
 from scitrack import CachingLogger
 
-from mutation_motif.util import create_path, abspath, just_nucs,\
+from mutation_motif.util import makedirs, abspath, just_nucs,\
     load_from_fasta
 from mutation_motif import profile, motif_count
 
@@ -37,7 +37,7 @@ def align_to_counts(align_path, output_path, flank_size, direction, step,
     '''returns counts table from alignment of sequences centred on a SNP'''
 
     if not dry_run:
-        create_path(output_path)
+        makedirs(output_path)
 
     print("Deriving counts from sequence file")
     step = int(step)
@@ -117,7 +117,7 @@ def main(align_path, output_path, flank_size, direction, seed, randomise,
                   " files with -F."
             raise ValueError(msg % (counts_filename, runlog_path))
 
-        create_path(output_path)
+        makedirs(output_path)
 
         LOGGER.log_message(str(args), label='vars')
         LOGGER.input_file(align_path, label="align_path")
