@@ -182,7 +182,7 @@ def is_valid(data):
 
 
 def load_from_fasta(filename):
-    infile = open_(filename)
+    infile = open_(filename, mode='rt')
     parser = MinimalFastaParser(infile)
     seqs = [(n, s) for n, s in parser]
     infile.close()
