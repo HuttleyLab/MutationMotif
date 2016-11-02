@@ -17,3 +17,7 @@ build
 draw_results
 *cover*
 *mutation_motif.egg-info*
+*sublime*
+.cache*
+*.wpu
+*.ipynb_checkpoints*
