@@ -427,7 +427,7 @@ def mi(json_path, plot_cfg, no_type3, figpath, format, sample_size,
             i += 1
         pos_stats = data[pos]['stats']
         counts = pos_stats[pos_stats['mut'] == 'M'][["base", "count"]]
-        counts = dict(list(zip(counts['base'], counts['count'])))
+        counts = dict(zip(counts['base'], counts['count']))
         for base in counts:
             base_index = DNA.alphabet.index(base)
             counts_array[base_index, i] = counts[base]
@@ -438,7 +438,7 @@ def mi(json_path, plot_cfg, no_type3, figpath, format, sample_size,
     char_hts = get_mi_char_heights(numpy.fabs(mit), mi)
 
     plot_cfg = util.get_plot_configs(cfg_path=plot_cfg)
-
+    figsize = plot_cfg.get('1-way plot', 'figsize')
     ytick_font = plot_cfg.get('1-way plot', 'ytick_fontsize')
     xtick_font = plot_cfg.get('1-way plot', 'xtick_fontsize')
     ylabel_font = plot_cfg.get('1-way plot', 'ylabel_fontsize')
@@ -446,8 +446,8 @@ def mi(json_path, plot_cfg, no_type3, figpath, format, sample_size,
     fig = logo.draw_multi_position(char_hts.T,
                                    characters=[list(DNA)] * num_pos,
                                    position_indices=list(range(num_pos)),
-                                   figsize=plot_cfg.get(
-                                       '1-way plot', 'figsize'),
+                                   figsize=figsize,
+                                   figwidth=figsize[0],
                                    xtick_fontsize=xtick_font,
                                    ytick_fontsize=ytick_font,
                                    sort_data=True)
