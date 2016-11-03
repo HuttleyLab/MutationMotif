@@ -69,13 +69,13 @@ Sample data files are included as ``tests/data/counts-CtoT.txt`` and ``tests/dat
 
 The simple analysis is invoked as::
     
-    $ mutation_analysis -1 path/to/tests/data/counts-CtoT.txt -o path/for/results/ nbr
+    $ mutation_analysis nbr -1 path/to/tests/data/counts-CtoT.txt -o path/for/results/
 
 This will write 11 files into the results directory. Files such as ``1.pdf`` and ``2.pdf`` are the mutation mtofis for the first and second order effects from the log-linear models. Files ending in ``.json`` contain the raw data used to produce these figures and may be used for subsequent analyses, such as generating grids of mutation motifs. The summary files summarises the full log-linear modelling heirarchy. The ``.log`` files track the command used to generate these files, including the input files and the settings used.
 
 Testing for strand symmetry (or asymmetry) is done as::
     
-    $ mutation_analysis -1 path/to/tests/data/counts-CtoT.txt -o path/for/results/ --strand_symmetry nbr
+    $ mutation_analysis nbr -1 path/to/tests/data/counts-CtoT.txt -o path/for/results/ --strand_symmetry
 
 Similar output to the above is generated. The difference here is that the reference group for display are bases on the ``+`` strand.
 
@@ -89,7 +89,7 @@ Testing for strand symmetry requires the combined counts file, produced using th
 
 This analysis is run as::
 
-    $ mutation_analysis -1 path/to/tests/data/counts-combined.txt -o another/path/for/results/ --strand_symmetry spectra
+    $ mutation_analysis spectra -1 path/to/tests/data/counts-combined.txt -o another/path/for/results/ --strand_symmetry
 
 *******************
 Interpreting logo's

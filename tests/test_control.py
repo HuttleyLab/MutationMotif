@@ -1,15 +1,11 @@
-#!/usr/bin/env python2.7
-import sys, os
-
-import numpy
 from numpy import array
 from cogent3 import LoadSeqs, DNA
 from cogent3.util.unit_test import TestCase, main
-from cogent3.core.alignment import ArrayAlignment
 
-from mutation_motif.profile import get_control,\
-            MakeCircleRange, get_random_indices, filter_seqs_by_chosen_base,\
-            chosen_base_indices, get_zero_counts
+from mutation_motif.profile import get_control, MakeCircleRange,\
+    get_random_indices, filter_seqs_by_chosen_base,\
+    chosen_base_indices, get_zero_counts
+
 
 class TestChooseBases(TestCase):
     data_even = array([(2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2),
@@ -23,7 +19,7 @@ class TestChooseBases(TestCase):
                       (2,0,1,2,3,1,2,2,2,0,2,2,2,2,2,3,0,2,2,3,0)])
     
     chosen_pair = 'AC'
-    chosen_base = 'A'#2
+    chosen_base = 'A'  # 2
     
     step1 = 1
     step2 = 3
@@ -190,18 +186,19 @@ class TestIndices(TestCase):
                   [11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 0, 1, 2, 3, 4],
                   [12, 13, 14, 15, 16, 17, 18, 19, 20, 0, 1, 2, 3, 4, 5],
                   [13, 14, 15, 16, 17, 18, 19, 20, 0, 1, 2, 3, 4, 5, 6]]
-        
+
         self.assertEqual(full_list, expect)
+
 
 class TestProfile(TestCase):
     def test_zero_counts(self):
         """zero profile constructed correctly"""
         c = get_zero_counts(5, int, pseudo_count=0)
-        self.assertEqual(c.shape,(4, 5))
+        self.assertEqual(c.shape, (4, 5))
         self.assertEqual(c.tolist(), [[0, 0, 0, 0, 0]] * 4)
         c = get_zero_counts(5, int, pseudo_count=1)
         self.assertEqual(c.tolist(), [[1, 1, 1, 1, 1]] * 4)
 
+
 if __name__ == '__main__':
     main()
-

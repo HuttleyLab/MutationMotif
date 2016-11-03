@@ -1,15 +1,10 @@
-#!/usr/bin/env python2.7
-import sys
-import os
-sys.path.append('..')
-
-import glob
 import numpy
-from numpy import matrix, array
+from numpy import array
 from cogent3 import LoadSeqs, DNA
-from cogent3.core.alignment import ArrayAlignment
 from cogent3.util.unit_test import TestCase, main
-from mutation_motif.entropy import is_valid, get_ret, as_freq_matrix, get_entropy_terms, get_mit
+
+from mutation_motif.entropy import is_valid, get_ret, as_freq_matrix,\
+    get_entropy_terms, get_mit
 
 
 class TestEntropy(TestCase):
@@ -133,6 +128,7 @@ class TestEntropy(TestCase):
                             [-0.08357, -0.21429]])
 
         numpy.testing.assert_equal(ret, expect_ret)
+
 
 if __name__ == '__main__':
     main()

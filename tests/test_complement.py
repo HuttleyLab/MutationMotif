@@ -1,8 +1,8 @@
-#!/usr/bin/env python2.7
 from cogent3 import LoadTable, DNA
 from cogent3.util.unit_test import TestCase, main
 from mutation_motif.complement import _reverse_complement,\
-                    make_strand_symmetric_table
+    make_strand_symmetric_table
+
 
 class TestEntropy(TestCase):
     data = [[1670, 'T', 'T', 'T', 'T', 'M', 'AtoC'],
@@ -12,20 +12,20 @@ class TestEntropy(TestCase):
             [1919, 'A', 'C', 'A', 'A', 'M', 'AtoC'],
             [442, 'G', 'A', 'C', 'A', 'M', 'AtoC']]
     header = ['count', 'pos0', 'pos1', 'pos2', 'pos3', 'mut', 'direction']
-    
+
     def test_reverse_complement(self):
         table = LoadTable(header=self.header, rows=self.data)
-        ex =  [[1670, 'A', 'A', 'A', 'A', 'M', 'AtoC'],
-                [557, 'G', 'T', 'T', 'C', 'M', 'AtoC'],
-                [1479, 'T', 'T', 'C', 'T', 'M', 'AtoC'],
-                [925, 'C', 'T', 'T', 'C', 'M', 'AtoC'],
-                [1919, 'T', 'T', 'G', 'T', 'M', 'AtoC'],
-                [442, 'T', 'G', 'T', 'C', 'M', 'AtoC']]
+        ex = [[1670, 'A', 'A', 'A', 'A', 'M', 'AtoC'],
+              [557, 'G', 'T', 'T', 'C', 'M', 'AtoC'],
+              [1479, 'T', 'T', 'C', 'T', 'M', 'AtoC'],
+              [925, 'C', 'T', 'T', 'C', 'M', 'AtoC'],
+              [1919, 'T', 'T', 'G', 'T', 'M', 'AtoC'],
+              [442, 'T', 'G', 'T', 'C', 'M', 'AtoC']]
         got = _reverse_complement(table)
         raw_got = got.tolist()
-        
+
         self.assertEqual(raw_got, ex)
-    
+
     def test_strandsym_table(self):
         """makes strand symmetric table"""
         data = [[1, 'T', 'T', 'T', 'T', 'M', 'TtoG'],
@@ -45,11 +45,11 @@ class TestEntropy(TestCase):
             n = [row[0]] + seq + ['M', 'AtoC']
             n.append('-')
             exp.append(n)
-        
-        table = LoadTable(header=self.header, rows=self.data+data)
+
+        table = LoadTable(header=self.header, rows=self.data + data)
         r = make_strand_symmetric_table(table)
         self.assertEqual(r.tolist(), exp)
 
+
 if __name__ == '__main__':
     main()
-
