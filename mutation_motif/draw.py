@@ -123,51 +123,50 @@ def draw_position_grid(directions, sample_size=False, width=8, height=8,
     return f
 
 
-class Config(object):
-    def __init__(self):
-        super(Config, self).__init__()
-        self.force_overwrite = False
-        self.dry_run = False
-
-
-pass_config = click.make_pass_decorator(Config, ensure=True)
+_figpath = click.option(
+    '--figpath', help='Filename for plot file. Overides format.')
+_plot_cfg = click.option('--plot_cfg',
+                         help='Config file for plot size, font size settings.')
+_format = click.option('--format', default='pdf',
+                       type=click.Choice(['pdf', 'png']),
+                       help='Plot figure format.')
+_sample_size = click.option('--sample_size', is_flag=True,
+                            help='Include sample size on each subplot.')
+_no_type3 = util.no_type3_font
+_force_overwrite = click.option('-F', '--force_overwrite', is_flag=True,
+                                help='Overwrite existing files.')
+_dry_run = click.option('-D', '--dry_run', is_flag=True,
+                        help='Do a dry run of the analysis without writing '
+                        'output.')
 
 
 @click.group()
-@click.option('--figpath', help='Filename for plot file. Overides format.')
-@click.option('--plot_cfg',
-              help='Config file for plot size, font size settings.')
-@click.option('--format', default='pdf', type=click.Choice(['pdf', 'png']),
-              help='Plot figure format.')
-@click.option('--sample_size', is_flag=True,
-              help='Include sample size on each subplot.')
-@util.no_type3_font
-@click.option('-F', '--force_overwrite', is_flag=True,
-              help='Overwrite existing files.')
-@click.option('-D', '--dry_run', is_flag=True,
-              help='Do a dry run of the analysis without writing output.')
-@pass_config
-def main(cfg_context, plot_cfg, figpath, format, sample_size, force_overwrite,
-         no_type3, dry_run):
-    cfg_context.dry_run = dry_run
-    cfg_context.plot_cfg = plot_cfg
-    cfg_context.force_overwrite = force_overwrite
-    cfg_context.sample_size = sample_size
-    cfg_context.figpath = figpath
-    cfg_context.format = format
-    if no_type3:
-        util.exclude_type3_fonts()
+def main():
+    """draw mutation motif logo's and spectra"""
+    pass
+
+
+_paths_cfg = click.option('--paths_cfg', required=True,
+                          help='Text file listing path for 1.json file for '
+                          'each mutation direction (e.g. AtoG).')
 
 
 @main.command()
-@click.option('--paths_cfg', required=True,
-              help='Text file listing path for 1.json file for each '
-              'mutation direction (e.g. AtoG).')
-@pass_config
-def nbr_grid(cfg_context, paths_cfg):
+@_paths_cfg
+@_plot_cfg
+@_figpath
+@_format
+@_no_type3
+@_sample_size
+@_force_overwrite
+@_dry_run
+def nbr_grid(paths_cfg, plot_cfg, figpath, format, no_type3, sample_size,
+             force_overwrite, dry_run):
     '''draws grid of sequence logo's from neighbour analysis'''
-    args = vars(cfg_context)
-    args.update(dict(paths_cfg=paths_cfg))
+    if no_type3:
+        util.exclude_type3_fonts()
+
+    args = locals()
     LOGGER.log_message(str(args), label='vars')
 
     config_path = util.abspath(paths_cfg)
@@ -187,11 +186,11 @@ def nbr_grid(cfg_context, paths_cfg):
 
         json_paths[direction] = path
 
-    if not cfg_context.figpath:
-        figpath = os.path.join(indir, "nbr_grid.%s" % cfg_context.format)
+    if not figpath:
+        figpath = os.path.join(indir, "nbr_grid.%s" % format)
         log_file_path = os.path.join(indir, "nbr_grid.log")
     else:
-        figpath = util.abspath(cfg_context.figpath)
+        figpath = util.abspath(figpath)
         log_file_path = "%s.log" % ".".join(figpath.split(".")[:-1])
 
     LOGGER.log_file_path = log_file_path
@@ -201,7 +200,7 @@ def nbr_grid(cfg_context, paths_cfg):
         data = util.load_loglin_stats(path)
         plot_data[direction] = data
 
-    fig = draw_position_grid(plot_data, cfg_context.sample_size)
+    fig = draw_position_grid(plot_data, sample_size)
 
     fig.text(0.4, 0.955, "Ending Base", fontsize=20)
     fig.text(0.03, 0.55, "Starting Base", rotation=90, fontsize=20)
@@ -338,23 +337,35 @@ def load_spectra_data(json_path, group_col):
     return result
 
 
-@main.command()
-@click.option('--json_path', required=True,
+_json_path = click.option('--json_path', required=True,
               help="Path to spectra analysis spectra_analysis.json")
-@click.option('--group_label', default='group', help="Id for reference group")
-@pass_config
-def spectra_grid(cfg_context, json_path, group_label):
+_group_label = click.option('--group_label', default='group', help="Id for reference group")
+
+
+@main.command()
+@_json_path
+@_group_label
+@_plot_cfg
+@_no_type3
+@_figpath
+@_format
+@_sample_size
+@_force_overwrite
+@_dry_run
+def spectra_grid(json_path, group_label, plot_cfg, no_type3, figpath, format, sample_size,
+                 force_overwrite, dry_run):
     """draws logo from mutation spectra analysis"""
     # the following is for logging
-    args = vars(cfg_context)
-    args.update(dict(json_path=json_path, group_label=group_label))
+    args = locals()
+    if no_type3:
+        util.exclude_type3_fonts()
 
-    if not cfg_context.figpath:
+    if not figpath:
         dirname = os.path.dirname(json_path)
-        figpath = os.path.join(dirname, "spectra_grid.%s" % cfg_context.format)
+        figpath = os.path.join(dirname, "spectra_grid.%s" % format)
         log_file_path = os.path.join(dirname, "spectra_grid.log")
     else:
-        figpath = util.abspath(cfg_context.figpath)
+        figpath = util.abspath(figpath)
         log_file_path = "%s.log" % ".".join(figpath.split(".")[:-1])
 
     LOGGER.log_file_path = log_file_path
@@ -362,41 +373,46 @@ def spectra_grid(cfg_context, json_path, group_label):
     LOGGER.log_message(str(args), label='vars')
 
     data = load_spectra_data(json_path, group_label)
-    plot_cfg = util.get_plot_configs(cfg_path=cfg_context.plot_cfg)
-    if cfg_context.plot_cfg:
-        LOGGER.input_file(cfg_context.plot_cfg)
-    f = draw_spectrum_grid(
-        data, sample_size=cfg_context.sample_size, plot_cfg=plot_cfg)
-    f.savefig(cfg_context.figpath)
-    LOGGER.output_file(cfg_context.figpath)
-    print("Wrote", cfg_context.figpath)
+
+    if plot_cfg:
+        LOGGER.input_file(plot_cfg)
+    plot_cfg = util.get_plot_configs(cfg_path=plot_cfg)
+    f = draw_spectrum_grid(data, sample_size=sample_size, plot_cfg=plot_cfg)
+    f.savefig(figpath)
+    LOGGER.output_file(figpath)
+    print("Wrote", figpath)
 
 
 @main.command()
-@click.option('--json_path', required=True,
-              help="Path to 1.json produced by mutation_analysis nbr")
-@pass_config
-def mi(cfg_context, json_path):
+@_json_path
+@_plot_cfg
+@_no_type3
+@_figpath
+@_format
+@_sample_size
+@_force_overwrite
+@_dry_run
+def mi(json_path, plot_cfg, no_type3, figpath, format, sample_size,
+       force_overwrite, dry_run):
     """draws conventional sequence logo, using MI, from first order effects"""
     # the following is for logging
     json_path = util.abspath(json_path)
-    args = vars(cfg_context)
-    args.update(dict(json_path=json_path))
+    args = locals()
+    if no_type3:
+        util.exclude_type3_fonts()
 
-    if not cfg_context.figpath:
+    if not figpath:
         dirname = os.path.dirname(json_path)
-        figpath = os.path.join(dirname, "MI.%s" % cfg_context.format)
+        figpath = os.path.join(dirname, "MI.%s" % format)
         log_file_path = os.path.join(dirname, "MI.log")
     else:
-        figpath = util.abspath(cfg_context.figpath)
+        figpath = util.abspath(figpath)
         log_file_path = "%s.log" % ".".join(figpath.split(".")[:-1])
 
     LOGGER.log_file_path = log_file_path
 
-    if cfg_context.plot_cfg:
-        LOGGER.input_file(cfg_context.plot_cfg)
-
-    plot_config = util.get_plot_configs(cfg_path=cfg_context.plot_cfg)
+    if plot_cfg:
+        LOGGER.input_file(plot_cfg)
 
     LOGGER.log_message(str(args), label='vars')
 
@@ -421,23 +437,20 @@ def mi(cfg_context, json_path):
     mi = mit.sum(axis=0)
     char_hts = get_mi_char_heights(numpy.fabs(mit), mi)
 
-    plot_cfg = util.get_plot_configs(cfg_path=cfg_context.plot_cfg)
+    plot_cfg = util.get_plot_configs(cfg_path=plot_cfg)
 
-    ytick_font = plot_config.get('1-way plot', 'ytick_fontsize')
-    xtick_font = plot_config.get('1-way plot', 'xtick_fontsize')
-    ylabel_font = plot_config.get('1-way plot', 'ylabel_fontsize')
-    xlabel_font = plot_config.get('1-way plot', 'xlabel_fontsize')
+    ytick_font = plot_cfg.get('1-way plot', 'ytick_fontsize')
+    xtick_font = plot_cfg.get('1-way plot', 'xtick_fontsize')
+    ylabel_font = plot_cfg.get('1-way plot', 'ylabel_fontsize')
+    xlabel_font = plot_cfg.get('1-way plot', 'xlabel_fontsize')
     fig = logo.draw_multi_position(char_hts.T,
                                    characters=[list(DNA)] * num_pos,
                                    position_indices=list(range(num_pos)),
-                                   figsize=plot_config.get(
+                                   figsize=plot_cfg.get(
                                        '1-way plot', 'figsize'),
                                    xtick_fontsize=xtick_font,
                                    ytick_fontsize=ytick_font,
                                    sort_data=True)
-
-    if cfg_context.plot_cfg:
-        LOGGER.input_file(cfg_context.plot_cfg)
 
     ax = fig.gca()
     ax.tick_params(axis='y', labelsize=ytick_font)

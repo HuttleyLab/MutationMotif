@@ -594,55 +594,59 @@ def single_group(counts_table, outpath, group_label, group_ref, positions,
     return msg
 
 
-class Config(object):
-    def __init__(self):
-        super(Config, self).__init__()
-        self.force_overwrite = False
-        self.dry_run = False
-
-
-pass_config = click.make_pass_decorator(Config, ensure=True)
+_countsfile = click.option('-1', '--countsfile',
+                           help='tab delimited file of counts.')
+_outpath = click.option('-o', '--outpath',
+                        help='Directory path to write data.')
+_countsfile2 = click.option('-2', '--countsfile2',
+                            help='second group motif counts file.')
+_strand_symmetry = click.option('-s', '--strand_symmetry', is_flag=True,
+                                help='single counts file but second group is '
+                                'strand.')
+_force_overwrite = click.option('-F', '--force_overwrite', is_flag=True,
+                                help='Overwrite existing files.')
+_no_typ3 = util.no_type3_font
+_dry_run = click.option('-D', '--dry_run', is_flag=True,
+                        help='Do a dry run of the analysis without writing '
+                        'output.')
+_verbose = click.option('-v', '--verbose', is_flag=True,
+                        help='Display more output.')
 
 
 @click.group()
-@click.option('-1', '--countsfile', help='tab delimited file of counts.')
-@click.option('-o', '--outpath', help='Directory path to write data.')
-@click.option('-2', '--countsfile2', help='second group motif counts file.')
-@click.option('-s', '--strand_symmetry', is_flag=True,
-              help='single counts file but second group is strand.')
-@click.option('-F', '--force_overwrite', is_flag=True,
-              help='Overwrite existing files.')
-@util.no_type3_font
-@click.option('-D', '--dry_run', is_flag=True,
-              help='Do a dry run of the analysis without writing output.')
-@click.option('-v', '--verbose', is_flag=True, help='Display more output.')
-@pass_config
-def main(cfg_context, countsfile, outpath, countsfile2, strand_symmetry,
-         force_overwrite, no_type3, dry_run, verbose):
-    cfg_context.countsfile = countsfile
-    cfg_context.countsfile2 = countsfile2
-    cfg_context.outpath = outpath
-    cfg_context.strand_symmetry = strand_symmetry
-    cfg_context.force_overwrite = force_overwrite
-    cfg_context.dry_run = dry_run
-    cfg_context.verbose = verbose
-    if no_type3:
-        util.exclude_type3_fonts()
+def main():
+    pass
+
+
+_first_order = click.option('--first_order', is_flag=True,
+                            help='Consider only first order effects. Defaults '
+                            'to considering up to 4th order interactions.')
+_group_label = click.option('-g', '--group_label', help='second group label.')
+_group_ref = click.option('-r', '--group_ref', default=None,
+                          help='reference group value for results '
+                          'presentation.')
+_plot_cfg = click.option('--plot_cfg',
+                         help='Config file for plot size, font size settings.')
+_format = click.option('--format', default='pdf',
+                       type=click.Choice(['pdf', 'png']),
+                       help='Plot format.')
 
 
 @main.command()
-@click.option('--first_order', is_flag=True,
-              help='Consider only first order effects. Defaults to '
-              'considering up to 4th order interactions.')
-@click.option('-g', '--group_label', help='second group label.')
-@click.option('-r', '--group_ref', default=None,
-              help='reference group value for results presentation.')
-@click.option('--plot_cfg',
-              help='Config file for plot size, font size settings.')
-@click.option('--format', default='pdf', type=click.Choice(['pdf', 'png']),
-              help='Plot format.')
-@pass_config
-def nbr(cfg_context, first_order, group_label, group_ref, plot_cfg, format):
+@_countsfile
+@_outpath
+@_countsfile2
+@_first_order
+@_strand_symmetry
+@_group_label
+@_group_ref
+@_plot_cfg
+@_no_typ3
+@_format
+@_verbose
+@_dry_run
+def nbr(countsfile, outpath, countsfile2, first_order, strand_symmetry,
+        group_label, group_ref, plot_cfg, no_type3, format, verbose, dry_run):
     '''log-linear analysis of neighbouring base influence on point mutation
 
     Writes estimated statistics, figures and a run log to the specified
@@ -650,18 +654,20 @@ def nbr(cfg_context, first_order, group_label, group_ref, plot_cfg, format):
 
     See documentation for count table format requirements.
     '''
+    if no_type3:
+        util.exclude_type3_fonts()
+
     args = locals()
-    args.update(vars(cfg_context))
 
-    outpath = util.abspath(cfg_context.outpath)
+    outpath = util.abspath(outpath)
 
-    if not cfg_context.dry_run:
+    if not dry_run:
         util.makedirs(outpath)
         runlog_path = os.path.join(outpath, "analysis.log")
         LOGGER.log_file_path = runlog_path
         LOGGER.log_message(str(args), label='vars')
 
-    counts_filename = util.abspath(cfg_context.countsfile)
+    counts_filename = util.abspath(countsfile)
     counts_table = util.load_table_from_delimited_file(counts_filename,
                                                        sep='\t')
 
@@ -673,14 +679,14 @@ def nbr(cfg_context, first_order, group_label, group_ref, plot_cfg, format):
 
     group_label = group_label or None
     group_ref = group_ref or None
-    if cfg_context.strand_symmetry:
+    if strand_symmetry:
         group_label = 'strand'
         group_ref = group_ref or '+'
         if group_label not in counts_table.header:
             print("ERROR: no column named 'strand', exiting.")
             exit(-1)
 
-    if cfg_context.countsfile2:
+    if countsfile2:
         print("Performing 2 group analysis")
         group_label = group_label or 'group'
         group_ref = group_ref or '1'
@@ -688,7 +694,7 @@ def nbr(cfg_context, first_order, group_label, group_ref, plot_cfg, format):
                                                      lambda x: '1',
                                                      columns=counts_table.header[0])
 
-        fn2 = util.abspath(cfg_context.countsfile2)
+        fn2 = util.abspath(countsfile2)
         counts_table2 = util.load_table_from_delimited_file(fn2, sep='\t')
 
         LOGGER.input_file(fn2, label="countsfile2_path")
@@ -702,12 +708,12 @@ def nbr(cfg_context, first_order, group_label, group_ref, plot_cfg, format):
         raw2 = counts_table2.tolist(header)
         counts_table = LoadTable(header=header, rows=raw1 + raw2)
 
-        if not cfg_context.dry_run:
+        if not dry_run:
             outfile = os.path.join(outpath, 'group_counts_table.txt')
             counts_table.write(outfile, sep='\t')
             LOGGER.output_file(outfile, label="group_counts")
 
-    if cfg_context.dry_run or cfg_context.verbose:
+    if dry_run or verbose:
         print()
         print(counts_table)
         print()
@@ -716,16 +722,27 @@ def nbr(cfg_context, first_order, group_label, group_ref, plot_cfg, format):
 
     msg = single_group(counts_table, outpath, group_label, group_ref,
                        positions, plot_config, first_order,
-                       cfg_context.dry_run)
+                       dry_run)
     print(msg)
 
 
 @main.command()
-@pass_config
-def spectra(cfg_context):
+@_countsfile
+@_outpath
+@_countsfile2
+@_strand_symmetry
+@_force_overwrite
+@_no_typ3
+@_dry_run
+@_verbose
+def spectra(countsfile, outpath, countsfile2, strand_symmetry, force_overwrite,
+            no_type3, dry_run, verbose):
     '''log-linear analysis of mutation spectra between groups
     '''
-    spectra_analysis.main(cfg_context.countsfile, cfg_context.outpath,
-                          cfg_context.countsfile2, cfg_context.strand_symmetry,
-                          cfg_context.force_overwrite, cfg_context.dry_run,
-                          cfg_context.verbose)
+    if no_type3:
+        util.exclude_type3_fonts()
+
+    spectra_analysis.main(countsfile, outpath,
+                          countsfile2, strand_symmetry,
+                          force_overwrite, dry_run,
+                          verbose)
