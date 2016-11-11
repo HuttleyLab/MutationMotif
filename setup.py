@@ -6,15 +6,15 @@ __author__ = "Gavin Huttley"
 __copyright__ = "Copyright 2014, Gavin Huttley"
 __credits__ = ["Gavin Huttley"]
 __license__ = "GPL"
-__version__ = "0.2"
+__version__ = "0.3"
 __maintainer__ = "Gavin Huttley"
 __email__ = "Gavin.Huttley@anu.edu.au"
 __status__ = "Development"
 
 # Check Python version, no point installing if unsupported version inplace
-if sys.version_info < (2, 7):
+if sys.version_info < (3, 5):
     py_version = ".".join([str(n) for n in sys.version_info])
-    raise RuntimeError("Python-2.7 or greater is required, Python-%s used." % py_version)
+    raise RuntimeError("Python-3.5 or greater is required, Python-%s used." % py_version)
 
 short_description = "MutationMotif"
 
@@ -31,7 +31,7 @@ setup(
     author_email="gavin.huttley@anu.edu.au",
     description=short_description,
     long_description=long_description,
-    url="https://bitbucket.org/gavin.huttley/mutationmotif3",
+    url="https://bitbucket.org/pycogent3/mutationmotif",
     platforms=["any"],
     license=["GPL"],
     keywords=["biology", "genomics", "genetics", "statistics", "evolution",

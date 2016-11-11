@@ -8,10 +8,10 @@ from numpy import array, log2, isnan, errstate
 from mutation_motif.util import is_valid
 
 __author__ = "Gavin Huttley"
-__copyright__ = "Copyright 2013, Gavin Huttley"
+__copyright__ = "Copyright 2016, Gavin Huttley, Yicheng Zhu"
 __credits__ = ["Gavin Huttley", "Yicheng Zhu"]
 __license__ = "GPL"
-__version__ = "0.0.1"
+__version__ = "0.3"
 __maintainer__ = "Gavin Huttley"
 __email__ = "Gavin.Huttley@anu.edu.au"
 __status__ = "Development"

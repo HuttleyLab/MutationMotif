@@ -13,6 +13,16 @@ from scitrack import CachingLogger
 from mutation_motif.util import makedirs, abspath, get_subtables
 from mutation_motif.complement import make_strand_symmetric_table
 
+__author__ = "Gavin Huttley"
+__copyright__ = "Copyright 2016, Gavin Huttley, Yicheng Zhu"
+__credits__ = ["Gavin Huttley", "Yicheng Zhu"]
+__license__ = "GPL"
+__version__ = "0.3"
+__maintainer__ = "Gavin Huttley"
+__email__ = "Gavin.Huttley@anu.edu.au"
+__status__ = "Development"
+
+
 LOGGER = CachingLogger(create_dir=True)
 _directions = ['AtoC', 'AtoG', 'AtoT', 'CtoA', 'CtoG', 'CtoT', 'GtoA', 'GtoC',
                'GtoT', 'TtoA', 'TtoC', 'TtoG']

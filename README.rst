@@ -4,20 +4,20 @@ Mutation Motif
 
 This library provides capabilities for analysis of mutation properties. Two different analysis approaches are supported: (1) log-linear analysis of neighbourhood base influences on mutation coupled with a sequence logo like representation of influences; (2) log-linear analysis of mutation spectra, the relative proportions of different mutation directioons from a starting base. A logo-like visualisation of the latter is also supported.
 
-The models and applicatiuons of them are described in *Statistical methods for identifying sequence motifs affecting point mutations* by Zhu, Neeman, Yap and Huttley.
+The models and applicatiuons of them are described in *Statistical methods for identifying sequence motifs affecting point mutations* by Zhu, Neeman, Yap and Huttley. (For the preprint, see https://peerj.com/preprints/2236/)
 
 ************
 Installation
 ************
 
-Installation via pip into virtualenv's has been tested and is described below. You will need to have R installed also (version 3.2+, but check the `rpy2 installation`_ instructions). This library is Python2.7 only at present. It will be migrated to Py3 when PyCogent does.
+Installation via pip into virtualenv's has been tested and is described below. You will need to have R installed also (version 3.2+, but check the `rpy2 installation`_ instructions). This library requires Python3.5 or greater.
 
 Because PyCogent requires numpy be installed prior to running PyCogent's setup.py, the following steps are recommended.
 
 ::
 
     $ pip install numpy
-    $ pip install hg+https://gavin.huttley@bitbucket.org/gavin.huttley/mutationmotif
+    $ pip install hg+https://bitbucket.org/pycogent3/mutationmotif
     
 :NOTE: Due to a conflict between ``matplotlib`` and ``virtualenv``'s on OSX, the installation is configured for ``matplotlib`` version 1.4.3.
 

@@ -14,6 +14,15 @@ from cogent3 import DNA, LoadTable
 from cogent3.parse.fasta import MinimalFastaParser
 from cogent3.core.alignment import ArrayAlignment
 
+__author__ = "Gavin Huttley"
+__copyright__ = "Copyright 2016, Gavin Huttley, Yicheng Zhu"
+__credits__ = ["Gavin Huttley", "Yicheng Zhu"]
+__license__ = "GPL"
+__version__ = "0.3"
+__maintainer__ = "Gavin Huttley"
+__email__ = "Gavin.Huttley@anu.edu.au"
+__status__ = "Development"
+
 # to be used as a decorator for click commands
 no_type3_font = click.option('--no_type3', is_flag=True,
                              help='Exclude Type 3 fonts from pdf, necessary'
