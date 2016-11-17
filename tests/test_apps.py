@@ -128,9 +128,25 @@ class TestDrawGrid(TestCase):
                            "--figpath=%s/spectra_grid.pdf" % self.dirname,
                            "--json_path=data/spectra_analysis.json",
                            "--group_label=strand"])
-
+        
         self.assertEqual(r.exit_code, 0)
         fnames = ["spectra_grid.pdf", "spectra_grid.log"]
+        for fn in fnames:
+            path = os.path.join(self.dirname, fn)
+            self.assertTrue(os.path.exists(path))
+            self.assertTrue(os.path.getsize(path) > 0)
+        shutil.rmtree(self.dirname)
+
+    def test_grid(self):
+        """exercise drawing arbitrary grid"""
+        runner = CliRunner()
+        r = runner.invoke(draw_main,
+                          ["grid",
+                           "--figpath=%s/grid.pdf" % self.dirname,
+                           "--fig_config=data/arbitrary_grid.cfg"])
+
+        self.assertEqual(r.exit_code, 0)
+        fnames = ["grid.pdf", "grid.log"]
         for fn in fnames:
             path = os.path.join(self.dirname, fn)
             self.assertTrue(os.path.exists(path))

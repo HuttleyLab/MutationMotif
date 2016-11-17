@@ -42,6 +42,51 @@ def format_float(cutoff, float_places=3, sci_places=1):
     return call
 
 
+def read_plot_array_config(path):
+    """return key properties for producing a plot array"""
+    cfg_dir = os.path.dirname(path.name)
+    LOGGER.input_file(path.name)
+    parser = SafeConfigParser()
+    parser.optionxform = str  # stops automatic conversion to lower case
+    parser.readfp(path)
+
+    nrows = int(parser.get('fig setup', 'num_rows'))
+    ncols = int(parser.get('fig setup', 'num_cols'))
+    figsize = eval(parser.get('fig setup', 'figsize'))
+    col_labels = [l.strip()
+                  for l in parser.get('fig setup', 'col_labels').split(',')]
+    row_labels = [l.strip()
+                  for l in parser.get('fig setup', 'row_labels').split(',')]
+
+    # get individual plot config
+    axis_cfg = {}
+    for ax in ['x', 'y']:
+        for attr in ['label', 'tick']:
+            label = "%s%s_fontsize" % (ax, attr)
+            axis_cfg[label] = int(parser.get('1-way plot', label))
+        label = label = "%slabel_pad" % ax
+        axis_cfg[label] = float(parser.get('1-way plot', label))
+
+    # now get path for each section, converting section head into python
+    # indices
+    json_paths = {}
+    print(ncols, nrows)
+    for col in range(ncols):
+        for row in range(nrows):
+            sect = "%d,%d" % (col + 1, row + 1)
+
+            path = parser.get(sect, "path")
+            if not os.path.exists(path):
+                # is it in same dir as the cfg file?
+                if os.path.exists(os.path.join(cfg_dir, path)):
+                    path = os.path.join(cfg_dir, path)
+                else:
+                    raise ValueError("Not found: %s" % path)
+
+            json_paths[(row, col)] = path  # because of how numpy arrays work
+    return ncols, nrows, figsize, col_labels, row_labels, json_paths, axis_cfg
+
+
 def get_selected_indices(stats):  # from mutation_analysis
     """returns indices for selecting dataframe records for display"""
     if 'group' in stats:
@@ -170,9 +215,9 @@ _paths_cfg = click.option('--paths_cfg', required=True,
 @_sample_size
 @_force_overwrite
 @_dry_run
-def nbr_grid(paths_cfg, plot_cfg, figpath, format, no_type3, sample_size,
-             force_overwrite, dry_run):
-    '''draws grid of sequence logo's from neighbour analysis'''
+def nbr_matrix(paths_cfg, plot_cfg, figpath, format, no_type3, sample_size,
+               force_overwrite, dry_run):
+    '''draws square matrix of sequence logo's from neighbour analysis'''
     if no_type3:
         util.exclude_type3_fonts()
 
@@ -197,8 +242,8 @@ def nbr_grid(paths_cfg, plot_cfg, figpath, format, no_type3, sample_size,
         json_paths[direction] = path
 
     if not figpath:
-        figpath = os.path.join(indir, "nbr_grid.%s" % format)
-        log_file_path = os.path.join(indir, "nbr_grid.log")
+        figpath = os.path.join(indir, "nbr_matrix.%s" % format)
+        log_file_path = os.path.join(indir, "nbr_matrix.log")
     else:
         figpath = util.abspath(figpath)
         log_file_path = "%s.log" % ".".join(figpath.split(".")[:-1])
@@ -218,7 +263,7 @@ def nbr_grid(paths_cfg, plot_cfg, figpath, format, no_type3, sample_size,
 
     fig.savefig(figpath)
     LOGGER.output_file(figpath)
-    print("Wrote", figpath)
+    click.secho("Wrote %s" % figpath, fg="green")
 
 
 def draw_spectrum_grid(data, plot_cfg=None, sample_size=False,
@@ -348,8 +393,10 @@ def load_spectra_data(json_path, group_col):
 
 
 _json_path = click.option('--json_path', required=True,
-              help="Path to spectra analysis spectra_analysis.json")
-_group_label = click.option('--group_label', default='group', help="Id for reference group")
+                          help="Path to spectra analysis "
+                          "spectra_analysis.json")
+_group_label = click.option('--group_label', default='group',
+                            help="Id for reference group")
 
 
 @main.command()
@@ -362,8 +409,8 @@ _group_label = click.option('--group_label', default='group', help="Id for refer
 @_sample_size
 @_force_overwrite
 @_dry_run
-def spectra_grid(json_path, group_label, plot_cfg, no_type3, figpath, format, sample_size,
-                 force_overwrite, dry_run):
+def spectra_grid(json_path, group_label, plot_cfg, no_type3, figpath,
+                 format, sample_size, force_overwrite, dry_run):
     """draws logo from mutation spectra analysis"""
     # the following is for logging
     args = locals()
@@ -390,7 +437,106 @@ def spectra_grid(json_path, group_label, plot_cfg, no_type3, figpath, format, sa
     f = draw_spectrum_grid(data, sample_size=sample_size, plot_cfg=plot_cfg)
     f.savefig(figpath)
     LOGGER.output_file(figpath)
-    print("Wrote", figpath)
+    click.secho("Wrote %s" % figpath, fg="green")
+
+
+_fig_cfg = click.option("--fig_config", required=True, type=click.File())
+
+
+@main.command()
+@_fig_cfg
+@_figpath
+@_format
+@_no_type3
+def grid(fig_config, figpath, format, no_type3):
+    """draws an arbitrary shaped grid of mutation motifs based on fig_config"""
+    # we read in the config file and determine number of rows and columns
+    # paths, headings, etc ..
+    # then create the figure and axes and call the mutation_motif drawing code
+
+    args = locals()
+    if no_type3:
+        util.exclude_type3_fonts()
+
+    if not figpath:
+        dirname = os.path.dirname(fig_config.name)
+        figpath = os.path.join(dirname, "drawn_array.%s" % format)
+        log_file_path = os.path.join(dirname, "drawn_array.log")
+    else:
+        figpath = util.abspath(figpath)
+        log_file_path = "%s.log" % ".".join(figpath.split(".")[:-1])
+
+    util.makedirs(os.path.dirname(figpath))
+    LOGGER.log_file_path = log_file_path
+    LOGGER.log_message(str(args), label='vars')
+
+    ncols, nrows, figsize, col_labels, row_labels, paths, axis_cfg = \
+        read_plot_array_config(fig_config)
+
+    fig, axes = pyplot.subplots(nrows=nrows, ncols=ncols, figsize=figsize,
+                                sharex=True, sharey=True)
+    figwidth = fig.get_figwidth()
+    try:
+        axes[0]
+    except TypeError:
+        axes = numpy.array([[axes]])
+
+    if len(axes.shape) == 1:
+        # required for indexing of appropriate axis
+        axes = numpy.vstack(axes)
+        if nrows == 1:
+            axes = axes.T
+
+    adaptive_y = 0
+    plottable = {}
+    for coord in paths:
+        data = util.load_loglin_stats(paths[coord])
+        positions = list(data)
+        positions.sort()
+        heights, characters, indices = get_plot_data(data, positions)
+        adaptive_y = max(adaptive_y, logo.est_ylim(heights))
+        plottable[coord] = dict(char_heights=heights,
+                                characters=characters,
+                                position_indices=indices,
+                                figwidth=figwidth,
+                                verbose=False)
+
+    ylim = adaptive_y
+    for coord in plottable:
+        kwargs = plottable[coord]
+        kwargs["ax"] = axes[coord]
+        kwargs["ylim"] = ylim
+        fig = logo.draw_multi_position(**kwargs)
+
+    xformat = FuncFormatter(format_float(1e-3, float_places=2))
+
+    for col in range(ncols):
+        top_ax = axes[0, col]
+        top_ax.set_title(col_labels[col], fontsize=axis_cfg["xlabel_fontsize"],
+                         weight="bold", y=1.1)
+        btm_ax = axes[-1, col]
+        for xticklabel in btm_ax.get_xticklabels():
+            xticklabel.set_fontsize(axis_cfg["xtick_fontsize"])
+            xticklabel.set_rotation(0)
+        btm_ax.set_xlabel("Position", fontsize=axis_cfg["xlabel_fontsize"],
+                          weight="bold")
+        btm_ax.xaxis.labelpad = axis_cfg['xlabel_pad']
+
+    for row in range(nrows):
+        lft_ax = axes[row, 0]
+        for yticklabel in lft_ax.get_yticklabels():
+            yticklabel.set_fontsize(axis_cfg["ytick_fontsize"])
+            yticklabel.set_rotation(0)
+
+        lft_ax.yaxis.set_major_formatter(FuncFormatter(xformat))
+        lft_ax.yaxis.labelpad = axis_cfg['ylabel_pad']
+        lft_ax.set_ylabel(row_labels[row], rotation=0,
+                          fontsize=axis_cfg['ylabel_fontsize'],
+                          weight="bold")
+
+    fig.tight_layout()
+    fig.savefig(figpath)
+    click.secho("Wrote %s" % figpath, fg="green")
 
 
 @main.command()
@@ -470,4 +616,4 @@ def mi(json_path, plot_cfg, no_type3, figpath, format, sample_size,
     fig.tight_layout()
     fig.savefig(figpath)
     LOGGER.output_file(figpath)
-    print("Wrote", figpath)
+    click.secho("Wrote %s" % figpath, fg="green")

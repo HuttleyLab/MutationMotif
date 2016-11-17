@@ -91,6 +91,17 @@ This analysis is run as::
 
     $ mutation_analysis spectra -1 path/to/tests/data/counts-combined.txt -o another/path/for/results/ --strand_symmetry
 
+*******
+Drawing
+*******
+
+The ``mutation_draw`` command provides support for drawing either spectra or neighbour mutation motif logos. The subcommands are:
+
+- ``grid``: for displaying arbitrary shaped grids of mutation motif logos. See the ``tests/data/arbitrary_grid.cfg`` file for an example
+- ``nbr_matrix``: draws a square matrix of mutation motif logos
+- ``spectra_grid``: darws the corresponding combined plot for mutation spectra analyses
+- ``mi``: the classic sequence logo
+
 *******************
 Interpreting logo's
 *******************
