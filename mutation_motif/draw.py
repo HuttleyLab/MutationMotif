@@ -134,7 +134,7 @@ def draw_position_grid(directions, sample_size=False, width=8, height=8,
         if positions is None:
             positions = list(data.keys())
             positions.sort()
-        number = data[positions[0]]['stats']["count"].sum() / 2
+        number = data[positions[0]]['stats']["count"].sum() // 2
         heights, characters, indices = get_plot_data(data, positions)
         adaptive_y = max(adaptive_y, logo.est_ylim(heights))
         plottables.append([direction, heights, characters, indices, number])
