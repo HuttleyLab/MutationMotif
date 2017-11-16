@@ -71,6 +71,9 @@ def draw_position(idx, idx_char_heights, sort_data=False, characters=None,
 def set_anchored_ticks(ax, fontsize=14):
     """modifies the X-ticks to include negative numbers"""
     labels = ax.get_xticklabels()
+    if not labels:
+        return
+
     num = len(labels)
     mid = (num - 1) // 2
     assert 2 * mid + 1 == num, "Funny length"
