@@ -66,6 +66,10 @@ def read_plot_array_config(path):
             axis_cfg[label] = int(parser.get('1-way plot', label))
         label = "%slabel_pad" % ax
         axis_cfg[label] = float(parser.get('1-way plot', label))
+        try:
+            axis_cfg["ylim"] = float(parser.get('1-way plot', "ylim"))
+        except NoOptionError:
+            pass
 
     # now get path for each section, converting section head into python
     # indices
@@ -501,7 +505,7 @@ def grid(fig_config, figpath, format, no_type3):
                                 figwidth=figwidth,
                                 verbose=False)
 
-    ylim = adaptive_y
+    ylim = axis_cfg.get("ylim", adaptive_y)
     for coord in plottable:
         kwargs = plottable[coord]
         kwargs["ax"] = axes[coord]
