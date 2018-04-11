@@ -1,6 +1,6 @@
 import os
 import sys
-from configparser import SafeConfigParser
+from configparser import SafeConfigParser, NoOptionError
 
 import click
 import numpy
@@ -64,7 +64,7 @@ def read_plot_array_config(path):
         for attr in ['label', 'tick']:
             label = "%s%s_fontsize" % (ax, attr)
             axis_cfg[label] = int(parser.get('1-way plot', label))
-        label = label = "%slabel_pad" % ax
+        label = "%slabel_pad" % ax
         axis_cfg[label] = float(parser.get('1-way plot', label))
 
     # now get path for each section, converting section head into python
