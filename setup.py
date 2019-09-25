@@ -31,7 +31,7 @@ setup(
     author_email="gavin.huttley@anu.edu.au",
     description=short_description,
     long_description=long_description,
-    url="https://bitbucket.org/pycogent3/mutationmotif",
+    url="https://github.com/HuttleyLab/mutationmotif",
     platforms=["any"],
     license=["GPL"],
     keywords=["biology", "genomics", "genetics", "statistics", "evolution",
