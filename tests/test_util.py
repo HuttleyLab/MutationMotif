@@ -1,6 +1,6 @@
 from numpy import array
 
-from cogent3 import LoadSeqs, DNA
+from cogent3 import load_aligned_seqs, DNA
 from cogent3.util.unit_test import TestCase, main
 
 from mutation_motif.util import array_to_str, seqs_to_array,\
@@ -8,7 +8,7 @@ from mutation_motif.util import array_to_str, seqs_to_array,\
 
 
 class TestJustNucs(TestCase):
-    aln = LoadSeqs('data/just_nuc.fasta', array_align=True, moltype=DNA)
+    aln = load_aligned_seqs('data/just_nuc.fasta', array_align=True, moltype=DNA)
 
     def test_seqs_to_array(self):
         """in the input alignment profile,
@@ -34,7 +34,7 @@ class TestJustNucs(TestCase):
 
 
 class TestAlignSnpAnnotation(TestCase):
-    d_aln = LoadSeqs('data/load_seqs_to_array.fasta',
+    d_aln = load_aligned_seqs('data/load_seqs_to_array.fasta',
                      array_align=True, moltype=DNA)
 
     def test_seqs_to_array(self):

@@ -1,5 +1,5 @@
 from numpy import array
-from cogent3 import LoadSeqs, DNA
+from cogent3 import make_aligned_seqs, DNA
 from cogent3.util.unit_test import TestCase, main
 
 from mutation_motif.profile import get_control, MakeCircleRange,\
@@ -126,7 +126,7 @@ class TestRandomIndices(TestCase):
 class TestAlignSnpAnnotation(TestCase):
     seqs = [('seq_0', 'ATCAACATATAAAAAGGAAAT')]
     
-    d_aln = LoadSeqs(data=seqs, array_align=True, moltype=DNA).array_seqs
+    d_aln = make_aligned_seqs(data=seqs, array_align=True, moltype=DNA).array_seqs
     step = 3
     slice_side = 7
     direction = 'AtoC'

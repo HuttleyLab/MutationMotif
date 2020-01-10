@@ -1,6 +1,6 @@
 import numpy
 from numpy import array
-from cogent3 import LoadSeqs, DNA
+from cogent3 import load_aligned_seqs, DNA
 from cogent3.util.unit_test import TestCase, main
 
 from mutation_motif.entropy import is_valid, get_ret, as_freq_matrix,\
@@ -8,15 +8,15 @@ from mutation_motif.entropy import is_valid, get_ret, as_freq_matrix,\
 
 
 class TestEntropy(TestCase):
-    ref_aln = LoadSeqs('data/entropy/ref.fasta', array_align=True,
+    ref_aln = load_aligned_seqs('data/entropy/ref.fasta', array_align=True,
                        moltype=DNA)
     ref_data = ref_aln.seq_data
 
-    ctl_aln = LoadSeqs('data/entropy/control.fasta', array_align=True,
+    ctl_aln = load_aligned_seqs('data/entropy/control.fasta', array_align=True,
                        moltype=DNA)
     ctl_data = ctl_aln.seq_data
 
-    gap_aln = LoadSeqs('data/entropy/gap.fasta', array_align=True,
+    gap_aln = load_aligned_seqs('data/entropy/gap.fasta', array_align=True,
                        moltype=DNA)
     gap_data = gap_aln.seq_data
 

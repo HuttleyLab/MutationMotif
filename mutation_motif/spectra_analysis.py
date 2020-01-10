@@ -2,7 +2,7 @@
 import os
 import json
 
-from cogent3 import LoadTable
+from cogent3 import load_table, make_table
 from cogent3.maths.stats import chisqprob
 
 from scitrack import CachingLogger
@@ -30,7 +30,7 @@ def main(countsfile, outpath, countsfile2, strand_symmetry, force_overwrite,
          dry_run, verbose):
     args = locals()
 
-    table = LoadTable(countsfile, sep='\t')
+    table = load_table(countsfile, sep='\t')
     if not dry_run:
         log_file_path = os.path.join(util.abspath(outpath),
                                      'spectra_analysis.log')
@@ -47,7 +47,7 @@ def main(countsfile, outpath, countsfile2, strand_symmetry, force_overwrite,
         group_label = 'group'
 
         # be sure there's two files
-        counts_table2 = LoadTable(countsfile2, sep='\t')
+        counts_table2 = load_table(countsfile2, sep='\t')
         LOGGER.input_file(countsfile2)
         counts_table2 = counts_table2.with_new_column('group',
                                                       lambda x: '2', columns=counts_table2.header[0])
@@ -61,7 +61,7 @@ def main(countsfile, outpath, countsfile2, strand_symmetry, force_overwrite,
         header = ['group'] + counts_table2.header[:-1]
         raw1 = counts_table1.tolist(header)
         raw2 = counts_table2.tolist(header)
-        counts_table = LoadTable(header=header, rows=raw1 + raw2)
+        counts_table = make_table(header=header, rows=raw1 + raw2)
 
         if verbose:
             print(counts_table)
@@ -106,7 +106,7 @@ def main(countsfile, outpath, countsfile2, strand_symmetry, force_overwrite,
                                     df=df, prob=p,
                                     formula=formula, stats=collated.to_json())
 
-    table = LoadTable(header=['start_base'] + list(collated.columns) +
+    table = make_table(header=['start_base'] + list(collated.columns) +
                              ['prob'],
                       rows=results, digits=5).sorted(columns='ret')
     json_path = None

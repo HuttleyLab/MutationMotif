@@ -4,7 +4,7 @@ import shutil
 from click.testing import CliRunner
 
 from cogent3.util.unit_test import TestCase, main
-from cogent3 import LoadTable
+from cogent3 import load_table
 
 from mutation_motif.util import makedirs
 from mutation_motif.mutation_analysis import main as mut_main
@@ -33,10 +33,10 @@ class TestCounting(TestCase):
         self.assertEqual(set(dirlist),
                          set(["combined_counts.txt", "combined_counts.log"]))
         # check the contents of combined_counts
-        counts = LoadTable(os.path.join(
+        counts = load_table(os.path.join(
             self.dirname, "combined_counts.txt"), sep="\t")
         # 4**4 nbrs x 12 mutations x 2 (M/R groups) = 6144
-        counts = LoadTable(os.path.join(
+        counts = load_table(os.path.join(
             self.dirname, "combined_counts.txt"), sep="\t")
         self.assertEqual(counts.shape[0], 6144)
         shutil.rmtree(self.dirname)
@@ -55,7 +55,7 @@ class TestCounting(TestCase):
         self.assertEqual(r.exit_code, 0)
         self.assertEqual(set(dirlist),
                          set(["sample_AtoC.txt", "sample_AtoC.log"]))
-        counts = LoadTable(os.path.join(
+        counts = load_table(os.path.join(
             self.dirname, "sample_AtoC.txt"), sep="\t")
         # two columns with pos, two groups giving shape=2*16
         self.assertEqual(counts.shape[0], 32)
@@ -70,7 +70,7 @@ class TestMutationAnalysis(TestCase):
         runner = CliRunner()
         r = runner.invoke(
             mut_main, ["nbr", "-1data/counts-CtoT.txt", "-o%s" % self.dirname])
-        self.assertEqual(r.exit_code, 0)
+        self.assertEqual(r.exit_code, 0, r.exception)
         # expect the following file names
         fnames = ["1.json", "1.pdf", "2.json", "2.pdf", "3.json", "3.pdf",
                   "4.json", "4.pdf", "summary.txt", "summary.pdf",
@@ -124,7 +124,7 @@ class TestDrawGrid(TestCase):
         # first
         runner = CliRunner()
         r = runner.invoke(draw_main,
-                          ["spectra_grid",
+                          ["spectra-grid",
                            "--figpath=%s/spectra_grid.pdf" % self.dirname,
                            "--json_path=data/spectra_analysis.json",
                            "--group_label=strand"])

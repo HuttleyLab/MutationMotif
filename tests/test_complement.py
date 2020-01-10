@@ -1,4 +1,4 @@
-from cogent3 import LoadTable, DNA
+from cogent3 import make_table, DNA
 from cogent3.util.unit_test import TestCase, main
 from mutation_motif.complement import _reverse_complement,\
     make_strand_symmetric_table
@@ -14,7 +14,7 @@ class TestEntropy(TestCase):
     header = ['count', 'pos0', 'pos1', 'pos2', 'pos3', 'mut', 'direction']
 
     def test_reverse_complement(self):
-        table = LoadTable(header=self.header, rows=self.data)
+        table = make_table(header=self.header, rows=self.data)
         ex = [[1670, 'A', 'A', 'A', 'A', 'M', 'AtoC'],
               [557, 'G', 'T', 'T', 'C', 'M', 'AtoC'],
               [1479, 'T', 'T', 'C', 'T', 'M', 'AtoC'],
@@ -46,7 +46,7 @@ class TestEntropy(TestCase):
             n.append('-')
             exp.append(n)
 
-        table = LoadTable(header=self.header, rows=self.data + data)
+        table = make_table(header=self.header, rows=self.data + data)
         r = make_strand_symmetric_table(table)
         self.assertEqual(r.tolist(), exp)
 

@@ -7,7 +7,7 @@ from collections import Counter
 
 import click
 
-from cogent3 import LoadTable
+from cogent3 import load_table, make_table
 from scitrack import CachingLogger
 
 from mutation_motif.util import makedirs, abspath, get_subtables
@@ -103,7 +103,7 @@ def main(counts_pattern, output_path, strand_symmetric, split_dir, dry_run,
     for fn in counts_files:
         basenames.append(os.path.basename(fn))
         mutation = direction.findall(fn)[0]
-        table = LoadTable(fn, sep='\t')
+        table = load_table(fn, sep='\t')
         if header is None:
             header = list(table.header)
             header.append('direction')
@@ -116,7 +116,7 @@ def main(counts_pattern, output_path, strand_symmetric, split_dir, dry_run,
             new.append(row)
         all_counts += new
 
-    table = LoadTable(header=header, rows=all_counts)
+    table = make_table(header=header, rows=all_counts)
 
     if strand_symmetric:
         table = make_strand_symmetric_table(table)

@@ -7,7 +7,7 @@ import click
 import numpy
 from matplotlib import pyplot
 
-from cogent3 import LoadTable
+from cogent3 import make_table
 from cogent3.maths.stats import chisqprob
 
 from scitrack import CachingLogger
@@ -82,7 +82,7 @@ def get_grouped_combined_counts(table, position, group_label):
         counts = counts.with_new_column(group_label, lambda x: category,
                                         columns=counts.header[0])
         all_data.extend(counts.tolist(header))
-    counts = LoadTable(header=header, rows=all_data)
+    counts = make_table(header=header, rows=all_data)
     counts.sorted(columns=[group_label, 'mut'])
     return counts
 
@@ -459,7 +459,7 @@ def single_group(counts_table, outpath, group_label, group_ref, positions,
 
     if first_order:
         msg = "Done! Check %s for your results" % outpath
-        summary = LoadTable(header=['Position', 'RE', 'Deviance', 'df',
+        summary = make_table(header=['Position', 'RE', 'Deviance', 'df',
                                     'prob', 'formula'],
                             rows=summary, digits=2, space=2)
         if not dry_run:
@@ -590,7 +590,7 @@ def single_group(counts_table, outpath, group_label, group_ref, positions,
         pyplot.savefig(outfilename, bbox_inches='tight')
         print("Wrote", outfilename)
 
-    summary = LoadTable(header=['Position', 'RE', 'Deviance', 'df',
+    summary = make_table(header=['Position', 'RE', 'Deviance', 'df',
                                 'prob', 'formula'],
                         rows=summary, digits=2, space=2)
     if not dry_run:
@@ -716,7 +716,7 @@ def nbr(countsfile, outpath, countsfile2, first_order, strand_symmetry,
         header = [group_label] + counts_table2.header[:-1]
         raw1 = counts_table1.tolist(header)
         raw2 = counts_table2.tolist(header)
-        counts_table = LoadTable(header=header, rows=raw1 + raw2)
+        counts_table = make_table(header=header, rows=raw1 + raw2)
 
         if not dry_run:
             outfile = os.path.join(outpath, 'group_counts_table.txt')

@@ -1,4 +1,4 @@
-from cogent3 import LoadTable, DNA
+from cogent3 import make_table, DNA
 
 __author__ = "Gavin Huttley"
 __copyright__ = "Copyright 2016, Gavin Huttley, Yicheng Zhu"
@@ -31,7 +31,7 @@ def _reverse_complement(table):
         for i, index in enumerate(pos_indices):
             row[index] = seq[i]
     if rows:
-        new = LoadTable(header=table.header, rows=rows)
+        new = make_table(header=table.header, rows=rows)
     else:
         new = None
     return new
@@ -67,4 +67,4 @@ def make_strand_symmetric_table(table):
         minus_data = add_strand_column(minus_data, '-')
         new_data.extend(minus_data)
 
-    return LoadTable(header=table.header[:] + ['strand'], rows=new_data)
+    return make_table(header=table.header[:] + ['strand'], rows=new_data)

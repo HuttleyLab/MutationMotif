@@ -1,7 +1,7 @@
 from collections import Counter
 from itertools import product
 
-from cogent3 import LoadTable
+from cogent3 import make_table
 
 from mutation_motif.util import array_to_str, load_from_fasta, just_nucs
 from mutation_motif.profile import get_profiles
@@ -81,7 +81,7 @@ def get_count_table(observed, control, k=None):
         rows.append([observed_counts] + list(state) + ['M'])
 
     header = ['count'] + ["pos%d" % i for i in range(k)] + ['mut']
-    table = LoadTable(header=header, rows=rows)
+    table = make_table(header=header, rows=rows)
     return table
 
 
@@ -126,6 +126,6 @@ def get_combined_counts(table, positions):
         combined.append(['R'] + list(state) + [unmut_counts[state]])
         combined.append(['M'] + list(state) + [mut_counts[state]])
 
-    counts_table = LoadTable(header=header, rows=combined)
+    counts_table = make_table(header=header, rows=combined)
     counts_table = counts_table.sorted(columns=header[:-1])
     return counts_table

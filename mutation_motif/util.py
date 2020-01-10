@@ -10,7 +10,7 @@ from pandas import read_json
 from matplotlib import rcParams
 from matplotlib.ticker import ScalarFormatter
 
-from cogent3 import DNA, LoadTable
+from cogent3 import DNA, load_table, make_table
 from cogent3.parse.fasta import MinimalFastaParser
 from cogent3.core.alignment import ArrayAlignment
 
@@ -105,7 +105,7 @@ def load_table_from_delimited_file(path, sep='\t'):
             line = line.strip().split(sep)
             line[count_index] = int(line[count_index])
             records.append(line)
-        table = LoadTable(header=header, rows=records)
+        table = make_table(header=header, rows=records)
     return table
 
 
@@ -131,7 +131,7 @@ def spectra_table(table, group_label):
             sub_table = table.filtered(filter_template % condition)
             total = sub_table.summed('count')
             results.append([total, start, direction, group_category])
-    result = LoadTable(header=['count', 'start', 'direction', group_label],
+    result = make_table(header=['count', 'start', 'direction', group_label],
                        rows=results)
     return result
 
