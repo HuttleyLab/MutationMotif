@@ -15,11 +15,11 @@ from mutation_motif.util import makedirs
 class TestCounting(TestCase):
     dirname = "_delme_counts"
 
+    def setUp(self) -> None:
+        shutil.rmtree(self.dirname, ignore_errors=True)
+
     def test_all_counts(self):
         """exercising all_acounts"""
-        if os.path.exists(self.dirname):
-            shutil.rmtree(self.dirname)
-
         runner = CliRunner()
         # should fail, as data files not in this directory
         r = runner.invoke(all_count_main, ["-cdata/*.txt", "-o%s" % self.dirname])
@@ -41,9 +41,6 @@ class TestCounting(TestCase):
 
     def test_aln_to_counts(self):
         """exercising aln_to_counts"""
-        if os.path.exists(self.dirname):
-            shutil.rmtree(self.dirname)
-
         makedirs(self.dirname)
         runner = CliRunner()
         # should fail, as data files not in this directory
@@ -70,6 +67,9 @@ class TestCounting(TestCase):
 class TestMutationAnalysis(TestCase):
     dirname = "_delme"
 
+    def tearDown(self) -> None:
+        shutil.rmtree(self.dirname, ignore_errors=True)
+
     def test_nbr(self):
         """exercising, making sure output generated"""
         runner = CliRunner()
@@ -95,7 +95,6 @@ class TestMutationAnalysis(TestCase):
             path = os.path.join(self.dirname, fn)
             self.assertTrue(os.path.exists(path))
             self.assertTrue(os.path.getsize(path) > 0)
-        shutil.rmtree(self.dirname)
 
     def test_nbr_ssym(self):
         """exercising, nbr strand symmetric analysis"""
@@ -128,7 +127,6 @@ class TestMutationAnalysis(TestCase):
             path = os.path.join(self.dirname, fn)
             self.assertTrue(os.path.exists(path))
             self.assertTrue(os.path.getsize(path) > 0)
-        shutil.rmtree(self.dirname)
 
     def test_spectra(self):
         """exercising spectra analysis code"""
@@ -154,11 +152,14 @@ class TestMutationAnalysis(TestCase):
             path = os.path.join(self.dirname, fn)
             self.assertTrue(os.path.exists(path))
             self.assertTrue(os.path.getsize(path) > 0)
-        shutil.rmtree(self.dirname)
 
 
 class TestDrawGrid(TestCase):
     dirname = "_delme"
+
+    def tearDown(self) -> None:
+        shutil.rmtree(self.dirname, ignore_errors=True)
+
 
     def test_spectra_grid(self):
         """exercising draw spectra grid"""
@@ -180,7 +181,6 @@ class TestDrawGrid(TestCase):
             path = os.path.join(self.dirname, fn)
             self.assertTrue(os.path.exists(path))
             self.assertTrue(os.path.getsize(path) > 0)
-        shutil.rmtree(self.dirname)
 
     def test_grid(self):
         """exercise drawing arbitrary grid"""
@@ -200,7 +200,6 @@ class TestDrawGrid(TestCase):
             path = os.path.join(self.dirname, fn)
             self.assertTrue(os.path.exists(path))
             self.assertTrue(os.path.getsize(path) > 0)
-        shutil.rmtree(self.dirname)
 
 
 if __name__ == "__main__":
