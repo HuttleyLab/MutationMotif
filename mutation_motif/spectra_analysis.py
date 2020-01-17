@@ -46,6 +46,7 @@ def main(countsfile, outpath, countsfile2, strand_symmetry, force_overwrite,
         group_label = 'group'
 
         # be sure there's two files
+        assert countsfile2, f"must provide second counts file"
         counts_table2 = load_table(countsfile2, sep='\t')
         LOGGER.input_file(countsfile2)
         counts_table2 = counts_table2.with_new_column('group',
