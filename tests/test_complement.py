@@ -1,26 +1,31 @@
-from cogent3 import make_table, DNA
-from cogent3.util.unit_test import TestCase, main
-from mutation_motif.complement import _reverse_complement,\
-    make_strand_symmetric_table
+from unittest import TestCase, main
+
+from cogent3 import DNA, make_table
+from mutation_motif.complement import (_reverse_complement,
+                                       make_strand_symmetric_table)
 
 
 class TestEntropy(TestCase):
-    data = [[1670, 'T', 'T', 'T', 'T', 'M', 'AtoC'],
-            [557, 'G', 'A', 'A', 'C', 'M', 'AtoC'],
-            [1479, 'A', 'G', 'A', 'A', 'M', 'AtoC'],
-            [925, 'G', 'A', 'A', 'G', 'M', 'AtoC'],
-            [1919, 'A', 'C', 'A', 'A', 'M', 'AtoC'],
-            [442, 'G', 'A', 'C', 'A', 'M', 'AtoC']]
-    header = ['count', 'pos0', 'pos1', 'pos2', 'pos3', 'mut', 'direction']
+    data = [
+        [1670, "T", "T", "T", "T", "M", "AtoC"],
+        [557, "G", "A", "A", "C", "M", "AtoC"],
+        [1479, "A", "G", "A", "A", "M", "AtoC"],
+        [925, "G", "A", "A", "G", "M", "AtoC"],
+        [1919, "A", "C", "A", "A", "M", "AtoC"],
+        [442, "G", "A", "C", "A", "M", "AtoC"],
+    ]
+    header = ["count", "pos0", "pos1", "pos2", "pos3", "mut", "direction"]
 
     def test_reverse_complement(self):
         table = make_table(header=self.header, rows=self.data)
-        ex = [[1670, 'A', 'A', 'A', 'A', 'M', 'AtoC'],
-              [557, 'G', 'T', 'T', 'C', 'M', 'AtoC'],
-              [1479, 'T', 'T', 'C', 'T', 'M', 'AtoC'],
-              [925, 'C', 'T', 'T', 'C', 'M', 'AtoC'],
-              [1919, 'T', 'T', 'G', 'T', 'M', 'AtoC'],
-              [442, 'T', 'G', 'T', 'C', 'M', 'AtoC']]
+        ex = [
+            [1670, "A", "A", "A", "A", "M", "AtoC"],
+            [557, "G", "T", "T", "C", "M", "AtoC"],
+            [1479, "T", "T", "C", "T", "M", "AtoC"],
+            [925, "C", "T", "T", "C", "M", "AtoC"],
+            [1919, "T", "T", "G", "T", "M", "AtoC"],
+            [442, "T", "G", "T", "C", "M", "AtoC"],
+        ]
         got = _reverse_complement(table)
         raw_got = got.tolist()
 
@@ -28,22 +33,24 @@ class TestEntropy(TestCase):
 
     def test_strandsym_table(self):
         """makes strand symmetric table"""
-        data = [[1, 'T', 'T', 'T', 'T', 'M', 'TtoG'],
-                [1, 'G', 'A', 'A', 'C', 'M', 'TtoG'],
-                [1, 'A', 'G', 'A', 'A', 'M', 'TtoG'],
-                [1, 'G', 'A', 'A', 'G', 'M', 'TtoG'],
-                [1, 'A', 'C', 'A', 'A', 'M', 'TtoG'],
-                [1, 'G', 'A', 'C', 'A', 'M', 'TtoG']]
+        data = [
+            [1, "T", "T", "T", "T", "M", "TtoG"],
+            [1, "G", "A", "A", "C", "M", "TtoG"],
+            [1, "A", "G", "A", "A", "M", "TtoG"],
+            [1, "G", "A", "A", "G", "M", "TtoG"],
+            [1, "A", "C", "A", "A", "M", "TtoG"],
+            [1, "G", "A", "C", "A", "M", "TtoG"],
+        ]
         exp = []
         for row in self.data:
             n = row[:]
-            n.append('+')
+            n.append("+")
             exp.append(n)
         for row in data:
             seq = list(map(DNA.complement, row[1:-2]))
             seq.reverse()
-            n = [row[0]] + seq + ['M', 'AtoC']
-            n.append('-')
+            n = [row[0]] + seq + ["M", "AtoC"]
+            n.append("-")
             exp.append(n)
 
         table = make_table(header=self.header, rows=self.data + data)
@@ -51,5 +58,5 @@ class TestEntropy(TestCase):
         self.assertEqual(r.tolist(), exp)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

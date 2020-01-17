@@ -1,14 +1,14 @@
+from unittest import TestCase, main
+
+from cogent3 import DNA, load_aligned_seqs
+from numpy.testing import assert_array_equal
+
+from mutation_motif.util import array_to_str, just_nucs, seqs_to_array
 from numpy import array
-
-from cogent3 import load_aligned_seqs, DNA
-from cogent3.util.unit_test import TestCase, main
-
-from mutation_motif.util import array_to_str, seqs_to_array,\
-    just_nucs
 
 
 class TestJustNucs(TestCase):
-    aln = load_aligned_seqs('data/just_nuc.fasta', array_align=True, moltype=DNA)
+    aln = load_aligned_seqs("data/just_nuc.fasta", array_align=True, moltype=DNA)
 
     def test_seqs_to_array(self):
         """in the input alignment profile,
@@ -20,22 +20,22 @@ class TestJustNucs(TestCase):
         """
         nucs = just_nucs(self.aln.array_seqs)
 
-        self.assertEqual(nucs,
-                         [[2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
-                           2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
-                          [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-                              1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-                             [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
-                                 3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
-                             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                             [2, 0, 1, 2, 3, 1, 2, 2, 2, 0, 2,
-                              2, 2, 2, 2, 3, 0, 2, 2, 3, 0]])
+        assert_array_equal(
+            nucs,
+            [
+                [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+                [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+                [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
+                [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [2, 0, 1, 2, 3, 1, 2, 2, 2, 0, 2, 2, 2, 2, 2, 3, 0, 2, 2, 3, 0],
+            ],
+        )
 
 
 class TestAlignSnpAnnotation(TestCase):
-    d_aln = load_aligned_seqs('data/load_seqs_to_array.fasta',
-                     array_align=True, moltype=DNA)
+    d_aln = load_aligned_seqs(
+        "data/load_seqs_to_array.fasta", array_align=True, moltype=DNA
+    )
 
     def test_seqs_to_array(self):
         """in the input alignment profile,
@@ -47,31 +47,29 @@ class TestAlignSnpAnnotation(TestCase):
         expect to convert seq0, seq2 to seq5 into numpy array
         """
         data = seqs_to_array(self.d_aln)
-        expect = array([(2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
-                         2, 2, 2, 2, 2, 2, 2, 2, 2, 2),
-                        (1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-                         1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
-                        (3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
-                         3, 3, 3, 3, 3, 3, 3, 3, 3, 3),
-                        (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                         0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
-                        (2, 0, 1, 2, 3, 1, 2, 2, 2, 0, 2,
-                            2, 2, 2, 2, 3, 0, 2, 2, 3, 0)])
+        expect = array(
+            [
+                (2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2),
+                (1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+                (3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3),
+                (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
+                (2, 0, 1, 2, 3, 1, 2, 2, 2, 0, 2, 2, 2, 2, 2, 3, 0, 2, 2, 3, 0),
+            ]
+        )
 
-        self.assertEqual(data, expect)
+        assert_array_equal(data, expect)
 
 
 class TestAlignSnpAnnotation2(TestCase):
-    seq_array = array(
-        [(2, 0, 1, 2, 2, 1, 2, 0, 2, 0, 2, 2, 2, 2, 2, 3, 3, 2, 2, 2, 0)])
+    seq_array = array([(2, 0, 1, 2, 2, 1, 2, 0, 2, 0, 2, 2, 2, 2, 2, 3, 3, 2, 2, 2, 0)])
 
     def test_array_to_str(self):
         """convert numpy array back to DNA sequence"""
         dna_str = array_to_str(self.seq_array)
-        expect = ['ATCAACATATAAAAAGGAAAT']
+        expect = ["ATCAACATATAAAAAGGAAAT"]
 
         self.assertEqual(dna_str, expect)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
