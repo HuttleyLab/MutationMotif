@@ -7,6 +7,8 @@ import numpy
 from matplotlib import pyplot
 from matplotlib.ticker import FuncFormatter, MultipleLocator
 from cogent3 import DNA
+from cogent3.draw.drawable import Drawable
+from cogent3.util.union_dict import UnionDict
 from scitrack import CachingLogger
 
 from mutation_motif import util, logo, text, entropy
@@ -476,10 +478,60 @@ def grid(fig_config, figpath, format, no_type3):
 
     ncols, nrows, figsize, col_labels, row_labels, paths, axis_cfg = \
         read_plot_array_config(fig_config)
+    print("ncols:", ncols)
+    print("nrows:", nrows)
+    print("figsize:", figsize)
+    print("col_labels:", col_labels)
+    print("row_labels:", row_labels)
+    print("paths:", paths)
+    print("axis_cfg:", axis_cfg)
 
+    #TODO: Convert below into Cogent3 Plotly
+    
+    #-Plotly
+    layout = UnionDict(shapes=[])
+    adaptive_y = 0
+    plottable = {}
+    for coord in paths:
+        data = util.load_loglin_stats(paths[coord])
+        positions = list(data)
+        positions.sort()
+        heights, characters, indices = get_plot_data(data, positions)
+        adaptive_y = max(adaptive_y, logo.est_ylim(heights))
+        plottable[coord] = dict(char_heights=heights,
+                                characters=characters,
+                                position_indices=indices)
+
+    ylim = axis_cfg.get("ylim", adaptive_y)
+    for coord in plottable:
+        kwargs = plottable[coord]
+        kwargs["ax"] = coord
+        kwargs["ylim"] = ylim
+        r = logo.draw_multi_position_cogent3(**kwargs)
+        for key in r:
+            if key == "shapes":
+                layout.shapes.extend(r.shapes)
+            else:
+                layout[key] = r[key]
+
+    for i in range(0,ncols):
+        xaxis = "xaxis"+str(i+1 if i != 0 else "")
+        layout[xaxis]["domain"] = [0.0+(i*(1/ncols)), (i*(1/ncols))+(1/ncols)]
+
+    print(layout)
+    MARGININCHES = 0
+    PPI = 100
+    fig = Drawable(layout=layout, width=(figsize[0] - MARGININCHES)*PPI, height=(figsize[1]  - MARGININCHES)*PPI)
+
+    #export
+    fig.write(path=figpath)
+    click.secho("Wrote Cogent3 %s" % figpath, fg="green")
+    """
+    #-Matplotlib
     fig, axes = pyplot.subplots(nrows=nrows, ncols=ncols, figsize=figsize,
                                 sharex=True, sharey=True)
     figwidth = fig.get_figwidth()
+
     try:
         axes[0]
     except TypeError:
@@ -491,6 +543,7 @@ def grid(fig_config, figpath, format, no_type3):
         if nrows == 1:
             axes = axes.T
 
+    #draw letters
     adaptive_y = 0
     plottable = {}
     for coord in paths:
@@ -512,12 +565,15 @@ def grid(fig_config, figpath, format, no_type3):
         kwargs["ylim"] = ylim
         fig = logo.draw_multi_position(**kwargs)
 
+    #format ticks and labels
     xformat = FuncFormatter(format_float(1e-3, float_places=2))
 
     for col in range(ncols):
+        #get the top axes of the column and set title
         top_ax = axes[0, col]
         top_ax.set_title(col_labels[col], fontsize=axis_cfg["xlabel_fontsize"],
                          weight="bold", y=1.1)
+        #get the bottom axes of the column and format the ticks and label
         btm_ax = axes[-1, col]
         for xticklabel in btm_ax.get_xticklabels():
             xticklabel.set_fontsize(axis_cfg["xtick_fontsize"])
@@ -527,6 +583,7 @@ def grid(fig_config, figpath, format, no_type3):
         btm_ax.xaxis.labelpad = axis_cfg['xlabel_pad']
 
     for row in range(nrows):
+        #for each row format the left-hand side y ticks and label
         lft_ax = axes[row, 0]
         for yticklabel in lft_ax.get_yticklabels():
             yticklabel.set_fontsize(axis_cfg["ytick_fontsize"])
@@ -538,9 +595,11 @@ def grid(fig_config, figpath, format, no_type3):
                           fontsize=axis_cfg['ylabel_fontsize'],
                           weight="bold")
 
+    #save figure
     fig.tight_layout()
     fig.savefig(figpath)
     click.secho("Wrote %s" % figpath, fg="green")
+    """
 
 
 @main.command()

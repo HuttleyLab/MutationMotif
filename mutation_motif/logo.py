@@ -5,6 +5,10 @@ import matplotlib.pyplot as plt
 from pylab import gca
 from cogent3 import DNA
 
+import cogent3.core.moltype as moltype
+from cogent3.draw.letters import letter_stack
+from cogent3.util.union_dict import UnionDict
+
 from mutation_motif.text import set_axis_scale, add_letter
 from mutation_motif.util import FixedOrderFormatter
 
@@ -66,7 +70,6 @@ def draw_position(idx, idx_char_heights, sort_data=False, characters=None,
         dy, letter = data[i]
         add_letter(letter, x, y, dx, fabs(dy), ax=ax, invert=dy < 0)
         y += fabs(dy)
-
 
 def set_anchored_ticks(ax, fontsize=14):
     """modifies the X-ticks to include negative numbers"""
@@ -183,3 +186,39 @@ def draw_multi_position(char_heights, characters, position_indices, ax=None,
         set_ticks_func(ax, fontsize=xtick_fontsize)
 
     return fig
+
+def draw_multi_position_cogent3(char_heights, characters, position_indices, ax=None,
+                                figsize=None, ylim=None, figwidth=None,
+                                fig_callback=None, set_ticks_func=set_anchored_ticks,
+                                xtick_fontsize=14, ytick_fontsize=14, sort_data=False,
+                                verbose=False):
+    """Takes in an alignment and creates an image from the alignment profile.
+    """
+    xaxis = "xaxis"+str(ax[1]+1 if ax[1] != 0 else "")
+    yaxis = "yaxis"+str(ax[0]+1 if ax[0] != 0 else "")
+    layout = UnionDict()
+
+    if ylim is None:
+        # determine y-axis scale
+        ylim = est_ylim(char_heights)
+
+    orig_len = len(char_heights)
+
+    #set x and y range, set y ticks
+    layout[xaxis] = dict(range=[0,orig_len], tickmode='array', tickvals=[i + 0.5 for i in range(orig_len)], ticktext=[str(i) for i in range(orig_len)], ticklen=0, tickangle=-90)
+    layout[yaxis] = dict(range=[0,ylim], tickmode='array', tickvals=[0.0, ylim / 2, ylim], ticktext=[0.0, ylim / 2, ylim], tickfont=dict(size=ytick_fontsize))
+
+    #y_fmt = FixedOrderFormatter(floor(log10(ylim)))
+    #ax.yaxis.set_major_formatter(y_fmt)
+
+    stack_data = [dict(zip(characters[i], char_heights[i])) for i in range(0, len(characters))]
+    stacks = []
+    for index, stack in enumerate(stack_data):
+        middle, stack_shapes = letter_stack(stack, -2+index, 1, moltype.NT_COLORS, ax)
+        stacks += stack_shapes
+
+    layout["shapes"] = stacks
+
+    #if set_ticks_func:
+    #    set_ticks_func(ax, fontsize=xtick_fontsize)
+    return layout
