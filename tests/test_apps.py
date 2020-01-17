@@ -135,6 +135,31 @@ class TestMutationAnalysis(TestCase):
             mut_main,
             [
                 "spectra",
+                "-1data/auto_intergen_combined_counts.txt",
+                "-2data/auto_intron_combined_counts.txt",
+                "-o%s" % self.dirname,
+            ],
+        )
+        self.assertEqual(r.exit_code, 0)
+
+        # expect the following file names
+        fnames = [
+            "spectra_analysis.json",
+            "spectra_analysis.log",
+            "spectra_summary.txt",
+        ]
+        for fn in fnames:
+            path = os.path.join(self.dirname, fn)
+            self.assertTrue(os.path.exists(path))
+            self.assertTrue(os.path.getsize(path) > 0)
+
+    def test_spectra_ssym(self):
+        """exercising spectra analysis code with strand symmetry"""
+        runner = CliRunner()
+        r = runner.invoke(
+            mut_main,
+            [
+                "spectra",
                 "-1data/counts-combined.txt",
                 "-o%s" % self.dirname,
                 "--strand_symmetry",
@@ -152,7 +177,6 @@ class TestMutationAnalysis(TestCase):
             path = os.path.join(self.dirname, fn)
             self.assertTrue(os.path.exists(path))
             self.assertTrue(os.path.getsize(path) > 0)
-
 
 class TestDrawGrid(TestCase):
     dirname = "_delme"
