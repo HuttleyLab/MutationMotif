@@ -21,3 +21,4 @@ draw_results
 .cache*
 *.wpu
 *.ipynb_checkpoints*
+*pytest_cache*
