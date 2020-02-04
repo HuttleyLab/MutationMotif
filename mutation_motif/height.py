@@ -1,6 +1,6 @@
-
 from warnings import filterwarnings
-from numpy import isnan, fabs, errstate
+
+from numpy import errstate, fabs, isnan
 
 filterwarnings("ignore", "invalid value encountered.*")
 

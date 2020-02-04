@@ -1,10 +1,10 @@
 from unittest import TestCase, main
 
-from cogent3 import DNA, load_aligned_seqs
+from numpy import array
 from numpy.testing import assert_array_equal
 
+from cogent3 import DNA, load_aligned_seqs
 from mutation_motif.util import array_to_str, just_nucs, seqs_to_array
-from numpy import array
 
 
 class TestJustNucs(TestCase):

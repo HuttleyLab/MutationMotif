@@ -178,12 +178,12 @@ class TestMutationAnalysis(TestCase):
             self.assertTrue(os.path.exists(path))
             self.assertTrue(os.path.getsize(path) > 0)
 
+
 class TestDrawGrid(TestCase):
     dirname = "_delme"
 
     def tearDown(self) -> None:
         shutil.rmtree(self.dirname, ignore_errors=True)
-
 
     def test_spectra_grid(self):
         """exercising draw spectra grid"""

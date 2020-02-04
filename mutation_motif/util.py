@@ -1,18 +1,25 @@
-import os
-import gzip
 import bz2
+import gzip
+import io
 import json
-from configparser import RawConfigParser, NoSectionError, NoOptionError, \
-    ParsingError
+import os
+import re
+from configparser import (ConfigParser, NoOptionError, NoSectionError,
+                          ParsingError, RawConfigParser)
 
 import click
-from pandas import read_json
+import numpy
 from matplotlib import rcParams
 from matplotlib.ticker import ScalarFormatter
+from numpy import around
+from numpy.core._multiarray_umath import fabs
+from pandas import read_json
+# to be used as a decorator for click commands
+from pkg_resources import resource_filename
 
 from cogent3 import DNA, load_table, make_table
-from cogent3.parse.fasta import MinimalFastaParser
 from cogent3.core.alignment import ArrayAlignment
+from cogent3.parse.fasta import MinimalFastaParser
 
 __author__ = "Gavin Huttley"
 __copyright__ = "Copyright 2016, Gavin Huttley, Yicheng Zhu"
@@ -111,32 +118,33 @@ def load_table_from_delimited_file(path, sep='\t'):
 
 def spectra_table(table, group_label):
     """returns a table with columns without position information"""
-    assert 'direction' in table.header
-    if 'mut' in table.header:
+    assert "direction" in table.header
+    if "mut" in table.header:
         # remove redundant category (counts of M == R)
         table = table.filtered("mut=='M'")
 
-    columns = ['count', 'direction', group_label]
+    columns = ["count", "direction", group_label]
     table = table.get_columns(columns)
     # so we have a table with counts per direction
     results = []
     group_categories = table.distinct_values(group_label)
-    filter_template = "direction=='%(direction)s' and "\
-                      "%(label)s=='%(category)s'"
-    for direction in table.distinct_values('direction'):
+    filter_template = "direction=='%(direction)s' and " "%(label)s=='%(category)s'"
+    for direction in table.distinct_values("direction"):
         start = direction[0]
         for group_category in group_categories:
-            condition = dict(direction=direction, label=group_label,
-                             category=group_category)
+            condition = dict(
+                direction=direction, label=group_label, category=group_category
+            )
             sub_table = table.filtered(filter_template % condition)
-            total = sub_table.summed('count')
+            total = sub_table.summed("count")
             results.append([total, start, direction, group_category])
-    result = make_table(header=['count', 'start', 'direction', group_label],
-                       rows=results)
+    result = make_table(
+        header=["count", "start", "direction", group_label], rows=results
+    )
     return result
 
 
-def get_subtables(table, group_label='direction'):
+def get_subtables(table, group_label="direction"):
     """returns [(group, subtable),...] for distinct values of group_label"""
     groups = table.distinct_values(group_label)
     tables = []
@@ -147,14 +155,14 @@ def get_subtables(table, group_label='direction'):
 
 
 def dump_loglin_stats(data, outfile_path):
-    '''save data in json format to outfile_path'''
+    """save data in json format to outfile_path"""
     # convert all pandas data frames to json
     saveable = {}
     for position_set in data:
         curr = {}
         new_key = str(position_set)
         for key, value in list(data[position_set].items()):
-            if key == 'stats':
+            if key == "stats":
                 value = data[position_set][key].to_json()
             curr[key] = value
 
@@ -165,7 +173,7 @@ def dump_loglin_stats(data, outfile_path):
 
 
 def load_loglin_stats(infile_path):
-    '''read in data in json format'''
+    """read in data in json format"""
     # convert all 'stats' to pandas data frames
     with open(infile_path) as infile:
         data = json.load(infile)
@@ -179,7 +187,7 @@ def load_loglin_stats(infile_path):
 
         new_data[new_key] = {}
         for key, value in list(data[position_set].items()):
-            if key == 'stats':
+            if key == "stats":
                 value = read_json(value)
             new_data[new_key][key] = value
     return new_data
@@ -191,7 +199,7 @@ def is_valid(data):
 
 
 def load_from_fasta(filename):
-    infile = open_(filename, mode='rt')
+    infile = open_(filename, mode="rt")
     parser = MinimalFastaParser(infile)
     seqs = [(n, s) for n, s in parser]
     infile.close()
@@ -200,7 +208,7 @@ def load_from_fasta(filename):
 
 def array_to_str(data):
     """convert numpy array back to DNA sequence"""
-    return [''.join(DNA.alphabet.from_indices(v)) for v in data]
+    return ["".join(DNA.alphabet.from_indices(v)) for v in data]
 
 
 def seqs_to_array(d_aln):
@@ -218,15 +226,14 @@ def just_nucs(seqs):
     along the 1st axis, match each base in seqs to <= 3 element-wise,
     give the indices of those just_nucs seq idx.
     """
-    indices, = (seqs <= 3).all(axis=1).nonzero()
+    (indices,) = (seqs <= 3).all(axis=1).nonzero()
     just_bases = seqs.take(indices, axis=0)
     return just_bases
 
 
-def open_(filename, mode='r'):
+def open_(filename, mode="r"):
     """handles different compression"""
-    op = {'gz': gzip.open, 'bz2': bz2.BZ2File}.get(
-        filename.split('.')[-1], open)
+    op = {"gz": gzip.open, "bz2": bz2.BZ2File}.get(filename.split(".")[-1], open)
     return op(filename, mode)
 
 
