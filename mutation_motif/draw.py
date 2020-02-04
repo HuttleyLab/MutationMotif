@@ -621,3 +621,14 @@ def mi(json_path, plot_cfg, no_type3, figpath, format, sample_size,
     fig.savefig(figpath)
     LOGGER.output_file(figpath)
     click.secho("Wrote %s" % figpath, fg="green")
+
+
+@main.command()
+@click.argument("outpath")
+def export_cfg(outpath):
+    """exports the sample config files to the nominated path"""
+    import shutil
+
+    path = resource_filename("mutation_motif", f"cfgs")
+    shutil.copytree(path, outpath)
+    click.echo("Contents written to %s" % outpath, fg="green")
