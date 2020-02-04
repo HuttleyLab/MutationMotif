@@ -64,5 +64,9 @@ setup(
                                 'all_counts=mutation_motif.all_counts:main',
                                 'mutation_draw=mutation_motif.draw:main',
                             ],
-        }
-    )
+        },
+    package_dir={'mutation_motif': 'mutation_motif'},
+    package_data={'mutation_motif': ['data/spectrum.cfg',
+                                     'data/nbr_grid.cfg',
+                                     'data/grid.cfg']}
+)
