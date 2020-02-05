@@ -52,7 +52,6 @@ setup(
               'click',
               'pandas',
               'rpy2',
-              'matplotlib',
               'scitrack',
           ],
     # note: http://stackoverflow.com/questions/3472430/how-can-i-make-setuptools-install-a-package-thats-not-on-pypi

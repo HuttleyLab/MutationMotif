@@ -134,3 +134,5 @@ def main(
         LOGGER.output_file(table_path)
         LOGGER.log_message(str(significance), label="significance")
         fig_path = os.path.join(outpath, "spectra.pdf")
+        fig = draw.get_spectra_grid_drawable(json_path, group_label=group_label)
+        fig.write(fig_path)

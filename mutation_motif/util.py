@@ -4,12 +4,9 @@ import io
 import json
 import os
 import re
-from configparser import (ConfigParser, NoOptionError, NoSectionError,
-                          ParsingError, RawConfigParser)
+from configparser import ConfigParser, NoOptionError, NoSectionError
 
 import numpy
-from matplotlib import rcParams
-from matplotlib.ticker import ScalarFormatter
 from numpy import around
 from numpy.core._multiarray_umath import fabs
 from pandas import read_json
@@ -30,83 +27,12 @@ __maintainer__ = "Gavin Huttley"
 __email__ = "Gavin.Huttley@anu.edu.au"
 __status__ = "Development"
 
-# to be used as a decorator for click commands
-no_type3_font = click.option('--no_type3', is_flag=True,
-                             help='Exclude Type 3 fonts from pdf, necessary'
-                             ' for ScholarOne figures')
 
-
-def exclude_type3_fonts():
-    """stops matplotlib from using Type 3 fonts"""
-    # this is because ScholarOne does not allow embedding of Type 3 fonts in
-    # pdf's, a royal PITA. Thanks ScholarOne!!
-
-    rcParams['pdf.fonttype'] = 42
-    rcParams['ps.fonttype'] = 42
-
-
-def get_plot_configs(cfg_path=None):
-    """returns a config object with plotting settings"""
-    defaults = dict(xlabel_fontsize=14, ylabel_fontsize=14,
-                    xtick_fontsize=12, ytick_fontsize=12,
-                    xlabel_pad=0.01, ylabel_pad=0.01)
-
-    figwidths = {'1-way plot': 2.25, '2-way plot': 9, '3-way plot': 9,
-                 '4-way plot': 9, 'summary plot': 9, 'grid': 8}
-    figsizes = {'1-way plot': (9, 3), '2-way plot': (9, 9),
-                '3-way plot': (9, 9), '4-way plot': (9, 9),
-                'summary plot': (9, 9),
-                'grid': (8, 8)}
-
-    config = RawConfigParser()
-    for section in ['1-way plot', '2-way plot', '3-way plot', '4-way plot',
-                    'summary plot', 'grid']:
-        config.add_section(section)
-        config.set(section, 'figwidth', figwidths[section])
-        config.set(section, 'figsize', figsizes[section])
-        for arg, default in list(defaults.items()):
-            config.set(section, arg, default)
-    if cfg_path:
-        # load the user provided config
-        user_config = RawConfigParser(allow_no_value=True)
-        try:
-            user_config.read(cfg_path)
-        except ParsingError as err:
-            msg = 'Could not parse %s: %s' % (cfg_path, err)
-            raise ParsingError(msg)
-
-        # update the default settings
-        for section in config.sections():
-            for key, val in config.items(section):
-                try:
-                    new_val = user_config.get(section, key)
-                    config.set(section, key, eval(new_val))
-                except (NoSectionError, NoOptionError):
-                    pass
-    return config
-
-
-# Code from Joe Kington's answer to
-# http://stackoverflow.com/questions/3677368/matplotlib-format-axis-offset-values-to-whole-numbers-or-specific-number
-class FixedOrderFormatter(ScalarFormatter):
-    """Formats axis ticks using scientific notation with a constant order of
-    magnitude"""
-
-    def __init__(self, order_of_mag=0, useOffset=True, useMathText=False):
-        self._order_of_mag = order_of_mag
-        ScalarFormatter.__init__(self, useOffset=useOffset,
-                                 useMathText=useMathText)
-
-    def _set_orderOfMagnitude(self, range):
-        """Over-riding this to avoid having orderOfMagnitude reset elsewhere"""
-        self.orderOfMagnitude = self._order_of_mag
-
-
-def load_table_from_delimited_file(path, sep='\t'):
-    '''returns a Table object after a quicker loading'''
-    with open_(path, 'rt') as infile:
+def load_table_from_delimited_file(path, sep="\t"):
+    """returns a Table object after a quicker loading"""
+    with open_(path, "rt") as infile:
         header = infile.readline().strip().split(sep)
-        count_index = header.index('count')
+        count_index = header.index("count")
         records = []
         for line in infile:
             line = line.strip().split(sep)
@@ -248,6 +174,8 @@ def makedirs(path):
         os.makedirs(path)
     except OSError as e:
         pass
+
+
 def get_selected_indices(stats, group_label=None, group_ref=None):
     """returns indices for selecting dataframe records for display"""
     if group_label and group_ref is None:  # TODO this logic needs improving
@@ -260,6 +188,31 @@ def get_selected_indices(stats, group_label=None, group_ref=None):
     else:
         indices = stats["mut"] == "M"
     return indices
+
+
+_pos_num = re.compile(r"\d+$")
+
+
+def get_position_number(pos):
+    """returns the position index from a string formatted as 'pos##'"""
+    num = int(_pos_num.search(pos).group())
+    return num
+
+
+def get_order_max_re_from_summary(table):
+    """returns the maximum RE for each effect order"""
+    if isinstance(table, str):
+        table = load_table(table, sep="\t")
+    table = table.with_new_column(
+        "order", lambda x: x.count(":") + 1, columns="Position"
+    )
+    orders = table.distinct_values("order")
+    table = table.get_columns(["order", "RE"])
+    rows = []
+    for order in orders:
+        subtable = table.filtered(lambda x: x == order, columns="order")
+        rows.append([order, max(subtable.tolist("RE"))])
+    return rows
 
 
 def get_config_parser(path, default):
