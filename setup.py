@@ -66,7 +66,10 @@ setup(
                             ],
         },
     package_dir={'mutation_motif': 'mutation_motif'},
-    package_data={'mutation_motif': ['data/spectrum.cfg',
-                                     'data/nbr_grid.cfg',
-                                     'data/grid.cfg']}
+    package_data={'mutation_motif': ['cfgs/grid.cfg',
+                                     'cfgs/nbr.cfg',
+                                     'cfgs/nbr_matrix.cfg',
+                                     'cfgs/nbr_paths.cfg',
+                                     'cfgs/spectra.cfg',
+                                     ]}
 )
