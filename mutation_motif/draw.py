@@ -91,13 +91,6 @@ def read_plot_array_config(path):
     return ncols, nrows, figsize, col_labels, row_labels, json_paths, axis_cfg
 
 
-def get_selected_indices(stats):  # from mutation_analysis
-    """returns indices for selecting dataframe records for display"""
-    if 'group' in stats:
-        indices = numpy.logical_and(stats['mut'] == 'M', stats['group'] == 1)
-    else:
-        indices = stats['mut'] == 'M'
-    return indices
 
 
 def get_plot_data(single_results, positions):

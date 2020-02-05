@@ -248,6 +248,20 @@ def makedirs(path):
         os.makedirs(path)
     except OSError as e:
         pass
+def get_selected_indices(stats, group_label=None, group_ref=None):
+    """returns indices for selecting dataframe records for display"""
+    if group_label and group_ref is None:  # TODO this logic needs improving
+        val = dict(strand="+").get(group_label, "1")
+        indices = numpy.logical_and(stats["mut"] == "M", stats[group_label] == val)
+    elif group_label and group_ref:
+        indices = numpy.logical_and(
+            stats["mut"] == "M", stats[group_label] == group_ref
+        )
+    else:
+        indices = stats["mut"] == "M"
+    return indices
+
+
 def get_config_parser(path, default):
     if not path or not os.path.exists(path):
         path = resource_filename("mutation_motif", f"cfgs/{default}")
@@ -434,3 +448,22 @@ def get_nbr_path_config(path):
     return cfg
 
 
+def est_ylim(char_heights):
+    """returns a ylim for character height axis plotting"""
+    try:
+        t = fabs(char_heights).sum(axis=1).max()
+    except ValueError:
+        t = fabs(char_heights).max()
+
+    for i in range(1, 10):
+        ylim = around(t, i)
+        if ylim != 0:
+            break
+
+    if ylim < t:
+        ylim *= 1.667
+        ylim = around(ylim, i)
+
+    ylim = max(ylim, 1e-6)
+
+    return ylim
