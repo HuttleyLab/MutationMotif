@@ -7,7 +7,6 @@ import re
 from configparser import (ConfigParser, NoOptionError, NoSectionError,
                           ParsingError, RawConfigParser)
 
-import click
 import numpy
 from matplotlib import rcParams
 from matplotlib.ticker import ScalarFormatter
@@ -20,6 +19,7 @@ from pkg_resources import resource_filename
 from cogent3 import DNA, load_table, make_table
 from cogent3.core.alignment import ArrayAlignment
 from cogent3.parse.fasta import MinimalFastaParser
+from cogent3.util.union_dict import UnionDict
 
 __author__ = "Gavin Huttley"
 __copyright__ = "Copyright 2016, Gavin Huttley, Yicheng Zhu"
@@ -248,3 +248,189 @@ def makedirs(path):
         os.makedirs(path)
     except OSError as e:
         pass
+def get_config_parser(path, default):
+    if not path or not os.path.exists(path):
+        path = resource_filename("mutation_motif", f"cfgs/{default}")
+
+    parser = ConfigParser()
+    parser.optionxform = str  # stops automatic conversion to lower case
+    if isinstance(path, io.TextIOBase):
+        parser.read_file(path)
+    else:
+        parser.read(str(path))
+
+    return parser
+
+
+def get_fig_properties(parser, section="fig setup"):
+    get_val = parser.get
+    cfg = UnionDict()
+    figsize = [
+        100 * float(v.strip()) / 2.5 for v in get_val(section, "figsize").split(",")
+    ]
+    cfg.width, cfg.height = figsize
+
+    try:
+        margin = {
+            k[0]: int(get_val(section, k)) for k in ("top", "bottom", "right", "left")
+        }
+        cfg.margin = margin
+    except NoOptionError:
+        pass
+
+    # font sizes, title, label text padding
+    for option in parser.options(section):
+        valid = False
+        for attr in ("pad", "font"):
+            if attr in option:
+                valid = True
+                break
+        if not valid:
+            continue
+
+        cfg[option] = int(get_val(section, option))
+
+    # ylim
+    try:
+        ylim = float(get_val(section, "ylim"))
+        cfg.ylim = ylim
+    except NoOptionError:
+        pass
+
+    try:
+        ylabel = get_val(section, "ylabel")
+        cfg.ylabel = ylabel
+    except NoOptionError:
+        pass
+
+    try:
+        space = float(get_val(section, "space"))
+        cfg.space = space
+    except NoOptionError:
+        pass
+
+    try:
+        xlabel = get_val(section, "xlabel")
+        cfg.xlabel = xlabel
+    except NoOptionError:
+        pass
+
+    for axis in ("rows", "cols"):
+        key = f"num_{axis}"
+        try:
+            val = int(parser.get(section, key))
+            cfg[key] = val
+        except NoOptionError:
+            pass
+
+    return cfg
+
+
+def get_spectra_config(path):
+    parser = get_config_parser(path, default="spectra.cfg")
+    col_title = parser.get("fig setup", "col_title")
+    row_title = parser.get("fig setup", "row_title")
+    cfg = get_fig_properties(parser, section="fig setup")
+    cfg.col_title = col_title
+    cfg.row_title = row_title
+    return cfg
+
+
+def get_nbr_config(path, section):
+    parser = get_config_parser(path, default="nbr.cfg")
+    cfg = get_fig_properties(parser, section=section)
+    return cfg
+
+
+def get_nbr_matrix_config(path):
+    parser = get_config_parser(path, default="nbr_matrix.cfg")
+    cfg = get_fig_properties(parser, section="fig setup")
+    col_title = parser.get("fig setup", "col_title")
+    row_title = parser.get("fig setup", "row_title")
+    cfg.col_title = col_title
+    cfg.row_title = row_title
+
+    return cfg
+
+
+def get_grid_config(path):
+    dirname = None if path is None else os.path.dirname(path)
+    parser = get_config_parser(path, default="grid.cfg")
+    cfg = get_fig_properties(parser, section="fig setup")
+    try:
+        col_titles = [
+            l.strip() for l in parser.get("fig setup", "col_titles").split(",")
+        ]
+        cfg.col_titles = col_titles
+    except NoOptionError:
+        pass
+
+    try:
+        row_titles = [
+            l.strip() for l in parser.get("fig setup", "row_titles").split(",")
+        ]
+        cfg.row_titles = row_titles
+    except NoOptionError:
+        pass
+
+    # load possible sections
+    subplots = UnionDict()
+    for section in parser.sections():
+        try:
+            coord = tuple(i - 1 for i in map(int, section.split(",")))
+        except (TypeError, ValueError):
+            continue
+
+        try:
+            path = parser.get(section, "path")
+        except NoOptionError:
+            continue
+
+        if path is None:
+            continue
+
+        if dirname and dirname not in path:
+            path = os.path.join(dirname, path)
+        subplots[coord] = path
+
+    if not subplots and path is not None:
+        raise NoSectionError("no sections for subplots")
+
+    cfg.paths = subplots
+
+    return cfg
+
+
+def get_summary_config(path):
+    parser = get_config_parser(path, default="nbr.cfg")
+    cfg = get_fig_properties(parser, section="summary")
+    return cfg
+
+
+def get_nbr_path_config(path):
+    dirname = None if path is None else os.path.dirname(path)
+    parser = get_config_parser(path, default="nbr_paths.cfg")
+    cfg = UnionDict()
+    for section in parser.sections():
+        paths = {k: parser.get(section, k) for k in ("inpath", "outpath")}
+        if not paths.get("inpath", None):
+            continue
+
+        if dirname and dirname not in paths["inpath"]:
+            inpath = os.path.join(dirname, paths["inpath"])
+            paths["inpath"] = inpath
+            if section != "summary":
+                assert inpath.endswith(".json"), f"{inpath} missing json suffix"
+
+        outpath = paths.get("outpath", None)
+        if not outpath:
+            outpath = paths["inpath"].replace(".json", ".pdf")
+        else:
+            if dirname and dirname not in outpath:
+                outpath = os.path.join(dirname, outpath)
+        paths["outpath"] = outpath
+
+        cfg[section] = UnionDict(paths)
+    return cfg
+
+
