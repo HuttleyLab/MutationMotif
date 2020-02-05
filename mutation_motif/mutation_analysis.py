@@ -3,18 +3,11 @@ import os
 from itertools import combinations
 
 import click
-
-import numpy
-from matplotlib import pyplot
+from scitrack import CachingLogger
 
 from cogent3 import make_table
 from cogent3.maths.stats import chisqprob
-
-from scitrack import CachingLogger
-
-from mutation_motif import util, logo, motif_count, log_lin, spectra_analysis
-
-from mutation_motif.height import get_re_char_heights
+from mutation_motif import draw, log_lin, motif_count, spectra_analysis, util
 
 __author__ = "Gavin Huttley"
 __copyright__ = "Copyright 2016, Gavin Huttley, Yicheng Zhu"
@@ -37,19 +30,19 @@ def format_offset(fig, fontsize):
 
 
 def make_summary(results):
-    '''returns records from analyses as list'''
+    """returns records from analyses as list"""
     rows = []
     for position_set in results:
         if type(position_set) != str:
-            position = ':'.join(position_set)
+            position = ":".join(position_set)
         else:
             position = position_set
 
-        re = results[position_set]['rel_entropy']
-        dev = results[position_set]['deviance']
-        df = results[position_set]['df']
-        prob = results[position_set]['prob']
-        formula = results[position_set]['formula']
+        re = results[position_set]["rel_entropy"]
+        dev = results[position_set]["deviance"]
+        df = results[position_set]["df"]
+        prob = results[position_set]["prob"]
+        formula = results[position_set]["formula"]
         rows.append([position, re, dev, df, prob, formula])
     return rows
 
@@ -79,11 +72,12 @@ def get_grouped_combined_counts(table, position, group_label):
         if header is None:
             header = [group_label] + list(counts.header)
 
-        counts = counts.with_new_column(group_label, lambda x: category,
-                                        columns=counts.header[0])
+        counts = counts.with_new_column(
+            group_label, lambda x: category, columns=counts.header[0]
+        )
         all_data.extend(counts.tolist(header))
     counts = make_table(header=header, rows=all_data)
-    counts.sorted(columns=[group_label, 'mut'])
+    counts.sorted(columns=[group_label, "mut"])
     return counts
 
 
@@ -97,24 +91,30 @@ def get_position_effects(table, position_sets, group_label=None):
         if not grouped:
             counts = motif_count.get_combined_counts(table, position_set)
         else:
-            counts = get_grouped_combined_counts(table, position_set,
-                                                 group_label=group_label)
-        rel_entropy, deviance, df, stats, formula = \
-            log_lin.position_effect(counts, group_label=group_label)
+            counts = get_grouped_combined_counts(
+                table, position_set, group_label=group_label
+            )
+        rel_entropy, deviance, df, stats, formula = log_lin.position_effect(
+            counts, group_label=group_label
+        )
         if deviance < 0:
             p = 1.0
         else:
             p = chisqprob(deviance, df)
 
-        pos_results[position_set] = dict(rel_entropy=rel_entropy,
-                                         deviance=deviance, df=df, stats=stats,
-                                         formula=formula, prob=p)
+        pos_results[position_set] = dict(
+            rel_entropy=rel_entropy,
+            deviance=deviance,
+            df=df,
+            stats=stats,
+            formula=formula,
+            prob=p,
+        )
     return pos_results
 
 
 def single_position_effects(table, positions, group_label=None):
-    single_results = get_position_effects(table, positions,
-                                          group_label=group_label)
+    single_results = get_position_effects(table, positions, group_label=group_label)
     return single_results
 
 
@@ -183,7 +183,8 @@ def get_resized_array_coordinates2(positions, motifs):
 
 def get_two_position_effects(table, positions, group_label=None):
     two_pos_results = get_position_effects(
-        table, list(combinations(positions, 2)), group_label=group_label)
+        table, list(combinations(positions, 2)), group_label=group_label
+    )
     return two_pos_results
 
 
@@ -277,9 +278,9 @@ def get_resized_array_coordinates3(positions, position_set):
 
 
 def get_three_position_effects(table, positions, group_label=None):
-    three_pos_results = get_position_effects(table,
-                                             list(combinations(positions, 3)),
-                                             group_label=group_label)
+    three_pos_results = get_position_effects(
+        table, list(combinations(positions, 3)), group_label=group_label
+    )
     return three_pos_results
 
 
@@ -357,8 +358,9 @@ def get_three_position_fig(three_pos_results, positions, figsize,
 
 
 def get_four_position_effects(table, positions, group_label=None):
-    result = get_position_effects(table, list(combinations(positions, 4)),
-                                  group_label=group_label)
+    result = get_position_effects(
+        table, list(combinations(positions, 4)), group_label=group_label
+    )
     return result
 
 
@@ -423,12 +425,12 @@ def single_group(counts_table, outpath, group_label, group_ref, positions,
     max_results = {}
     # Single position analysis
     print("Doing single position analysis")
-    single_results = single_position_effects(counts_table, positions,
-                                             group_label=group_label)
+    single_results = single_position_effects(
+        counts_table, positions, group_label=group_label
+    )
     summary += make_summary(single_results)
 
-    max_results[1] = max(single_results[p]['rel_entropy']
-                         for p in single_results)
+    max_results[1] = max(single_results[p]["rel_entropy"] for p in single_results)
     if not dry_run:
         outfilename = os.path.join(outpath, "1.json")
         util.dump_loglin_stats(single_results, outfilename)
@@ -459,22 +461,24 @@ def single_group(counts_table, outpath, group_label, group_ref, positions,
 
     if first_order:
         msg = "Done! Check %s for your results" % outpath
-        summary = make_table(header=['Position', 'RE', 'Deviance', 'df',
-                                    'prob', 'formula'],
-                            rows=summary, digits=2, space=2)
+        summary = make_table(
+            header=["Position", "RE", "Deviance", "df", "prob", "formula"],
+            rows=summary,
+            digits=2,
+            space=2,
+        )
         if not dry_run:
             outfilename = os.path.join(outpath, "summary.txt")
-            summary.write(outfilename, sep='\t')
+            summary.write(outfilename, sep="\t")
             LOGGER.output_file(outfilename, label="summary")
 
         return msg
 
     print("Doing two positions analysis")
-    results = get_two_position_effects(counts_table, positions,
-                                       group_label=group_label)
+    results = get_two_position_effects(counts_table, positions, group_label=group_label)
     summary += make_summary(results)
 
-    max_results[2] = max(results[p]['rel_entropy'] for p in results)
+    max_results[2] = max(results[p]["rel_entropy"] for p in results)
     if not dry_run:
         outfilename = os.path.join(outpath, "2.json")
         util.dump_loglin_stats(results, outfilename)
@@ -502,11 +506,12 @@ def single_group(counts_table, outpath, group_label, group_ref, positions,
         fig.clf()  # refresh for next section
 
     print("Doing three positions analysis")
-    results = get_three_position_effects(counts_table, positions,
-                                         group_label=group_label)
+    results = get_three_position_effects(
+        counts_table, positions, group_label=group_label
+    )
     summary += make_summary(results)
 
-    max_results[3] = max(results[p]['rel_entropy'] for p in results)
+    max_results[3] = max(results[p]["rel_entropy"] for p in results)
     if not dry_run:
         outfilename = os.path.join(outpath, "3.json")
         util.dump_loglin_stats(results, outfilename)
@@ -534,11 +539,12 @@ def single_group(counts_table, outpath, group_label, group_ref, positions,
         fig.clf()  # refresh for next section
 
     print("Doing four positions analysis")
-    results = get_four_position_effects(counts_table, positions,
-                                        group_label=group_label)
+    results = get_four_position_effects(
+        counts_table, positions, group_label=group_label
+    )
     summary += make_summary(results)
 
-    max_results[4] = max(results[p]['rel_entropy'] for p in results)
+    max_results[4] = max(results[p]["rel_entropy"] for p in results)
     if not dry_run:
         outfilename = os.path.join(outpath, "4.json")
         util.dump_loglin_stats(results, outfilename)
@@ -585,17 +591,20 @@ def single_group(counts_table, outpath, group_label, group_ref, positions,
     ax.tick_params(axis='y', labelsize=y_sz, pad=y_sz // 2)
     format_offset(fig, int(plot_config.get('summary plot',
                                            'ytick_fontsize') * .8))
+    summary = make_table(
+        header=["Position", "RE", "Deviance", "df", "prob", "formula"],
+        rows=summary,
+        digits=2,
+        space=2,
+    )
     if not dry_run:
         outfilename = os.path.join(outpath, "summary.pdf")
         pyplot.savefig(outfilename, bbox_inches='tight')
         print("Wrote", outfilename)
 
-    summary = make_table(header=['Position', 'RE', 'Deviance', 'df',
-                                'prob', 'formula'],
-                        rows=summary, digits=2, space=2)
     if not dry_run:
         outfilename = os.path.join(outpath, "summary.txt")
-        summary.write(outfilename, sep='\t')
+        summary.write(outfilename, sep="\t")
         LOGGER.output_file(outfilename, label="summary")
 
     print(summary)
@@ -690,28 +699,28 @@ def nbr(countsfile, outpath, countsfile2, first_order, strand_symmetry,
     group_label = group_label or None
     group_ref = group_ref or None
     if strand_symmetry:
-        group_label = 'strand'
-        group_ref = group_ref or '+'
+        group_label = "strand"
+        group_ref = group_ref or "+"
         if group_label not in counts_table.header:
             print("ERROR: no column named 'strand', exiting.")
             exit(-1)
 
     if countsfile2:
         print("Performing 2 group analysis")
-        group_label = group_label or 'group'
-        group_ref = group_ref or '1'
-        counts_table1 = counts_table.with_new_column(group_label,
-                                                     lambda x: '1',
-                                                     columns=counts_table.header[0])
+        group_label = group_label or "group"
+        group_ref = group_ref or "1"
+        counts_table1 = counts_table.with_new_column(
+            group_label, lambda x: "1", columns=counts_table.header[0]
+        )
 
         fn2 = util.abspath(countsfile2)
-        counts_table2 = util.load_table_from_delimited_file(fn2, sep='\t')
+        counts_table2 = util.load_table_from_delimited_file(fn2, sep="\t")
 
         LOGGER.input_file(fn2, label="countsfile2_path")
 
-        counts_table2 = counts_table2.with_new_column(group_label,
-                                                      lambda x: '2',
-                                                      columns=counts_table2.header[0])
+        counts_table2 = counts_table2.with_new_column(
+            group_label, lambda x: "2", columns=counts_table2.header[0]
+        )
         # now combine
         header = [group_label] + counts_table2.header[:-1]
         raw1 = counts_table1.tolist(header)
@@ -719,8 +728,8 @@ def nbr(countsfile, outpath, countsfile2, first_order, strand_symmetry,
         counts_table = make_table(header=header, rows=raw1 + raw2)
 
         if not dry_run:
-            outfile = os.path.join(outpath, 'group_counts_table.txt')
-            counts_table.write(outfile, sep='\t')
+            outfile = os.path.join(outpath, "group_counts_table.txt")
+            counts_table.write(outfile, sep="\t")
             LOGGER.output_file(outfile, label="group_counts")
 
     if dry_run or verbose:
@@ -728,12 +737,10 @@ def nbr(countsfile, outpath, countsfile2, first_order, strand_symmetry,
         print(counts_table)
         print()
 
-    plot_config = util.get_plot_configs(cfg_path=plot_cfg)
-
-    msg = single_group(counts_table, outpath, group_label, group_ref,
-                       positions, plot_config, first_order,
-                       dry_run)
-    print(msg)
+    msg = single_group(
+        counts_table, outpath, group_label, group_ref, positions, first_order, dry_run,
+    )
+    click.secho(msg, fg="green")
 
 
 @main.command()

@@ -1,7 +1,7 @@
 from unittest import TestCase, main
 
 from numpy import array
-from numpy.testing import assert_array_equal, assert_allclose
+from numpy.testing import assert_allclose, assert_array_equal
 
 from mutation_motif.height import get_mi_char_heights, get_re_char_heights
 
@@ -30,18 +30,18 @@ class TestCalcCharHeights(TestCase):
         """char heights for RE terms should be correct"""
         rets = array(
             [
-                [0,      0,  0.12535],
+                [0, 0, 0.12535],
                 [0.15782, 0, 0.67927],
-                [0,      0,  0.28571],
-                [-0.1,   0,  -0.21429],
+                [0, 0, 0.28571],
+                [-0.1, 0, -0.21429],
             ]
         )
 
         expect_char_ret_height = array(
             [
-                [0,       0, 0.08417],
+                [0, 0, 0.08417],
                 [0.035394, 0, 0.45612],
-                [0,       0, 0.19185],
+                [0, 0, 0.19185],
                 [-0.022426, 0, -0.14389],
             ]
         )
