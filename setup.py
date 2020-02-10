@@ -6,7 +6,7 @@ from setuptools import find_packages, setup
 __author__ = "Gavin Huttley"
 __copyright__ = "Copyright 2014, Gavin Huttley"
 __credits__ = ["Gavin Huttley"]
-__license__ = "GPL"
+__license__ = "BSD-3"
 __version__ = "0.3"
 __maintainer__ = "Gavin Huttley"
 __email__ = "Gavin.Huttley@anu.edu.au"
@@ -41,7 +41,7 @@ setup(
     long_description=long_description,
     url="https://github.com/HuttleyLab/mutationmotif",
     platforms=["any"],
-    license=["GPL"],
+    license=["BSD"],
     keywords=[
         "biology",
         "genomics",
@@ -53,7 +53,7 @@ setup(
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Intended Audience :: Science/Research",
-        "License :: OSI Approved :: GNU General Public License (GPL)",
+        "License :: OSI Approved :: BSD",
         "Programming Language :: Python :: 3",
         "Topic :: Scientific/Engineering :: Bio-Informatics",
         "Topic :: Software Development :: Libraries :: Python Modules",

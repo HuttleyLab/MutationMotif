@@ -8,7 +8,7 @@ from mutation_motif.util import array_to_str, just_nucs, load_from_fasta
 __author__ = "Gavin Huttley"
 __copyright__ = "Copyright 2016-2020, Gavin Huttley, Yicheng Zhu"
 __credits__ = ["Gavin Huttley", "Yicheng Zhu"]
-__license__ = "GPL"
+__license__ = "BSD-3"
 __version__ = "0.3"
 __maintainer__ = "Gavin Huttley"
 __email__ = "Gavin.Huttley@anu.edu.au"
