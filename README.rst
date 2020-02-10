@@ -10,7 +10,7 @@ The models and applications of them are described in `Statistical methods for id
 Installation
 ************
 
-We recommend installation of dependencies via conda since creating image files using `Plotly <https://plot.ly/python/>`_ requires a command line tool plus you also need to have R installed (check the `rpy2 installation`_ instructions). Follow the `miniconda install instructions <https://docs.conda.io/en/latest/miniconda.html>`_ for your platform.
+We recommend installation of dependencies via conda since creating image files using `Plotly <https://plot.ly/python/>`_ requires a command line tool plus you also need to have the python bindings to `R installed`_. Follow the `miniconda install instructions <https://docs.conda.io/en/latest/miniconda.html>`_ for your platform.
 
 Having installed miniconda, the following command creates a new conda environment ``myenv`` into which we install the essential requirements using conda, then use pip to install ``mutation_motif``.
 
@@ -20,10 +20,9 @@ Having installed miniconda, the following command creates a new conda environmen
     $ conda activate myenv
     $ python -m pip install git+https://github.com/HuttleyLab/MutationMotif.git@develop#egg=mutation_motif
 
+.. note:: The above installs the developer version. To use the release, change ``develop`` to ``master``.
 
-.. note:: That installs the developer version. To use the release, change ``develop`` to ``master``.
-
-.. _`rpy2 installation`: http://rpy2.readthedocs.io/en/version_2.8.x/overview.html#installation
+.. _`R installed`: https://rpy2.readthedocs.io/en/latest/overview.html#installation
 
 *****
 Usage
@@ -73,7 +72,7 @@ The simple analysis is invoked as::
     
     $ mutation_analysis nbr -1 path/to/tests/data/counts-CtoT.txt -o path/for/results/
 
-This will write 11 files into the results directory. Files such as ``1.pdf`` and ``2.pdf`` are the mutation mtofis for the first and second order effects from the log-linear models. Files ending in ``.json`` contain the raw data used to produce these figures and may be used for subsequent analyses, such as generating grids of mutation motifs. The summary files summarises the full log-linear modelling hierarchy. The ``.log`` files track the command used to generate these files, including the input files and the settings used.
+This will write 11 files into the results directory. Files such as ``1.pdf`` and ``2.pdf`` are the mutation motifs for the first and second order effects from the log-linear models. Files ending in ``.json`` contain the raw data used to produce these figures and may be used for subsequent analyses, such as generating grids of mutation motifs. The summary files summarises the full log-linear modelling hierarchy. The ``.log`` files track the command used to generate these files, including the input files and the settings used.
 
 Testing for strand symmetry (or asymmetry) is done as::
     
