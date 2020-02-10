@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import pathlib
 import sys
 
 from setuptools import find_packages, setup
@@ -22,13 +23,9 @@ if sys.version_info < (3, 6):
 short_description = "MutationMotif"
 
 # This ends up displayed by the installer
-long_description = (
-    """MutationMotif
-Analysis of neighbouring base effects on mutation.
-Version %s.
-"""
-    % __version__
-)
+readme_path = pathlib.Path(__file__).parent / "README.rst"
+
+long_description = readme_path.read_text()
 
 PACKAGE_DIR = "src"
 
@@ -39,6 +36,7 @@ setup(
     author_email="gavin.huttley@anu.edu.au",
     description=short_description,
     long_description=long_description,
+    long_description_content_type="text/x-rst",
     url="https://github.com/HuttleyLab/mutationmotif",
     platforms=["any"],
     license=["BSD"],

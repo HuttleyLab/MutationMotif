@@ -1325,7 +1325,7 @@ def nbr_matrix(
 @_fig_cfg
 @_figpath
 def grid(fig_config, figpath):
-    """draws an arbitrary shaped grid of mutation motifs based on fig_config"""
+    """draws an arbitrary shaped grid of mutation motifs based on a config file"""
     # we read in the config file and determine number of rows and columns
     # paths, headings, etc ..
     # then create the figure and axes and call the mutation_motif drawing code
