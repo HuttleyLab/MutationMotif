@@ -10,15 +10,18 @@ The models and applications of them are described in `Statistical methods for id
 Installation
 ************
 
-Installation via pip into virtualenv's has been tested and is described below. You will need to have R installed also (version 3.2+, but check the `rpy2 installation`_ instructions). This library requires Python3.5 or greater.
+We recommend installation of dependencies via conda since creating image files using `Plotly <https://plot.ly/python/>`_ requires a command line tool plus you also need to have R installed (check the `rpy2 installation`_ instructions). Follow the `miniconda install instructions <https://docs.conda.io/en/latest/miniconda.html>`_ for your platform.
 
-With `Cogent3 <https://github.com/cogent3/cogent3>`_ installed, `mutation_motif` installation can be done as
+Having installed miniconda, the following command creates a new conda environment ``myenv`` into which we install the essential requirements using conda, then use pip to install ``mutation_motif``.
 
 ::
 
-    $ pip install git+https://github.com/HuttleyLab/MutationMotif.git
-    
-:NOTE: Due to a conflict between ``matplotlib`` and ``virtualenv``'s on OSX, the installation is configured for ``matplotlib`` version 1.4.3.
+    $ conda env create -n myenv -c plotly python=3 plotly plotly-orca rpy2
+    $ conda activate myenv
+    $ python -m pip install git+https://github.com/HuttleyLab/MutationMotif.git@develop#egg=mutation_motif
+
+
+.. note:: That installs the developer version. To use the release, change ``develop`` to ``master``.
 
 .. _`rpy2 installation`: http://rpy2.readthedocs.io/en/version_2.8.x/overview.html#installation
 
@@ -96,10 +99,12 @@ Drawing
 
 The ``mutation_draw`` command provides support for drawing either spectra or neighbour mutation motif logos. The subcommands are:
 
-- ``grid``: for displaying arbitrary shaped grids of mutation motif logos. See the ``tests/data/arbitrary_grid.cfg`` file for an example
-- ``nbr_matrix``: draws a square matrix of mutation motif logos
-- ``spectra_grid``: draws the corresponding combined plot for mutation spectra analyses
-- ``mi``: the classic sequence logo
+- ``grid``: draws an arbitrary shaped grid of mutation motifs based on a config file
+- ``nbr``: makes motifs for independent or higher order interactions
+- ``nbr-matrix``: draws square matrix of sequence logo's from neighbour analysis
+- ``spectra-grid``: draws logo from mutation spectra analysis
+- ``mi``: draws conventional sequence logo, using MI
+- ``export-cfg``: exports the sample config files to the nominated path
 
 *******************
 Interpreting logo's
