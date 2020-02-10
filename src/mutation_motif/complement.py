@@ -1,32 +1,33 @@
-from cogent3 import make_table, DNA
+from cogent3 import DNA, make_table
 
 __author__ = "Gavin Huttley"
-__copyright__ = "Copyright 2016, Gavin Huttley, Yicheng Zhu"
+__copyright__ = "Copyright 2016-2020, Gavin Huttley, Yicheng Zhu"
 __credits__ = ["Gavin Huttley"]
-__license__ = "GPL"
+__license__ = "BSD-3"
 __version__ = "0.3"
 __maintainer__ = "Gavin Huttley"
 __email__ = "Gavin.Huttley@anu.edu.au"
 __status__ = "Development"
 
 
-MUTATION_COMPLEMENTS = {'CtoG': 'GtoC',
-                        'CtoA': 'GtoT',
-                        'AtoT': 'TtoA',
-                        'CtoT': 'GtoA',
-                        'AtoC': 'TtoG',
-                        'AtoG': 'TtoC'}
+MUTATION_COMPLEMENTS = {
+    "CtoG": "GtoC",
+    "CtoA": "GtoT",
+    "AtoT": "TtoA",
+    "CtoT": "GtoA",
+    "AtoC": "TtoG",
+    "AtoG": "TtoC",
+}
 
 
 def _reverse_complement(table):
-    '''returns a table with sequences reverse complemented'''
-    pos_indices = [i for i, c in enumerate(
-        table.header) if c.startswith('pos')]
+    """returns a table with sequences reverse complemented"""
+    pos_indices = [i for i, c in enumerate(table.header) if c.startswith("pos")]
 
     rows = table.tolist()
     for row in rows:
         # we use the cogent3 DnaSeq object to do reverse complementing
-        seq = DNA.make_seq(''.join(row[i] for i in pos_indices))
+        seq = DNA.make_seq("".join(row[i] for i in pos_indices))
         seq = list(seq.rc())
         for i, index in enumerate(pos_indices):
             row[index] = seq[i]
@@ -44,17 +45,18 @@ def add_strand_column(rows, strand):
 
 
 def make_strand_symmetric_table(table):
-    '''takes a combined counts table and returns a table with reverse
+    """takes a combined counts table and returns a table with reverse
     complemented seqs
 
-    Uses MUTATION_COMPLEMENTS'''
+    Uses MUTATION_COMPLEMENTS"""
 
     new_data = []
-    direction_index = [i for i in range(len(table.header))
-                       if table.header[i] == 'direction'][0]
+    direction_index = [
+        i for i in range(len(table.header)) if table.header[i] == "direction"
+    ][0]
     for plus, minus in list(MUTATION_COMPLEMENTS.items()):
         plus_table = table.filtered('direction=="%s"' % plus)
-        plus_data = add_strand_column(plus_table.tolist(), '+')
+        plus_data = add_strand_column(plus_table.tolist(), "+")
         new_data.extend(plus_data)
 
         minus_table = table.filtered('direction=="%s"' % minus)
@@ -64,7 +66,7 @@ def make_strand_symmetric_table(table):
         minus_data = minus_table.tolist()
         for row in minus_data:
             row[direction_index] = plus
-        minus_data = add_strand_column(minus_data, '-')
+        minus_data = add_strand_column(minus_data, "-")
         new_data.extend(minus_data)
 
-    return make_table(header=table.header[:] + ['strand'], rows=new_data)
+    return make_table(header=table.header[:] + ["strand"], rows=new_data)

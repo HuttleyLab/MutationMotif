@@ -3,14 +3,14 @@
 Assumes bases recoded to ints in range 0 <= b < 4"""
 from warnings import filterwarnings
 
-from numpy import array, log2, isnan, errstate
+from numpy import array, errstate, isnan, log2
 
 from mutation_motif.util import is_valid
 
 __author__ = "Gavin Huttley"
-__copyright__ = "Copyright 2016, Gavin Huttley, Yicheng Zhu"
+__copyright__ = "Copyright 2016-2020, Gavin Huttley, Yicheng Zhu"
 __credits__ = ["Gavin Huttley", "Yicheng Zhu"]
-__license__ = "GPL"
+__license__ = "BSD-3"
 __version__ = "0.3"
 __maintainer__ = "Gavin Huttley"
 __email__ = "Gavin.Huttley@anu.edu.au"
@@ -29,7 +29,7 @@ def get_ret(ref, ctl, pseudocount=1, check_valid=False):
     p = as_freq_matrix(ref, pseudocount=pseudocount, check_valid=check_valid)
     q = as_freq_matrix(ctl, pseudocount=pseudocount, check_valid=check_valid)
     # relative entropy terms
-    with errstate(divide='ignore'):
+    with errstate(divide="ignore"):
         ret = p * log2(p / q)
     return ret
 
@@ -38,8 +38,7 @@ def counts_to_freq_matrix(counts, pseudocount=0, check_valid=False):
     """converts a counts array to a frequency matrix"""
     col_sums = counts.sum(axis=0)
     if check_valid:
-        assert len(set(col_sums)) == 1, \
-            "all counts columns should be identical"
+        assert len(set(col_sums)) == 1, "all counts columns should be identical"
 
     total = col_sums[0]
     counts = counts.astype(float)
@@ -65,25 +64,23 @@ def as_freq_matrix(data, pseudocount=0, check_valid=False):
     return p
 
 
-def get_entropy_terms(data, pseudocount=0, check_valid=False,
-                      freq_matrix=False):
+def get_entropy_terms(data, pseudocount=0, check_valid=False, freq_matrix=False):
     """returns Shannons entropy terms for axis=0"""
     if freq_matrix:
         p = data
     else:
-        p = as_freq_matrix(data, pseudocount=pseudocount,
-                           check_valid=check_valid)
+        p = as_freq_matrix(data, pseudocount=pseudocount, check_valid=check_valid)
 
-    with errstate(divide='ignore'):
+    with errstate(divide="ignore"):
         et = -p * log2(p)
     return et
 
 
 def get_mit(data, pseudocount=0, check_valid=False, freq_matrix=False):
     """returns MI terms for axis=0"""
-    entropy_terms = get_entropy_terms(data, pseudocount=pseudocount,
-                                      check_valid=check_valid,
-                                      freq_matrix=freq_matrix)
+    entropy_terms = get_entropy_terms(
+        data, pseudocount=pseudocount, check_valid=check_valid, freq_matrix=freq_matrix
+    )
     mit = 0.5 - entropy_terms
     mit[isnan(mit)] = 0
     return mit

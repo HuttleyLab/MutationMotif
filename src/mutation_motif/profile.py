@@ -1,12 +1,14 @@
-from numpy import logical_and, zeros, array, ndarray, asarray
-from random import choice, seed as set_seed
+from random import choice
+from random import seed as set_seed
+
+from numpy import array, asarray, logical_and, ndarray, zeros
 
 from cogent3 import DNA
 
 __author__ = "Gavin Huttley"
-__copyright__ = "Copyright 2016, Gavin Huttley, Yicheng Zhu"
+__copyright__ = "Copyright 2016-2020, Gavin Huttley, Yicheng Zhu"
 __credits__ = ["Gavin Huttley", "Yicheng Zhu"]
-__license__ = "GPL"
+__license__ = "BSD-3"
 __version__ = "0.3"
 __maintainer__ = "Gavin Huttley"
 __email__ = "Gavin.Huttley@anu.edu.au"
@@ -21,6 +23,7 @@ def get_zero_counts(dim, dtype, pseudo_count=1):
 
 class ProfileCounts(ndarray):
     """counts object"""
+
     def __new__(cls, data, pseudo_count=0):
         new = asarray(data).view(cls)
         new += pseudo_count
@@ -47,9 +50,9 @@ def MakeCircleRange(circle_size, slice_side):
         if left < 0:
             indices = full_indices[left:] + full_indices[:right]
         elif right > circle_size:
-            indices = full_indices[left:] + full_indices[:right - circle_size]
+            indices = full_indices[left:] + full_indices[: right - circle_size]
         else:
-            indices = full_indices[left: right]
+            indices = full_indices[left:right]
         slice_collection[centre_index] = indices
 
     def call(centre_index):
@@ -78,7 +81,7 @@ def chosen_base_indices(data, chosen_base, step):
     indices = logical_and(data == chosen_base, indices)
     indices_by_row = []
     for i in range(data.shape[0]):
-        row_indices, = indices[i, :].nonzero()
+        (row_indices,) = indices[i, :].nonzero()
         indices_by_row.append(row_indices)
 
     # exclude seqs with minimum number
@@ -115,21 +118,35 @@ def MakeControl(data, chosen_base, step, flank_size):
     circle_range = MakeCircleRange(data.shape[1], flank_size)
 
     def call():
-        return get_control(data, chosen_base, step, flank_size,
-                           sample_indices=sample_indices,
-                           circle_range=circle_range)
+        return get_control(
+            data,
+            chosen_base,
+            step,
+            flank_size,
+            sample_indices=sample_indices,
+            circle_range=circle_range,
+        )
+
     return call
 
 
-def get_control(seq_array, chosen_base, step, flank_size, sample_indices=None,
-                circle_range=None, seed=None):
+def get_control(
+    seq_array,
+    chosen_base,
+    step,
+    flank_size,
+    sample_indices=None,
+    circle_range=None,
+    seed=None,
+):
     """returns control profile"""
     assert seed is not None, "Must provide a random number seed"
     set_seed(seed)
     if sample_indices is None:
         sample_indices = chosen_base_indices(seq_array, chosen_base, step)
         seq_array, sample_indices = filter_seqs_by_chosen_base(
-            seq_array, sample_indices, 1)
+            seq_array, sample_indices, 1
+        )
 
     if circle_range is None:
         circle_range = MakeCircleRange(seq_array.shape[1], flank_size)
@@ -147,30 +164,32 @@ def get_observed(data, flank_size):
     """returns observed profile"""
     length = data.shape[1]
     mid_pt = (length - 1) // 2
-    assert 2 * mid_pt + 1 == length, 'Funny length'
+    assert 2 * mid_pt + 1 == length, "Funny length"
 
     start = mid_pt - flank_size
-    data = data[:, start: start + (flank_size * 2 + 1)]
+    data = data[:, start : start + (flank_size * 2 + 1)]
     return data
 
 
-def get_profiles(data, chosen_base, step, flank_size, circle_range=None,
-                 seed=None):
+def get_profiles(data, chosen_base, step, flank_size, circle_range=None, seed=None):
     """returns matched observed and control profiles"""
-    ctl = get_control(data, chosen_base, step, flank_size,
-                      circle_range=circle_range, seed=seed)
+    ctl = get_control(
+        data, chosen_base, step, flank_size, circle_range=circle_range, seed=seed
+    )
     obs = get_observed(data, flank_size)
     return obs, ctl
 
 
-def get_control_counts(seq_array, chosen_base, step, flank_size,
-                       sample_indices=None, circle_range=None):
+def get_control_counts(
+    seq_array, chosen_base, step, flank_size, sample_indices=None, circle_range=None
+):
     """returns the counts array for controls, more memory efficient"""
     counts = get_zero_counts((seq_array.shape[0], 4), float)
     if sample_indices is None:
         sample_indices = chosen_base_indices(seq_array, chosen_base, step)
         seq_array, sample_indices = filter_seqs_by_chosen_base(
-            seq_array, sample_indices, 1)
+            seq_array, sample_indices, 1
+        )
 
     if circle_range is None:
         circle_range = MakeCircleRange(seq_array.shape[1], flank_size)
