@@ -5,7 +5,7 @@ from rpy2.robjects import r as R
 from rpy2.robjects.vectors import DataFrame, FactorVector, IntVector, StrVector
 
 __author__ = "Gavin Huttley"
-__copyright__ = "Copyright 2016, Gavin Huttley, Yicheng Zhu"
+__copyright__ = "Copyright 2016-2020, Gavin Huttley, Yicheng Zhu"
 __credits__ = ["Gavin Huttley", "Yicheng Zhu"]
 __license__ = "GPL"
 __version__ = "0.3"

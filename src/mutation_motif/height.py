@@ -5,7 +5,7 @@ from numpy import errstate, fabs, isnan
 filterwarnings("ignore", "invalid value encountered.*")
 
 __author__ = "Gavin Huttley"
-__copyright__ = "Copyright 2016, Gavin Huttley, Yicheng Zhu"
+__copyright__ = "Copyright 2016-2020, Gavin Huttley, Yicheng Zhu"
 __credits__ = ["Gavin Huttley", "Yicheng Zhu"]
 __license__ = "GPL"
 __version__ = "0.3"

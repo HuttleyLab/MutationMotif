@@ -12,7 +12,7 @@ from mutation_motif import motif_count, profile
 from mutation_motif.util import abspath, just_nucs, load_from_fasta, makedirs
 
 __author__ = "Gavin Huttley"
-__copyright__ = "Copyright 2016, Gavin Huttley, Yicheng Zhu"
+__copyright__ = "Copyright 2016-2020, Gavin Huttley, Yicheng Zhu"
 __credits__ = ["Gavin Huttley", "Yicheng Zhu"]
 __license__ = "GPL"
 __version__ = "0.3"
