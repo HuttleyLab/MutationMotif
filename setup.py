@@ -16,7 +16,7 @@ __status__ = "Development"
 if sys.version_info < (3, 6):
     py_version = ".".join([str(n) for n in sys.version_info])
     raise RuntimeError(
-        "Python-3.5 or greater is required, Python-%s used." % py_version
+        "Python-3.6 or greater is required, Python-%s used." % py_version
     )
 
 short_description = "MutationMotif"
@@ -29,6 +29,8 @@ Version %s.
 """
     % __version__
 )
+
+PACKAGE_DIR = "src"
 
 setup(
     name="mutation_motif",
@@ -57,8 +59,17 @@ setup(
         "Topic :: Software Development :: Libraries :: Python Modules",
         "Operating System :: OS Independent",
     ],
-    packages=["mutation_motif"],
-    install_requires=["numpy", "cogent3", "click", "pandas", "rpy2", "scitrack",],
+    install_requires=[
+        "numpy",
+        "cogent3",
+        "click",
+        "pandas",
+        "plotly",
+        "psutil",
+        "requests",
+        "rpy2",
+        "scitrack",
+    ],
     # note: http://stackoverflow.com/questions/3472430/how-can-i-make-setuptools-install-a-package-thats-not-on-pypi
     # and http://stackoverflow.com/questions/17366784/setuptools-unable-to-use-link-from-dependency-links/17442663#17442663
     # changing it to http://github.com/mtai/python-gearman/tarball/master#egg=gearman-2.0.0beta instead
@@ -70,7 +81,8 @@ setup(
             "mutation_draw=mutation_motif.draw:main",
         ],
     },
-    package_dir={"mutation_motif": "mutation_motif"},
+    packages=find_packages(where="src"),
+    package_dir={"": PACKAGE_DIR},
     package_data={
         "mutation_motif": [
             "cfgs/grid.cfg",
