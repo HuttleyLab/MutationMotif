@@ -60,7 +60,7 @@ def check_found_filenames(filenames):
 @click.option(
     "-c",
     "--counts_pattern",
-    help="glob pattern uniquely identifying all 12 mutation counts " "files.",
+    help="glob pattern uniquely identifying all 12 mutation counts files.",
 )
 @click.option("-o", "--output_path", help="Path to write combined_counts data.")
 @click.option(
@@ -73,7 +73,7 @@ def check_found_filenames(filenames):
     "-p",
     "--split_dir",
     default=None,
-    help="path to write individual direction strand symmetric " "tables.",
+    help="path to write individual direction strand symmetric tables.",
 )
 @click.option(
     "-D",

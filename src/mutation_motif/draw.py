@@ -1067,7 +1067,7 @@ _json_path = click.option(
     "-p",
     "--json_path",
     required=True,
-    help="Path to spectra analysis " "spectra_analysis.json",
+    help="Path to spectra analysis spectra_analysis.json",
 )
 _group_label = click.option("--group_label", help="Id for reference group")
 
@@ -1263,7 +1263,7 @@ _dry_run = click.option(
     "-D",
     "--dry_run",
     is_flag=True,
-    help="Do a dry run of the analysis without writing " "output.",
+    help="Do a dry run of the analysis without writing output.",
 )
 
 
