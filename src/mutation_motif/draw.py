@@ -1493,6 +1493,12 @@ def export_cfg(outpath):
     """exports the sample config files to the nominated path"""
     import shutil
 
+    if os.path.exists(outpath):
+        click.secho(
+            "outpath already exists, delete it or choose different dest", fg="red"
+        )
+        sys.exit(1)
+
     path = resource_filename("mutation_motif", f"cfgs")
     shutil.copytree(path, outpath)
-    click.echo("Contents written to %s" % outpath, fg="green")
+    click.secho("Contents written to %s" % outpath, fg="green")

@@ -264,6 +264,34 @@ class TestDraw(TestCase):
             self.assertTrue(figpath.exists())
             self.assertTrue(figpath.stat().st_size > 0)
 
+    def test_mi_app(self):
+        """cl produces 1-way plot using MI"""
+        runner = CliRunner()
+
+        with TemporaryDirectory(dir=".") as dirname:
+            data_path = Path(test_datadir) / "directions" / "CtoT.json"
+            figpath = Path(dirname) / "mi.pdf"
+            r = runner.invoke(
+                draw_main, ["mi", f"--json_path={data_path}", f"--figpath={figpath}"],
+            )
+            self.assertEqual(r.exit_code, 0)
+            self.assertTrue(figpath.exists())
+            self.assertTrue(figpath.stat().st_size > 0)
+
+    def test_export_cfg_app(self):
+        """exports sample cfg files"""
+        runner = CliRunner()
+
+        with TemporaryDirectory(dir=".") as dirname:
+            path = Path(dirname) / "cfgs"
+            r = runner.invoke(draw_main, ["export-cfg", str(path)],)
+            self.assertEqual(r.exit_code, 0)
+            num_files = 0
+            for p in path.glob("*.cfg"):
+                self.assertTrue(path.stat().st_size > 0)
+                num_files += 1
+            self.assertTrue(num_files > 0)
+
 
 if __name__ == "__main__":
     main()
