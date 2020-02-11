@@ -89,7 +89,7 @@ def main(
 ):
     """export tab delimited combined counts table by appending the 12 mutation
     direction tables, adding a new column ``direction``."""
-    args = locals()
+    LOGGER.log_args()
     output_path = abspath(output_path)
     if strand_symmetric and split_dir:
         split_dir = abspath(split_dir)
