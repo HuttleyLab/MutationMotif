@@ -118,7 +118,6 @@ def main(
             makedirs(split_dir)
 
         LOGGER.log_file_path = runlog_path
-        LOGGER.log_message(str(args), label="vars")
         for fn in counts_files:
             LOGGER.input_file(fn, label="count_file")
 
