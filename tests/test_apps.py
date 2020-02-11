@@ -1,5 +1,7 @@
 import os
 import shutil
+from pathlib import Path
+from tempfile import TemporaryDirectory
 from unittest import TestCase, main
 
 from click.testing import CliRunner
@@ -10,6 +12,8 @@ from mutation_motif.aln_to_counts import main as aln_to_counts_main
 from mutation_motif.draw import main as draw_main
 from mutation_motif.mutation_analysis import main as mut_main
 from mutation_motif.util import makedirs
+
+test_datadir = Path(__file__).parent / "data"
 
 
 class TestCounting(TestCase):
@@ -179,7 +183,7 @@ class TestMutationAnalysis(TestCase):
             self.assertTrue(os.path.getsize(path) > 0)
 
 
-class TestDrawGrid(TestCase):
+class TestDraw(TestCase):
     dirname = "_delme"
 
     def tearDown(self) -> None:
@@ -224,6 +228,23 @@ class TestDrawGrid(TestCase):
             path = os.path.join(self.dirname, fn)
             self.assertTrue(os.path.exists(path))
             self.assertTrue(os.path.getsize(path) > 0)
+
+    def test_nbr_app(self):
+        """cl produces plots for 1-way up to 4-way plus summary"""
+        runner = CliRunner()
+
+        with TemporaryDirectory(dir=".") as dirname:
+            data_path = Path(dirname) / "CtoT"
+            shutil.copytree(test_datadir / "CtoT", data_path)
+            cfg_path = str(Path(dirname) / "nbr_paths.cfg")
+            shutil.copy(test_datadir / "nbr_paths.cfg", cfg_path)
+            r = runner.invoke(draw_main, ["nbr", f"-p{cfg_path}"],)
+            self.assertEqual(r.exit_code, 0)
+            fnames = [f"{n}.pdf" for n in ("one", "two", "three", "four", "summary")]
+            for fn in fnames:
+                path = Path(dirname) / fn
+                self.assertTrue(path.exists())
+                self.assertTrue(path.stat().st_size > 0)
 
 
 if __name__ == "__main__":
