@@ -34,18 +34,6 @@ def get_ret(ref, ctl, pseudocount=1, check_valid=False):
     return ret
 
 
-def counts_to_freq_matrix(counts, pseudocount=0, check_valid=False):
-    """converts a counts array to a frequency matrix"""
-    col_sums = counts.sum(axis=0)
-    if check_valid:
-        assert len(set(col_sums)) == 1, "all counts columns should be identical"
-
-    total = col_sums[0]
-    counts = counts.astype(float)
-    counts /= total
-    return counts
-
-
 def as_freq_matrix(data, pseudocount=0, check_valid=False):
     """returns data as a frequency matrix, using pseudocounts to adjust"""
     if check_valid:
