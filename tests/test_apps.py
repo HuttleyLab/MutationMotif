@@ -246,6 +246,24 @@ class TestDraw(TestCase):
                 self.assertTrue(path.exists())
                 self.assertTrue(path.stat().st_size > 0)
 
+    def test_nbr_matrix_app(self):
+        """cl produces matrix of 1-way plots"""
+        runner = CliRunner()
+
+        with TemporaryDirectory(dir=".") as dirname:
+            data_path = Path(dirname) / "directions"
+            shutil.copytree(test_datadir / "directions", data_path)
+            cfg_path = str(Path(dirname) / "nbr_matrix_paths.cfg")
+            shutil.copy(test_datadir / "nbr_matrix_paths.cfg", cfg_path)
+            figpath = Path(dirname) / "nbr_matrix.pdf"
+            r = runner.invoke(
+                draw_main,
+                ["nbr-matrix", f"--paths_cfg={cfg_path}", f"--figpath={figpath}"],
+            )
+            self.assertEqual(r.exit_code, 0)
+            self.assertTrue(figpath.exists())
+            self.assertTrue(figpath.stat().st_size > 0)
+
 
 if __name__ == "__main__":
     main()
