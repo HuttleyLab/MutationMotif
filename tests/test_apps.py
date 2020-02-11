@@ -278,6 +278,20 @@ class TestDraw(TestCase):
             self.assertTrue(figpath.exists())
             self.assertTrue(figpath.stat().st_size > 0)
 
+    def test_export_cfg_app(self):
+        """exports sample cfg files"""
+        runner = CliRunner()
+
+        with TemporaryDirectory(dir=".") as dirname:
+            path = Path(dirname) / "cfgs"
+            r = runner.invoke(draw_main, ["export-cfg", str(path)],)
+            self.assertEqual(r.exit_code, 0)
+            num_files = 0
+            for p in path.glob("*.cfg"):
+                self.assertTrue(path.stat().st_size > 0)
+                num_files += 1
+            self.assertTrue(num_files > 0)
+
 
 if __name__ == "__main__":
     main()
