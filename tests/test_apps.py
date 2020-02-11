@@ -278,6 +278,23 @@ class TestDraw(TestCase):
             self.assertTrue(figpath.exists())
             self.assertTrue(figpath.stat().st_size > 0)
 
+        # check using the the use_freq args
+        with TemporaryDirectory(dir=".") as dirname:
+            data_path = Path(test_datadir) / "directions" / "CtoT.json"
+            figpath = Path(dirname) / "mi.pdf"
+            r = runner.invoke(
+                draw_main,
+                [
+                    "mi",
+                    f"--json_path={data_path}",
+                    f"--figpath={figpath}",
+                    "--use_freq",
+                ],
+            )
+            self.assertEqual(r.exit_code, 0)
+            self.assertTrue(figpath.exists())
+            self.assertTrue(figpath.stat().st_size > 0)
+
     def test_export_cfg_app(self):
         """exports sample cfg files"""
         runner = CliRunner()
