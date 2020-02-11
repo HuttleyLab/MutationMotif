@@ -2,8 +2,7 @@ from collections import Counter
 from itertools import product
 
 from cogent3 import make_table
-from mutation_motif.profile import get_profiles
-from mutation_motif.util import array_to_str, just_nucs, load_from_fasta
+from mutation_motif.util import array_to_str
 
 __author__ = "Gavin Huttley"
 __copyright__ = "Copyright 2016-2020, Gavin Huttley, Yicheng Zhu"
@@ -13,23 +12,6 @@ __version__ = "0.3"
 __maintainer__ = "Gavin Huttley"
 __email__ = "Gavin.Huttley@anu.edu.au"
 __status__ = "Development"
-
-
-def counts_from_seqs(fn, chosen_base, flank_size, seed):
-    """returns a counts table of motifs for mutated, control seqs"""
-    orig_seqs = load_from_fasta(fn)
-    seqs = orig_seqs.array_seqs
-    seqs = just_nucs(seqs)
-    orig, ctl = get_profiles(
-        seqs, chosen_base=chosen_base, step=1, flank_size=flank_size, seed=seed
-    )
-
-    # convert profiles to a motif count table
-    orig_counts = profile_to_seq_counts(orig, flank_size=flank_size)
-    ctl_counts = profile_to_seq_counts(ctl, flank_size=flank_size)
-    counts_table = get_count_table(orig_counts, ctl_counts, flank_size * 2)
-    counts_table = counts_table.sorted(columns="mut")
-    return counts_table
 
 
 def profile_to_seq_counts(data, flank_size):
@@ -109,7 +91,6 @@ def get_combined_counts(table, positions):
         counts = reduced_one_position(table, positions)
         mut_counts = counts["M"]
         unmut_counts = counts["R"]
-        positions = [positions]
         states = bases
         header = ["mut", "base", "count"]
     else:
