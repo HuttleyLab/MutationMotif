@@ -43,6 +43,46 @@ class TestCounting(TestCase):
         self.assertEqual(counts.shape[0], 6144)
         shutil.rmtree(self.dirname)
 
+    def test_all_counts_splitdir(self):
+        """exercising all_acounts with strand symmetric"""
+        runner = CliRunner()
+        with TemporaryDirectory(dir=".") as dirname:
+            outpath = Path(dirname)
+            r = runner.invoke(
+                all_count_main, ["-cdata/directions/*.txt", f"-o{outpath}", "-s"]
+            )
+            # should produce directory containing two files
+            self.assertEqual(r.exit_code, 0)
+            dirlist = {str(p.name) for p in outpath.glob("*")}
+            self.assertEqual(
+                dirlist, set(["combined_counts.txt", "combined_counts.log"])
+            )
+            counts = load_table(f"{outpath / 'combined_counts.txt'}", sep="\t")
+            self.assertIn("strand", counts.header)
+
+        with TemporaryDirectory(dir=".") as dirname:
+            outpath = Path(dirname)
+            splitdir = outpath / "splitdir"
+            r = runner.invoke(
+                all_count_main,
+                [
+                    "-cdata/directions/*.txt",
+                    f"-o{outpath}",
+                    "-s",
+                    f"--split_dir={splitdir}",
+                ],
+            )
+            # should produce directory containing 6 txt files
+            self.assertEqual(r.exit_code, 0, r.output)
+            dirlist = {str(p.name) for p in splitdir.glob(f"*")}
+            self.assertEqual(len(dirlist), 6)
+            for p in splitdir.glob(f"*"):
+                counts = load_table(str(p), sep="\t")
+                self.assertIn("strand", counts.header)
+                # num_pos = 4, so there are 4**4 possible seqs, x 2 strands
+                # x 2 samples (M and R)
+                self.assertEqual(counts.shape[0], 4 ** 4 * 2 * 2)
+
     def test_aln_to_counts(self):
         """exercising aln_to_counts"""
         makedirs(self.dirname)
