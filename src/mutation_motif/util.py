@@ -54,7 +54,7 @@ def spectra_table(table, group_label):
     # so we have a table with counts per direction
     results = []
     group_categories = table.distinct_values(group_label)
-    filter_template = "direction=='%(direction)s' and " "%(label)s=='%(category)s'"
+    filter_template = "direction=='%(direction)s' and %(label)s=='%(category)s'"
     for direction in table.distinct_values("direction"):
         start = direction[0]
         for group_category in group_categories:
