@@ -7,6 +7,34 @@ variables:
   CIBW_BEFORE_BUILD: python -m pip install --upgrade pip
 
 jobs:
+- job: TESTING
+  displayName: ubuntu-latest
+  pool:
+    vmImage: 'ubuntu-latest'
+  strategy:
+    matrix:
+      Python36:
+        python.version: '3.6'
+      Python37:
+        python.version: '3.7'
+
+  steps:
+  - bash: echo "##vso[task.prependpath]$CONDA/bin"
+    displayName: Add conda to PATH
+
+  - bash: conda create --yes --quiet --name myEnvironment
+    displayName: Create Anaconda environment
+
+  - bash: |
+      source activate myEnvironment
+      conda install --yes --quiet --name myEnvironment python=$PYTHON_VERSION -c plotly plotly plotly-orca rpy2
+    displayName: Install Anaconda packages
+  - bash: |
+      source activate myEnvironment
+      pip install --upgrade pip
+      pip install .[dev] codecov
+      pytest
+    displayName: Test Python 3.6
 - job: Linux_Test_py36
   pool: {vmImage: 'ubuntu-latest'}
   steps:
