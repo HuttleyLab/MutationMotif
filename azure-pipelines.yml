@@ -1,36 +1,183 @@
-# Python package
-# Create and test a Python package on multiple Python versions.
-# Add steps that analyze code, save the dist with the build record, publish to a PyPI-compatible index, and more:
-# https://docs.microsoft.com/azure/devops/pipelines/languages/python
-
 trigger:
-- master
+  - master
 
-pool:
-  vmImage: 'ubuntu-latest'
-strategy:
-  matrix:
-    Python27:
-      python.version: '2.7'
-    Python35:
-      python.version: '3.5'
-    Python36:
-      python.version: '3.6'
-    Python37:
-      python.version: '3.7'
+variables:
+  CODECOV_TOKEN: 655fb974-50d3-4219-8622-24671339d710
+  CIBW_BUILD: cp36-* cp37-* cp38-*
+  CIBW_BEFORE_BUILD: python -m pip install --upgrade pip
 
-steps:
-- task: UsePythonVersion@0
-  inputs:
-    versionSpec: '$(python.version)'
-  displayName: 'Use Python $(python.version)'
+jobs:
+- job: Linux_Test_py36
+  pool: {vmImage: 'ubuntu-latest'}
+  steps:
+    - task: UsePythonVersion@0
+    - bash: |
+        python -m pip install --upgrade pip
+        python -m pip install .[dev] codecov
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: '3.6'
+    - bash: |
+        tox -e py36
+        codecov
+    - task: PublishTestResults@2
+      condition: succeededOrFailed()
+      inputs:
+        testResultsFiles: '**/junit-*.xml'
+        testRunTitle: 'Publish test results for Linux Python 3.6'
+        failTaskOnFailedTests: true
+- job: Linux_Test_py37
+  pool: {vmImage: 'ubuntu-latest'}
+  steps:
+    - task: UsePythonVersion@0
+    - bash: |
+        python -m pip install --upgrade pip
+        python -m pip install .[dev] codecov
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: '3.7'
+    - bash: |
+        tox -e py37
+        codecov
+    - task: PublishTestResults@2
+      condition: succeededOrFailed()
+      inputs:
+        testResultsFiles: '**/junit-*.xml'
+        testRunTitle: 'Publish test results for Linux Python 3.7'
+        failTaskOnFailedTests: true
+- job: Linux_Test_py38
+  pool: {vmImage: 'ubuntu-latest'}
+  steps:
+    - task: UsePythonVersion@0
+    - bash: |
+        python -m pip install --upgrade pip
+        python -m pip install .[dev] codecov
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: '3.8'
+    - bash: |
+        tox -e py38
+        codecov
+    - task: PublishTestResults@2
+      condition: succeededOrFailed()
+      inputs:
+        testResultsFiles: '**/junit-*.xml'
+        testRunTitle: 'Publish test results for Linux Python 3.8'
+        failTaskOnFailedTests: true
+- job: MacOS_Test_py36
+  pool: {vmImage: 'macos-latest'}
+  steps:
+    - task: UsePythonVersion@0
+    - bash: |
+        python -m pip install --upgrade pip
+        python -m pip install .[dev] codecov
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: '3.6'
+    - bash: |
+        tox -e py36
+        codecov
+    - task: PublishTestResults@2
+      condition: succeededOrFailed()
+      inputs:
+        testResultsFiles: '**/junit-*.xml'
+        testRunTitle: 'Publish test results for MacOS Python 3.6'
+        failTaskOnFailedTests: true
+- job: MacOS_Test_py37
+  pool: {vmImage: 'macos-latest'}
+  steps:
+    - task: UsePythonVersion@0
+    - bash: |
+        python -m pip install --upgrade pip
+        python -m pip install .[dev] codecov
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: '3.7'
+    - bash: |
+        tox -e py37
+        codecov
+    - task: PublishTestResults@2
+      condition: succeededOrFailed()
+      inputs:
+        testResultsFiles: '**/junit-*.xml'
+        testRunTitle: 'Publish test results for MacOS Python 3.7'
+        failTaskOnFailedTests: true
+- job: MacOS_Test_py38
+  pool: {vmImage: 'macos-latest'}
+  steps:
+    - task: UsePythonVersion@0
+    - bash: |
+        python -m pip install --upgrade pip
+        python -m pip install .[dev] codecov
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: '3.8'
+    - bash: |
+        tox -e py38
+        codecov
+    - task: PublishTestResults@2
+      condition: succeededOrFailed()
+      inputs:
+        testResultsFiles: '**/junit-*.xml'
+        testRunTitle: 'Publish test results for MacOS Python 3.8'
+        failTaskOnFailedTests: true
+- job: Windows_Test_py37
+  pool: {vmImage: 'windows-latest'}
+  steps:
+    - {task: UsePythonVersion@0, inputs: {versionSpec: '3.7', architecture: x86}}
+    - {task: UsePythonVersion@0, inputs: {versionSpec: '3.7', architecture: x64}}
+    - bash: |
+        python -m pip install --upgrade pip
+        python -m pip install .[dev] codecov
+        tox -e py37
+        codecov
+    - task: PublishTestResults@2
+      condition: succeededOrFailed()
+      inputs:
+        testResultsFiles: '**/junit-*.xml'
+        testRunTitle: 'Publish test results for Windows Python 3.8'
+        failTaskOnFailedTests: true
 
-- script: |
-    python -m pip install --upgrade pip
-    pip install -r requirements.txt
-  displayName: 'Install dependencies'
+- job: Linux_Build
+  pool: {vmImage: 'ubuntu-latest'}
+  steps: 
+    - {task: UsePythonVersion@0, inputs: {versionSpec: '3.6'}}
+    - {task: UsePythonVersion@0, inputs: {versionSpec: '3.7'}}
+    - {task: UsePythonVersion@0, inputs: {versionSpec: '3.8'}}
+    - bash: |
+        python -m pip install --upgrade pip
+        python -m pip install cibuildwheel
+        cibuildwheel --output-dir wheelhouse .
+        python setup.py sdist
+        cp dist/*.gz wheelhouse/.
+    - task: PublishBuildArtifacts@1
+      inputs: {pathtoPublish: 'wheelhouse'}
 
-- script: |
-    pip install pytest pytest-azurepipelines
-    pytest
-  displayName: 'pytest'
+- job: MacOS_Build
+  pool: {vmImage: 'macos-latest'}
+  steps: 
+    - {task: UsePythonVersion@0, inputs: {versionSpec: '3.6'}}
+    - {task: UsePythonVersion@0, inputs: {versionSpec: '3.7'}}
+    - {task: UsePythonVersion@0, inputs: {versionSpec: '3.8'}}
+    - bash: |
+        python -m pip install --upgrade pip
+        python -m pip install cibuildwheel
+        cibuildwheel --output-dir wheelhouse .
+    - task: PublishBuildArtifacts@1
+      inputs: {pathtoPublish: 'wheelhouse'}
+
+- job: Windows_Build
+  pool: {vmImage: 'windows-latest'}
+  steps:
+    - {task: UsePythonVersion@0, inputs: {versionSpec: '3.6', architecture: x86}}
+    - {task: UsePythonVersion@0, inputs: {versionSpec: '3.6', architecture: x64}}
+    - {task: UsePythonVersion@0, inputs: {versionSpec: '3.7', architecture: x86}}
+    - {task: UsePythonVersion@0, inputs: {versionSpec: '3.7', architecture: x64}}
+    - {task: UsePythonVersion@0, inputs: {versionSpec: '3.8', architecture: x86}}
+    - {task: UsePythonVersion@0, inputs: {versionSpec: '3.8', architecture: x64}}
+    - bash: |
+        python -m pip install --upgrade pip
+        python -m pip install cibuildwheel
+        cibuildwheel --output-dir wheelhouse .
+    - task: PublishBuildArtifacts@1
+      inputs: {pathtoPublish: 'wheelhouse'}
