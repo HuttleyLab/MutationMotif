@@ -12,10 +12,11 @@ jobs:
   steps:
     - task: UsePythonVersion@0
     - bash: |
-        conda update
+        conda init bash
+        exec bash
         conda env create --name myenv
         conda activate myenv
-        conda install plotly python=3 plotly plotly-orca rpy2
+        conda install -c plotly python=3 plotly plotly-orca rpy2
         python -m pip install --upgrade pip
         python -m pip install .[dev] codecov
     - task: UsePythonVersion@0
