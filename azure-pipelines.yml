@@ -13,6 +13,8 @@ jobs:
     - task: UsePythonVersion@0
     - bash: |
         conda init bash
+    - bash: |
+        conda init bash
         exec bash
         conda env create --name myenv
         conda activate myenv
