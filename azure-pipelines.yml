@@ -10,7 +10,6 @@ jobs:
 - job: Linux_Test_py36
   pool: {vmImage: 'ubuntu-latest'}
   steps:
-    - task: UsePythonVersion@0
     - bash: |
         conda init bash
     - bash: |
@@ -19,10 +18,6 @@ jobs:
         conda install -y -c plotly plotly plotly-orca rpy2
         python -m pip install --upgrade pip
         python -m pip install .[dev] codecov
-    - task: UsePythonVersion@0
-      inputs:
-        versionSpec: '3.6'
-    - bash: |
         tox -e py36
         codecov
     - task: PublishTestResults@2
