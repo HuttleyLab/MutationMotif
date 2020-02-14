@@ -12,6 +12,7 @@ jobs:
   steps:
     - task: UsePythonVersion@0
     - bash: |
+        conda init
         conda env create -n myenv -c plotly python=3 plotly plotly-orca rpy2
         conda activate myenv
         python -m pip install --upgrade pip
