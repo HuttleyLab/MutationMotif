@@ -14,6 +14,7 @@ jobs:
     - bash: |
         conda init bash
     - bash: |
+        conda info
         conda env create -n myenv -c plotly python=3 plotly plotly-orca rpy2
         conda activate myenv
         python -m pip install --upgrade pip
