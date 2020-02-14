@@ -14,10 +14,10 @@ jobs:
         conda init bash
     - bash: |
         conda create --yes --quiet --name myenv python=3.6
-        conda activate myenv
+        source activate myenv
         conda install -y -c plotly plotly plotly-orca rpy2
-        python -m pip install --upgrade pip
-        python -m pip install .[dev] codecov
+        python3 -m pip3 install --upgrade pip
+        python3 -m pip3 install .[dev] codecov
         tox -e py36
         codecov
     - task: PublishTestResults@2
