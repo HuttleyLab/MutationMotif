@@ -1,9 +1,9 @@
+.. image:: images/grid.svg
+    :align: center
+
 ##############
 Mutation Motif
 ##############
-
-.. image:: images/grid.svg
-    :align: center
 
 This library provides capabilities for analysis of mutation properties. Two different analysis approaches are supported: (1) log-linear analysis of neighbourhood base influences on mutation coupled with a sequence logo like representation of influences; (2) log-linear analysis of mutation spectra, the relative proportions of different mutation directions from a starting base. A logo-like visualisation of the latter is also supported.
 
