@@ -248,7 +248,7 @@ def get_fig_properties(parser, section="fig setup"):
     # font sizes, title, label text padding
     for option in parser.options(section):
         valid = False
-        for attr in ("pad", "font"):
+        for attr in ("pad", "font", "angle"):
             if attr in option:
                 valid = True
                 break

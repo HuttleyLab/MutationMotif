@@ -1185,6 +1185,7 @@ def get_grid_drawable(plot_cfg, ylim=None):
             is_row=True,
             font_size=plot_cfg.row_title_fontsize,
             pad=plot_cfg.row_title_pad,
+            textangle=plot_cfg.row_title_textangle,
         )
         layout.annotations.extend(row_titles)
     if "col_titles" in plot_cfg:
@@ -1194,6 +1195,7 @@ def get_grid_drawable(plot_cfg, ylim=None):
             is_row=False,
             font_size=plot_cfg.col_title_fontsize,
             pad=plot_cfg.col_title_pad,
+            textangle=plot_cfg.col_title_textangle,
         )
         layout.annotations.extend(col_titles)
 
@@ -1208,6 +1210,7 @@ def get_grid_drawable(plot_cfg, ylim=None):
         "yshift": plot_cfg.xlabel_pad,
         "yanchor": "bottom",
         "yref": "paper",
+        "textangle": plot_cfg.xlabel_textangle,
     }
 
     y_title = {
@@ -1221,6 +1224,7 @@ def get_grid_drawable(plot_cfg, ylim=None):
         "y": 0.5,
         "yanchor": "bottom",
         "yref": "paper",
+        "textangle": plot_cfg.ylabel_textangle,
     }
     layout.annotations.extend([x_title, y_title])
     layout.template = "plotly_white"
