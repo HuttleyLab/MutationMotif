@@ -324,41 +324,43 @@ def get_grid_config(path):
     dirname = None if path is None else os.path.dirname(path)
     parser = get_config_parser(path, default="grid.cfg")
     cfg = get_fig_properties(parser, section="fig setup")
-    try:
-        col_titles = [
-            l.strip() for l in parser.get("fig setup", "col_titles").split(",")
-        ]
-        cfg.col_titles = col_titles
-    except NoOptionError:
-        pass
-
-    try:
-        row_titles = [
-            l.strip() for l in parser.get("fig setup", "row_titles").split(",")
-        ]
-        cfg.row_titles = row_titles
-    except NoOptionError:
-        pass
-
-    # load possible sections
     subplots = UnionDict()
-    for section in parser.sections():
+    if path:
+        # load user defined values
         try:
-            coord = tuple(i - 1 for i in map(int, section.split(",")))
-        except (TypeError, ValueError):
-            continue
-
-        try:
-            path = parser.get(section, "path")
+            col_titles = [
+                l.strip() for l in parser.get("fig setup", "col_titles").split(",")
+            ]
+            cfg.col_titles = col_titles
         except NoOptionError:
-            continue
+            pass
 
-        if path is None:
-            continue
+        try:
+            row_titles = [
+                l.strip() for l in parser.get("fig setup", "row_titles").split(",")
+            ]
+            cfg.row_titles = row_titles
+        except NoOptionError:
+            pass
 
-        if dirname and dirname not in path:
-            path = os.path.join(dirname, path)
-        subplots[coord] = path
+        # load possible sections
+        for section in parser.sections():
+            try:
+                coord = tuple(i - 1 for i in map(int, section.split(",")))
+            except (TypeError, ValueError):
+                continue
+
+            try:
+                path = parser.get(section, "path")
+            except NoOptionError:
+                continue
+
+            if path is None:
+                continue
+
+            if dirname and dirname not in path:
+                path = os.path.join(dirname, path)
+            subplots[coord] = path
 
     if not subplots and path is not None:
         raise NoSectionError("no sections for subplots")
