@@ -285,7 +285,7 @@ def get_position_grid_drawable(directions, plot_cfg, ylim=None):
 
         if positions is None:
             positions = list(data.keys())
-            positions.sort()
+            positions.sort(key=get_position_number)
         heights = get_re_plot_data(data, positions)
         plottables[direction] = heights
 
@@ -1126,7 +1126,7 @@ def get_grid_drawable(plot_cfg, ylim=None):
         )
         if positions is None:
             positions = list(data)
-            positions.sort()
+            positions.sort(key=get_position_number)
         else:
             assert set(positions) == set(data), "positions must match"
         heights = get_re_plot_data(data, positions)
