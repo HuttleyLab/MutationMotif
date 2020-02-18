@@ -216,7 +216,7 @@ def get_matrix_row_col_titles(
             {
                 "font": {"size": font_size},
                 "showarrow": False,
-                "text": f"<b>{label}</b>",
+                "text": label,
                 "xref": "paper",
                 "yref": "paper",
                 "xanchor": "center",
