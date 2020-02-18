@@ -23,15 +23,17 @@ if sys.version_info < (3, 6):
 short_description = "MutationMotif"
 
 # This ends up displayed by the installer
-long_description = ("MutationMotif implements statistical methods for the "
-                    "analysis of point mutation spectra and provides sequence "
-                    "logo style visualisation of the fitted models. "
-                    "The tests evaluate the association of flanking DNA sequence "
-                    "with mutation direction. Statistical tests for contrasting "
-                    "samples are also included. The tests control for "
-                    "heterogeneity in sequence composition across the genome. "
-                    "The methods are described in "
-                    "`Zhu et al (2017) <https://www.ncbi.nlm.nih.gov/pubmed/27974498>`_.")
+long_description = (
+    "MutationMotif implements statistical methods for the "
+    "analysis of point mutation spectra and provides sequence "
+    "logo style visualisation of the fitted models. "
+    "The tests evaluate the association of flanking DNA sequence "
+    "with mutation direction. Statistical tests for contrasting "
+    "samples are also included. The tests control for "
+    "heterogeneity in sequence composition across the genome. "
+    "The methods are described in "
+    "`Zhu et al (2017) <https://www.ncbi.nlm.nih.gov/pubmed/27974498>`_."
+)
 
 PACKAGE_DIR = "src"
 
