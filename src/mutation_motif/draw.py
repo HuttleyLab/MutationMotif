@@ -1216,13 +1216,13 @@ def get_grid_drawable(plot_cfg, ylim=None):
     y_title = {
         "font": {"size": plot_cfg.ylabel_fontsize},
         "showarrow": False,
-        "text": "RE",
+        "text": plot_cfg.ylabel,
         "x": 0,
         "xshift": plot_cfg.ylabel_pad,
         "xanchor": "center",
         "xref": "paper",
         "y": 0.5,
-        "yanchor": "bottom",
+        "yanchor": "middle",
         "yref": "paper",
         "textangle": plot_cfg.ylabel_textangle,
     }
