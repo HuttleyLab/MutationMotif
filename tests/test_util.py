@@ -86,6 +86,15 @@ class TestCfgParsing(TestCase):
             with self.assertRaises(ValueError):
                 get_grid_config(str(out))
 
+    def test_grid_cfg(self):
+        """exercising parser"""
+        path = resource_filename("mutation_motif", f"cfgs/grid.cfg")
+        cfg = Path(path).read_text()
+        with TemporaryDirectory(dir=".") as dirname:
+            out = Path(dirname) / "grid.cfg"
+            out.write_text(cfg)
+            cfg = get_grid_config(str(out))
+
 
 if __name__ == "__main__":
     main()
