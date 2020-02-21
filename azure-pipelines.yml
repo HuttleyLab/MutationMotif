@@ -12,54 +12,44 @@ jobs:
   strategy:
     matrix:
       Ubuntu_Python36:
-        display.name: Ubuntu Python 3.6
         imageName: 'ubuntu-latest'
         python.version: '3.6'
         tox.envname: 'py36'
       Ubuntu_Python37:
-        display.name: Ubuntu Python 3.7
         imageName: 'ubuntu-latest'
         python.version: '3.7'
         tox.envname: 'py37'
       #Ubuntu_Python38:
-      #  display.name: Ubuntu Python 3.8
       #  imageName: 'ubuntu-latest'
       #  python.version: '3.8'
       #  tox.envname: 'py38'
       MacOS_Python36:
-        display.name: MacOS Python 3.6
         imageName: 'macos-latest'
         python.version: '3.6'
         tox.envname: 'py36'
       MacOS_Python37:
-        display.name: MacOS Python 3.7
         imageName: 'macos-latest'
         python.version: '3.7'
         tox.envname: 'py37'
       #MacOS_Python38:
-      #  display.name: MacOS Python 3.8
       #  imageName: 'macos-latest'
       #  python.version: '3.8'
       #  tox.envname: 'py38'
       Windows_Python36:
-        display.name: Windows Python 3.6
         imageName: 'windows-latest'
         python.version: '3.6'
         tox.envname: 'py36'
       Windows_Python37:
-        display.name: Windows Python 3.7
         imageName: 'windows-latest'
         python.version: '3.7'
         tox.envname: 'py37'
       #Windows_Python38:
-      #  display.name: Windows Python 3.8
       #  imageName: 'windows-latest'
       #  python.version: '3.8'
       #  tox.envname: 'py38'
   pool:
     vmImage: $(imageName)
   steps:
-  displayName: $(display.name)
   - bash: echo "##vso[task.prependpath]$CONDA/bin"
     displayName: Add conda to PATH
     
