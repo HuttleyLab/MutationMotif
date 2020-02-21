@@ -55,7 +55,7 @@ jobs:
     
   - powershell: Write-Host "##vso[task.prependpath]$env:CONDA\Scripts"
     displayName: Add conda to PATH
-    condition: eq($(imageName), 'windows-latest')
+    condition: eq('$(imageName)', 'windows-latest')
 
   - bash: conda create --yes --quiet --name myEnvironment
     displayName: Create Anaconda environment
