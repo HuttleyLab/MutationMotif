@@ -36,9 +36,15 @@ jobs:
       source activate myEnvironment
       pip install --upgrade pip
       pip install .[dev] tox codecov
-      tox -e py
+      tox -e py36
       codecov
     displayName: Test Python $(python.version)
+  - task: PublishTestResults@2
+      condition: succeededOrFailed()
+      inputs:
+        testResultsFiles: '**/junit-*.xml'
+        testRunTitle: 'Publish test results for Linux Python $(python.version)'
+        failTaskOnFailedTests: true
 - job: Linux_Test_py36
   pool: {vmImage: 'ubuntu-latest'}
   steps:
