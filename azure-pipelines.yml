@@ -7,21 +7,32 @@ variables:
   CIBW_BEFORE_BUILD: python -m pip install --upgrade pip
 
 jobs:
-- job: UbuntuTests
-  displayName: Ubuntu Tests
+- job: UbuntuTest
+  displayName: Ubuntu Test
+  strategy:
+    matrix:
+      Linux:
+        imageName: 'ubuntu-latest'
+      MacOS:
+        imageName: 'macos-latest'
+      Windows:
+        imageName: 'windows-latest'
   pool:
-    vmImage: 'ubuntu-latest'
+    vmImage: $(imageName)
   strategy:
     matrix:
       Python36:
+        displayName: Python 3.6
         python.version: '3.6'
         tox.envname: 'py36'
       Python37:
+        displayName: Python 3.7
         python.version: '3.7'
         tox.envname: 'py37'
       # rpy2 currently does not support python 3.8
       # Uncomment for python 3.8
       #Python38:
+      #  displayName: Python 3.8
       #  python.version: '3.8'
       #  tox.envname: 'py38'
 
@@ -50,63 +61,6 @@ jobs:
       testResultsFiles: '**/junit-*.xml'
       testRunTitle: 'Publish test results for Linux Python $(python.version)'
       failTaskOnFailedTests: true
-- job: Linux_Test_py36
-  pool: {vmImage: 'ubuntu-latest'}
-  steps:
-    - bash: |
-        conda init bash
-    - bash: |
-        conda create --yes --quiet --name myenv python=3.6
-        source activate myenv
-        conda install -y -c plotly plotly plotly-orca rpy2
-        python3 -m pip3 install --upgrade pip
-        python3 -m pip3 install .[dev] codecov
-        tox -e py36
-        codecov
-    - task: PublishTestResults@2
-      condition: succeededOrFailed()
-      inputs:
-        testResultsFiles: '**/junit-*.xml'
-        testRunTitle: 'Publish test results for Linux Python 3.6'
-        failTaskOnFailedTests: true
-- job: Linux_Test_py37
-  pool: {vmImage: 'ubuntu-latest'}
-  steps:
-    - task: UsePythonVersion@0
-    - bash: |
-        python -m pip install --upgrade pip
-        python -m pip install .[dev] codecov
-    - task: UsePythonVersion@0
-      inputs:
-        versionSpec: '3.7'
-    - bash: |
-        tox -e py37
-        codecov
-    - task: PublishTestResults@2
-      condition: succeededOrFailed()
-      inputs:
-        testResultsFiles: '**/junit-*.xml'
-        testRunTitle: 'Publish test results for Linux Python 3.7'
-        failTaskOnFailedTests: true
-- job: Linux_Test_py38
-  pool: {vmImage: 'ubuntu-latest'}
-  steps:
-    - task: UsePythonVersion@0
-    - bash: |
-        python -m pip install --upgrade pip
-        python -m pip install .[dev] codecov
-    - task: UsePythonVersion@0
-      inputs:
-        versionSpec: '3.8'
-    - bash: |
-        tox -e py38
-        codecov
-    - task: PublishTestResults@2
-      condition: succeededOrFailed()
-      inputs:
-        testResultsFiles: '**/junit-*.xml'
-        testRunTitle: 'Publish test results for Linux Python 3.8'
-        failTaskOnFailedTests: true
 - job: MacOS_Test_py36
   pool: {vmImage: 'macos-latest'}
   steps:
