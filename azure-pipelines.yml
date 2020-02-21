@@ -33,7 +33,7 @@ jobs:
   - bash: |
       source activate myEnvironment
       pip install --upgrade pip
-      pip install .[dev] codecov
+      pip install .[dev] tox codecov
       tox -e py36
       codecov
     displayName: Test Python 3.6
