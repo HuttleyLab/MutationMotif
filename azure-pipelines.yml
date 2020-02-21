@@ -28,13 +28,14 @@ jobs:
   - bash: |
       source activate myEnvironment
       conda install --yes --quiet --name myEnvironment python=$PYTHON_VERSION
-      conda install --yes --quiet --name myEnvironment -c plotly plotly-orca rpy2 pytest
+      conda install --yes --quiet --name myEnvironment -c plotly plotly-orca rpy2 tox pytest
     displayName: Install Anaconda packages
   - bash: |
       source activate myEnvironment
       pip install --upgrade pip
       pip install .[dev] codecov
-      pytest
+      tox -e py36
+      codecov
     displayName: Test Python 3.6
 - job: Linux_Test_py36
   pool: {vmImage: 'ubuntu-latest'}
