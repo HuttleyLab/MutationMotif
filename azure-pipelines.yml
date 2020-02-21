@@ -8,34 +8,56 @@ variables:
 
 jobs:
 - job: UbuntuTest
-  displayName: Ubuntu Test
+  displayName: Test
   strategy:
     matrix:
-      Linux:
+      UbuntuPython36:
+        displayName: Ubuntu Python 3.6
         imageName: 'ubuntu-latest'
-      MacOS:
-        imageName: 'macos-latest'
-      Windows:
-        imageName: 'windows-latest'
-  pool:
-    vmImage: $(imageName)
-  strategy:
-    matrix:
-      Python36:
-        displayName: Python 3.6
         python.version: '3.6'
         tox.envname: 'py36'
-      Python37:
-        displayName: Python 3.7
+      UbuntuPython37:
+        displayName: Ubuntu Python 3.7
+        imageName: 'ubuntu-latest'
         python.version: '3.7'
         tox.envname: 'py37'
-      # rpy2 currently does not support python 3.8
-      # Uncomment for python 3.8
-      #Python38:
-      #  displayName: Python 3.8
+      #UbuntuPython38:
+      #  displayName: Ubuntu Python 3.8
+      #  imageName: 'ubuntu-latest'
       #  python.version: '3.8'
       #  tox.envname: 'py38'
-
+      MacOSPython36:
+        displayName: MacOS Python 3.6
+        imageName: 'macos-latest'
+        python.version: '3.6'
+        tox.envname: 'py36'
+      MacOSPython37:
+        displayName: MacOS Python 3.7
+        imageName: 'macos-latest'
+        python.version: '3.7'
+        tox.envname: 'py37'
+      #MacOSPython38:
+      #  displayName: MacOS Python 3.8
+      #  imageName: 'macos-latest'
+      #  python.version: '3.8'
+      #  tox.envname: 'py38'
+      WindowsPython36:
+        displayName: Windows Python 3.6
+        imageName: 'windows-latest'
+        python.version: '3.6'
+        tox.envname: 'py36'
+      WindowsPython37:
+        displayName: Windows Python 3.7
+        imageName: 'windows-latest'
+        python.version: '3.7'
+        tox.envname: 'py37'
+      #WindowsPython38:
+      #  displayName: Windows Python 3.8
+      #  imageName: 'windows-latest'
+      #  python.version: '3.8'
+      #  tox.envname: 'py38'
+  pool:
+    vmImage: $(imageName)
   steps:
   - bash: echo "##vso[task.prependpath]$CONDA/bin"
     displayName: Add conda to PATH
@@ -61,81 +83,9 @@ jobs:
       testResultsFiles: '**/junit-*.xml'
       testRunTitle: 'Publish test results for Linux Python $(python.version)'
       failTaskOnFailedTests: true
-- job: MacOS_Test_py36
-  pool: {vmImage: 'macos-latest'}
-  steps:
-    - task: UsePythonVersion@0
-    - bash: |
-        python -m pip install --upgrade pip
-        python -m pip install .[dev] codecov
-    - task: UsePythonVersion@0
-      inputs:
-        versionSpec: '3.6'
-    - bash: |
-        tox -e py36
-        codecov
-    - task: PublishTestResults@2
-      condition: succeededOrFailed()
-      inputs:
-        testResultsFiles: '**/junit-*.xml'
-        testRunTitle: 'Publish test results for MacOS Python 3.6'
-        failTaskOnFailedTests: true
-- job: MacOS_Test_py37
-  pool: {vmImage: 'macos-latest'}
-  steps:
-    - task: UsePythonVersion@0
-    - bash: |
-        python -m pip install --upgrade pip
-        python -m pip install .[dev] codecov
-    - task: UsePythonVersion@0
-      inputs:
-        versionSpec: '3.7'
-    - bash: |
-        tox -e py37
-        codecov
-    - task: PublishTestResults@2
-      condition: succeededOrFailed()
-      inputs:
-        testResultsFiles: '**/junit-*.xml'
-        testRunTitle: 'Publish test results for MacOS Python 3.7'
-        failTaskOnFailedTests: true
-- job: MacOS_Test_py38
-  pool: {vmImage: 'macos-latest'}
-  steps:
-    - task: UsePythonVersion@0
-    - bash: |
-        python -m pip install --upgrade pip
-        python -m pip install .[dev] codecov
-    - task: UsePythonVersion@0
-      inputs:
-        versionSpec: '3.8'
-    - bash: |
-        tox -e py38
-        codecov
-    - task: PublishTestResults@2
-      condition: succeededOrFailed()
-      inputs:
-        testResultsFiles: '**/junit-*.xml'
-        testRunTitle: 'Publish test results for MacOS Python 3.8'
-        failTaskOnFailedTests: true
-- job: Windows_Test_py37
-  pool: {vmImage: 'windows-latest'}
-  steps:
-    - {task: UsePythonVersion@0, inputs: {versionSpec: '3.7', architecture: x86}}
-    - {task: UsePythonVersion@0, inputs: {versionSpec: '3.7', architecture: x64}}
-    - bash: |
-        python -m pip install --upgrade pip
-        python -m pip install .[dev] codecov
-        tox -e py37
-        codecov
-    - task: PublishTestResults@2
-      condition: succeededOrFailed()
-      inputs:
-        testResultsFiles: '**/junit-*.xml'
-        testRunTitle: 'Publish test results for Windows Python 3.8'
-        failTaskOnFailedTests: true
 
-- job: Linux_Build
+- job: BuildUbuntuWheels
+  displayName: Build Ubuntu Wheels
   pool: {vmImage: 'ubuntu-latest'}
   steps: 
     - {task: UsePythonVersion@0, inputs: {versionSpec: '3.6'}}
@@ -150,7 +100,8 @@ jobs:
     - task: PublishBuildArtifacts@1
       inputs: {pathtoPublish: 'wheelhouse'}
 
-- job: MacOS_Build
+- job: BuildMacOSWheels
+  displayName: Build MacOS Wheels
   pool: {vmImage: 'macos-latest'}
   steps: 
     - {task: UsePythonVersion@0, inputs: {versionSpec: '3.6'}}
@@ -163,7 +114,8 @@ jobs:
     - task: PublishBuildArtifacts@1
       inputs: {pathtoPublish: 'wheelhouse'}
 
-- job: Windows_Build
+- job: BuildWindowsWheels
+  displayName: Build Windows Wheels
   pool: {vmImage: 'windows-latest'}
   steps:
     - {task: UsePythonVersion@0, inputs: {versionSpec: '3.6', architecture: x86}}
