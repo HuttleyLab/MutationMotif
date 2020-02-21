@@ -51,7 +51,7 @@ jobs:
   - bash: |
       source activate myEnvironment
       conda install --yes --quiet --name myEnvironment python=$PYTHON_VERSION
-      conda install --yes --quiet --name myEnvironment -c plotly plotly plotly-orca rpy2 pytest
+      conda install --yes --quiet --name myEnvironment -c plotly plotly plotly-orca rpy2 pytest pytest-cov
     displayName: Install Anaconda packages
   - bash: |
       source activate myEnvironment
