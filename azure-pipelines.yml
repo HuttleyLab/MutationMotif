@@ -11,56 +11,61 @@ jobs:
   displayName: Test
   strategy:
     matrix:
-      UbuntuPython36:
-        displayName: Ubuntu Python 3.6
+      Ubuntu_Python36:
+        display.name: Ubuntu Python 3.6
         imageName: 'ubuntu-latest'
         python.version: '3.6'
         tox.envname: 'py36'
-      UbuntuPython37:
-        displayName: Ubuntu Python 3.7
+      Ubuntu_Python37:
+        display.name: Ubuntu Python 3.7
         imageName: 'ubuntu-latest'
         python.version: '3.7'
         tox.envname: 'py37'
-      #UbuntuPython38:
-      #  displayName: Ubuntu Python 3.8
+      #Ubuntu_Python38:
+      #  display.name: Ubuntu Python 3.8
       #  imageName: 'ubuntu-latest'
       #  python.version: '3.8'
       #  tox.envname: 'py38'
-      MacOSPython36:
-        displayName: MacOS Python 3.6
+      MacOS_Python36:
+        display.name: MacOS Python 3.6
         imageName: 'macos-latest'
         python.version: '3.6'
         tox.envname: 'py36'
-      MacOSPython37:
-        displayName: MacOS Python 3.7
+      MacOS_Python37:
+        display.name: MacOS Python 3.7
         imageName: 'macos-latest'
         python.version: '3.7'
         tox.envname: 'py37'
-      #MacOSPython38:
-      #  displayName: MacOS Python 3.8
+      #MacOS_Python38:
+      #  display.name: MacOS Python 3.8
       #  imageName: 'macos-latest'
       #  python.version: '3.8'
       #  tox.envname: 'py38'
-      WindowsPython36:
-        displayName: Windows Python 3.6
+      Windows_Python36:
+        display.name: Windows Python 3.6
         imageName: 'windows-latest'
         python.version: '3.6'
         tox.envname: 'py36'
-      WindowsPython37:
-        displayName: Windows Python 3.7
+      Windows_Python37:
+        display.name: Windows Python 3.7
         imageName: 'windows-latest'
         python.version: '3.7'
         tox.envname: 'py37'
-      #WindowsPython38:
-      #  displayName: Windows Python 3.8
+      #Windows_Python38:
+      #  display.name: Windows Python 3.8
       #  imageName: 'windows-latest'
       #  python.version: '3.8'
       #  tox.envname: 'py38'
   pool:
     vmImage: $(imageName)
   steps:
+  displayName: $(display.name)
   - bash: echo "##vso[task.prependpath]$CONDA/bin"
     displayName: Add conda to PATH
+    
+  - powershell: Write-Host "##vso[task.prependpath]$env:CONDA\Scripts"
+    displayName: Add conda to PATH
+    condition: eq($(imageName), 'windows-latest')
 
   - bash: conda create --yes --quiet --name myEnvironment
     displayName: Create Anaconda environment
