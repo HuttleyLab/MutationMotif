@@ -332,6 +332,11 @@ def get_grid_config(path):
                 l.strip() for l in parser.get("fig setup", "col_titles").split(",")
             ]
             cfg.col_titles = col_titles
+            num_titles = len(col_titles)
+            if num_titles != cfg.num_cols:
+                msg = f"number of col_titles {num_titles} != num_cols {cfg.num_cols}"
+                raise ValueError(msg)
+
         except NoOptionError:
             pass
 
@@ -340,6 +345,11 @@ def get_grid_config(path):
                 l.strip() for l in parser.get("fig setup", "row_titles").split(",")
             ]
             cfg.row_titles = row_titles
+            num_titles = len(row_titles)
+            if num_titles != cfg.num_rows:
+                msg = f"number of row_titles {num_titles} != num_rows {cfg.num_rows}"
+                raise ValueError(msg)
+
         except NoOptionError:
             pass
 
@@ -347,6 +357,12 @@ def get_grid_config(path):
         for section in parser.sections():
             try:
                 coord = tuple(i - 1 for i in map(int, section.split(",")))
+                if coord[0] >= (cfg.num_cols):
+                    msg = f"subplot section exceeds specified num_cols={cfg.num_cols}"
+                    raise ValueError(msg)
+                if coord[1] >= (cfg.num_rows):
+                    msg = f"subplot section exceeds specified num_rows={cfg.num_rows}"
+                    raise ValueError(msg)
             except (TypeError, ValueError):
                 continue
 
