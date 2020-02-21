@@ -19,9 +19,11 @@ jobs:
       Python37:
         python.version: '3.7'
         tox.envname: 'py37'
-      Python38:
-        python.version: '3.8'
-        tox.envname: 'py38'
+      # rpy2 currently does not support python 3.8
+      # Uncomment for python 3.8
+      #Python38:
+      #  python.version: '3.8'
+      #  tox.envname: 'py38'
 
   steps:
   - bash: echo "##vso[task.prependpath]$CONDA/bin"
