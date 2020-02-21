@@ -1,36 +1,157 @@
-# Python package
-# Create and test a Python package on multiple Python versions.
-# Add steps that analyze code, save the dist with the build record, publish to a PyPI-compatible index, and more:
-# https://docs.microsoft.com/azure/devops/pipelines/languages/python
-
 trigger:
-- master
+  - master
 
-pool:
-  vmImage: 'ubuntu-latest'
-strategy:
-  matrix:
-    Python27:
-      python.version: '2.7'
-    Python35:
-      python.version: '3.5'
-    Python36:
-      python.version: '3.6'
-    Python37:
-      python.version: '3.7'
+variables:
+  CODECOV_TOKEN: 655fb974-50d3-4219-8622-24671339d710
+  CIBW_BUILD: cp36-* cp37-* cp38-*
+  CIBW_BEFORE_BUILD: python -m pip install --upgrade pip
 
-steps:
-- task: UsePythonVersion@0
-  inputs:
-    versionSpec: '$(python.version)'
-  displayName: 'Use Python $(python.version)'
+jobs:
+- job: UnixTests
+  displayName: Test
+  strategy:
+    matrix:
+      Ubuntu_Python36:
+        imageName: 'ubuntu-latest'
+        python.version: '3.6'
+        tox.envname: 'py36'
+      Ubuntu_Python37:
+        imageName: 'ubuntu-latest'
+        python.version: '3.7'
+        tox.envname: 'py37'
+      #Ubuntu_Python38:
+      #  imageName: 'ubuntu-latest'
+      #  python.version: '3.8'
+      #  tox.envname: 'py38'
+      MacOS_Python36:
+        imageName: 'macos-latest'
+        python.version: '3.6'
+        tox.envname: 'py36'
+      MacOS_Python37:
+        imageName: 'macos-latest'
+        python.version: '3.7'
+        tox.envname: 'py37'
+      #MacOS_Python38:
+      #  imageName: 'macos-latest'
+      #  python.version: '3.8'
+      #  tox.envname: 'py38'
+  pool:
+    vmImage: $(imageName)
+  steps:
+  - bash: echo "##vso[task.prependpath]$CONDA/bin"
+    displayName: Add conda to PATH
+    
+  - powershell: Write-Host "##vso[task.prependpath]$env:CONDA\Scripts"
+    displayName: Add conda to PATH (Windows)
+    condition: eq(variables['Agent.OS'], 'Windows_NT')
 
-- script: |
-    python -m pip install --upgrade pip
-    pip install -r requirements.txt
-  displayName: 'Install dependencies'
+  - bash: conda create --yes --quiet --name myEnvironment
+    displayName: Create Anaconda environment
 
-- script: |
-    pip install pytest pytest-azurepipelines
-    pytest
-  displayName: 'pytest'
+  - bash: |
+      source activate myEnvironment
+      conda install --yes --quiet --name myEnvironment python=$PYTHON_VERSION
+      conda install --yes --quiet --name myEnvironment -c plotly plotly plotly-orca rpy2 pytest pytest-cov
+    displayName: Install Anaconda packages
+  - bash: |
+      source activate myEnvironment
+      pip install --upgrade pip
+      pip install .[dev] tox codecov
+      tox -e $(tox.envname)
+      codecov
+    displayName: Test Python $(python.version)
+  - task: PublishTestResults@2
+    condition: succeededOrFailed()
+    inputs:
+      testResultsFiles: '**/junit-*.xml'
+      testRunTitle: 'Publish test results'
+      failTaskOnFailedTests: true
+
+- job: WindowsTest
+  displayName: Test
+  strategy:
+    matrix:
+      Windows_Python37:
+        imageName: 'windows-latest'
+        python.version: '3.7'
+        tox.envname: 'py37'
+      #Windows_Python38:
+      #  imageName: 'windows-latest'
+      #  python.version: '3.8'
+      #  tox.envname: 'py38'
+  pool:
+    vmImage: $(imageName)
+  steps:
+  - powershell: Write-Host "##vso[task.prependpath]$env:CONDA\Scripts"
+    displayName: Add conda to PATH (Windows)
+
+  - bash: conda create --yes --quiet --name myEnvironment
+    displayName: Create Anaconda environment
+
+  - bash: |
+      source activate myEnvironment
+      conda install --yes --quiet --name myEnvironment python=$PYTHON_VERSION
+      conda install --yes --quiet --name myEnvironment -c plotly plotly plotly-orca rpy2 pytest pytest-cov
+    displayName: Install Anaconda packages
+  - bash: |
+      source activate myEnvironment
+      pip install --upgrade pip
+      pip install .[dev] tox codecov
+      cd tests
+      pytest --junitxml=junit-{envname}.xml --cov-report xml --cov=mutation_motif ./
+      codecov
+    displayName: Test Python $(python.version)
+  - task: PublishTestResults@2
+    condition: succeededOrFailed()
+    inputs:
+      testResultsFiles: '**/junit-*.xml'
+      testRunTitle: 'Publish test results'
+      failTaskOnFailedTests: true
+
+- job: BuildUbuntuWheels
+  displayName: Build Ubuntu Wheels
+  pool: {vmImage: 'ubuntu-latest'}
+  steps: 
+    - {task: UsePythonVersion@0, inputs: {versionSpec: '3.6'}}
+    - {task: UsePythonVersion@0, inputs: {versionSpec: '3.7'}}
+    - {task: UsePythonVersion@0, inputs: {versionSpec: '3.8'}}
+    - bash: |
+        python -m pip install --upgrade pip
+        python -m pip install cibuildwheel
+        cibuildwheel --output-dir wheelhouse .
+        # Generic source code package in tar format
+        python setup.py sdist
+        cp dist/*.gz wheelhouse/.
+    - task: PublishBuildArtifacts@1
+      inputs: {pathtoPublish: 'wheelhouse'}
+
+- job: BuildMacOSWheels
+  displayName: Build MacOS Wheels
+  pool: {vmImage: 'macos-latest'}
+  steps: 
+    - {task: UsePythonVersion@0, inputs: {versionSpec: '3.6'}}
+    - {task: UsePythonVersion@0, inputs: {versionSpec: '3.7'}}
+    - {task: UsePythonVersion@0, inputs: {versionSpec: '3.8'}}
+    - bash: |
+        python -m pip install --upgrade pip
+        python -m pip install cibuildwheel
+        cibuildwheel --output-dir wheelhouse .
+    - task: PublishBuildArtifacts@1
+      inputs: {pathtoPublish: 'wheelhouse'}
+
+- job: BuildWindowsWheels
+  displayName: Build Windows Wheels
+  pool: {vmImage: 'windows-latest'}
+  steps:
+    - {task: UsePythonVersion@0, inputs: {versionSpec: '3.6', architecture: x86}}
+    - {task: UsePythonVersion@0, inputs: {versionSpec: '3.6', architecture: x64}}
+    - {task: UsePythonVersion@0, inputs: {versionSpec: '3.7', architecture: x86}}
+    - {task: UsePythonVersion@0, inputs: {versionSpec: '3.7', architecture: x64}}
+    - {task: UsePythonVersion@0, inputs: {versionSpec: '3.8', architecture: x86}}
+    - {task: UsePythonVersion@0, inputs: {versionSpec: '3.8', architecture: x64}}
+    - bash: |
+        python -m pip install --upgrade pip
+        python -m pip install cibuildwheel
+        cibuildwheel --output-dir wheelhouse .
+    - task: PublishBuildArtifacts@1
+      inputs: {pathtoPublish: 'wheelhouse'}
