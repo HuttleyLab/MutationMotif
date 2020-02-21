@@ -7,18 +7,21 @@ variables:
   CIBW_BEFORE_BUILD: python -m pip install --upgrade pip
 
 jobs:
-- job: TESTING
-  displayName: ubuntu-latest
+- job: UbuntuTests
+  displayName: Ubuntu Tests
   pool:
     vmImage: 'ubuntu-latest'
   strategy:
     matrix:
       Python36:
         python.version: '3.6'
+        tox.envname: 'py36'
       Python37:
         python.version: '3.7'
+        tox.envname: 'py37'
       Python38:
         python.version: '3.8'
+        tox.envname: 'py38'
 
   steps:
   - bash: echo "##vso[task.prependpath]$CONDA/bin"
@@ -36,7 +39,7 @@ jobs:
       source activate myEnvironment
       pip install --upgrade pip
       pip install .[dev] tox codecov
-      tox -e py36
+      tox -e $(tox.envname)
       codecov
     displayName: Test Python $(python.version)
   - task: PublishTestResults@2
