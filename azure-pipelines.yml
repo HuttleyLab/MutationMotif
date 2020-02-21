@@ -36,7 +36,7 @@ jobs:
       pip install .[dev] tox codecov
       tox -e py36
       codecov
-    displayName: Test Python 3.6
+    displayName: Test Python $(python.version)
 - job: Linux_Test_py36
   pool: {vmImage: 'ubuntu-latest'}
   steps:
