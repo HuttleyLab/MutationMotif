@@ -54,7 +54,7 @@ jobs:
     displayName: Add conda to PATH
     
   - powershell: Write-Host "##vso[task.prependpath]$env:CONDA\Scripts"
-    displayName: Add conda to PATH
+    displayName: Add conda to PATH (Windows)
     condition: eq(variables['Agent.OS'], 'Windows_NT')
 
   - bash: conda create --yes --quiet --name myEnvironment
@@ -76,7 +76,7 @@ jobs:
     condition: succeededOrFailed()
     inputs:
       testResultsFiles: '**/junit-*.xml'
-      testRunTitle: 'Publish test results for Linux Python $(python.version)'
+      testRunTitle: 'Publish test results'
       failTaskOnFailedTests: true
 
 - job: BuildUbuntuWheels
@@ -90,6 +90,7 @@ jobs:
         python -m pip install --upgrade pip
         python -m pip install cibuildwheel
         cibuildwheel --output-dir wheelhouse .
+        # Generic source code package in tar format
         python setup.py sdist
         cp dist/*.gz wheelhouse/.
     - task: PublishBuildArtifacts@1
