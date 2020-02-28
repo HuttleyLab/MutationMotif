@@ -175,3 +175,4 @@ def main(
         LOGGER.log_message("%.2f" % (duration / 60.0), label="run duration (minutes)")
 
     print("Done!")
+    LOGGER.shutdown()
