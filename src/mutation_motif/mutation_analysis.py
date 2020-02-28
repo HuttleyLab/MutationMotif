@@ -239,6 +239,7 @@ def single_group(
         LOGGER.output_file(outfilename, label="summary")
 
     msg = "Done! Check %s for your results" % outpath
+    LOGGER.shutdown()
     return msg
 
 
@@ -376,6 +377,7 @@ def nbr(
         counts_table, outpath, group_label, group_ref, positions, first_order, dry_run,
     )
     click.secho(msg, fg="green")
+    LOGGER.shutdown()
 
 
 @main.command()
