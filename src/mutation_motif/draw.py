@@ -1323,6 +1323,7 @@ def nbr_matrix(
     fig.write(figpath)
     LOGGER.output_file(figpath)
     click.secho("Wrote %s" % figpath, fg="green")
+    LOGGER.shutdown()
 
 
 @main.command()
@@ -1348,6 +1349,7 @@ def grid(fig_config, figpath):
     fig = get_grid_drawable(fig_config)
     fig.write(path=figpath)
     click.secho("Wrote Cogent3 %s" % figpath, fg="green")
+    LOGGER.shutdown()
 
 
 @main.command()
@@ -1385,6 +1387,7 @@ def spectra_grid(
     fig.write(figpath)
     LOGGER.output_file(figpath)
     click.secho("Wrote %s" % figpath, fg="green")
+    LOGGER.shutdown()
 
 
 @main.command()
@@ -1440,6 +1443,7 @@ def nbr(
         click.secho(f"Wrote {paths[summary].outpath}", fg="green")
 
     click.secho(f"Done!", fg="green")
+    LOGGER.shutdown()
 
 
 @main.command()
@@ -1489,6 +1493,7 @@ def mi(
     fig.write(figpath)
     LOGGER.output_file(figpath)
     click.secho("Wrote %s" % figpath, fg="green")
+    LOGGER.shutdown()
 
 
 @main.command()
