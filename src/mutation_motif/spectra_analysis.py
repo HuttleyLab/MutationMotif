@@ -136,3 +136,4 @@ def main(
         fig_path = os.path.join(outpath, "spectra.pdf")
         fig = draw.get_spectra_grid_drawable(json_path, group_label=group_label)
         fig.write(fig_path)
+        LOGGER.shutdown()

@@ -204,3 +204,4 @@ def main(
     duration = time.time() - start_time
     if not dry_run:
         LOGGER.log_message("%.2f" % (duration / 60.0), label="run duration (minutes)")
+    LOGGER.shutdown()

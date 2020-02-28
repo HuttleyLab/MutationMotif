@@ -239,6 +239,7 @@ def single_group(
         LOGGER.output_file(outfilename, label="summary")
 
     msg = "Done! Check %s for your results" % outpath
+    LOGGER.shutdown()
     return msg
 
 
