@@ -377,7 +377,6 @@ def nbr(
         counts_table, outpath, group_label, group_ref, positions, first_order, dry_run,
     )
     click.secho(msg, fg="green")
-    LOGGER.shutdown()
 
 
 @main.command()
