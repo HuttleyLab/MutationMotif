@@ -1,5 +1,5 @@
 trigger:
-  - master
+  - develop
 
 variables:
   CODECOV_TOKEN: 655fb974-50d3-4219-8622-24671339d710
