@@ -69,4 +69,4 @@ def make_strand_symmetric_table(table):
         minus_data = add_strand_column(minus_data, "-")
         new_data.extend(minus_data)
 
-    return make_table(header=table.header[:] + ["strand"], rows=new_data)
+    return make_table(header=list(table.header[:]) + ["strand"], rows=new_data)

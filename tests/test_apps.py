@@ -51,8 +51,9 @@ class TestCounting(TestCase):
             r = runner.invoke(
                 all_count_main, ["-cdata/directions/*.txt", f"-o{outpath}", "-s"]
             )
+
             # should produce directory containing two files
-            self.assertEqual(r.exit_code, 0)
+            self.assertEqual(r.exit_code, 0, r.output)
             dirlist = {str(p.name) for p in outpath.glob("*")}
             self.assertEqual(
                 dirlist, set(["combined_counts.txt", "combined_counts.log"])
@@ -184,6 +185,7 @@ class TestMutationAnalysis(TestCase):
                 "-o%s" % self.dirname,
             ],
         )
+
         self.assertEqual(r.exit_code, 0)
 
         # expect the following file names

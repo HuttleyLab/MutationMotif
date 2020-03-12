@@ -128,23 +128,15 @@ def main(
     header = None
     num_rows = 0
     basenames = []
+    tables = []
     for fn in counts_files:
         basenames.append(os.path.basename(fn))
         mutation = direction.findall(fn)[0]
         table = load_table(fn, sep="\t")
-        if header is None:
-            header = list(table.header)
-            header.append("direction")
-            num_rows = table.shape[0]
+        table.title = mutation
+        tables.append(table)
 
-        data = table.tolist()
-        new = []
-        for row in data:
-            row.append(mutation)
-            new.append(row)
-        all_counts += new
-
-    table = make_table(header=header, rows=all_counts)
+    table = tables[0].appended("direction", tables[1:])
 
     if strand_symmetric:
         table = make_strand_symmetric_table(table)

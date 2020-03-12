@@ -59,13 +59,12 @@ def main(
         counts_table2 = util.spectra_table(counts_table2, group_label)
 
         # now combine
-        header = ["group"] + counts_table2.header[:-1]
-        raw1 = counts_table1.tolist(header)
-        raw2 = counts_table2.tolist(header)
-        counts_table = make_table(header=header, rows=raw1 + raw2)
+        header = ["group"] + list(counts_table2.header[:-1])
+        counts_table = counts_table1.appended(None, counts_table2)
+        counts_table = counts_table.get_columns(header)
 
-        if verbose:
-            print(counts_table)
+    if verbose:
+        print(counts_table)
 
     # spectra table has [count, start, end, group] order
     # we reduce comparisons to a start base

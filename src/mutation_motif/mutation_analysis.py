@@ -358,7 +358,7 @@ def nbr(
             group_label, lambda x: "2", columns=counts_table2.header[0]
         )
         # now combine
-        header = [group_label] + counts_table2.header[:-1]
+        header = [group_label] + list(counts_table2.header[:-1])
         raw1 = counts_table1.tolist(header)
         raw2 = counts_table2.tolist(header)
         counts_table = make_table(header=header, rows=raw1 + raw2)
