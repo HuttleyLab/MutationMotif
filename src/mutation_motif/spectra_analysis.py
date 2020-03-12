@@ -59,10 +59,10 @@ def main(
         counts_table2 = util.spectra_table(counts_table2, group_label)
 
         # now combine
-        header = ["group"] + counts_table2.header[:-1]
         raw1 = counts_table1.tolist(header)
         raw2 = counts_table2.tolist(header)
         counts_table = make_table(header=header, rows=raw1 + raw2)
+        header = ["group"] + list(counts_table2.header[:-1])
 
         if verbose:
             print(counts_table)
