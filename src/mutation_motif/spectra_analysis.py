@@ -57,7 +57,6 @@ def main(
 
         counts_table1 = util.spectra_table(counts_table1, group_label)
         counts_table2 = util.spectra_table(counts_table2, group_label)
-
         # now combine
         header = ["group"] + list(counts_table2.header[:-1])
         counts_table = counts_table1.appended(None, counts_table2)

@@ -119,7 +119,9 @@ class TestMutationAnalysis(TestCase):
         """exercising, making sure output generated"""
         runner = CliRunner()
         r = runner.invoke(
-            mut_main, ["nbr", "-1data/counts-CtoT.txt", "-o%s" % self.dirname]
+            mut_main,
+            ["nbr", "-1data/counts-CtoT.txt", "-o%s" % self.dirname],
+            catch_exceptions=False,
         )
         self.assertEqual(r.exit_code, 0, r.exception)
         # expect the following file names
@@ -152,6 +154,7 @@ class TestMutationAnalysis(TestCase):
                 "-o%s" % self.dirname,
                 "--strand_symmetry",
             ],
+            catch_exceptions=False,
         )
         self.assertEqual(r.exit_code, 0)
         # expect the following file names
@@ -184,9 +187,10 @@ class TestMutationAnalysis(TestCase):
                 "-2data/auto_intron_combined_counts.txt",
                 "-o%s" % self.dirname,
             ],
+            catch_exceptions=False,
         )
 
-        self.assertEqual(r.exit_code, 0)
+        self.assertEqual(r.exit_code, 0, r.stdout)
 
         # expect the following file names
         fnames = [
@@ -210,6 +214,7 @@ class TestMutationAnalysis(TestCase):
                 "-o%s" % self.dirname,
                 "--strand_symmetry",
             ],
+            catch_exceptions=False,
         )
         self.assertEqual(r.exit_code, 0)
 
@@ -243,6 +248,7 @@ class TestDraw(TestCase):
                 "--json_path=data/spectra_analysis.json",
                 "--group_label=strand",
             ],
+            catch_exceptions=False,
         )
 
         self.assertEqual(r.exit_code, 0)
@@ -262,6 +268,7 @@ class TestDraw(TestCase):
                 "--figpath=%s/grid.pdf" % self.dirname,
                 "--fig_config=data/arbitrary_grid.cfg",
             ],
+            catch_exceptions=False,
         )
 
         self.assertEqual(r.exit_code, 0)
@@ -314,7 +321,9 @@ class TestDraw(TestCase):
             data_path = Path(test_datadir) / "directions" / "CtoT.json"
             figpath = Path(dirname) / "mi.pdf"
             r = runner.invoke(
-                draw_main, ["mi", f"--json_path={data_path}", f"--figpath={figpath}"],
+                draw_main,
+                ["mi", f"--json_path={data_path}", f"--figpath={figpath}"],
+                catch_exceptions=False,
             )
             self.assertEqual(r.exit_code, 0)
             self.assertTrue(figpath.exists())
@@ -332,6 +341,7 @@ class TestDraw(TestCase):
                     f"--figpath={figpath}",
                     "--use_freq",
                 ],
+                catch_exceptions=False,
             )
             self.assertEqual(r.exit_code, 0)
             self.assertTrue(figpath.exists())
@@ -343,7 +353,9 @@ class TestDraw(TestCase):
 
         with TemporaryDirectory(dir=".") as dirname:
             path = Path(dirname) / "cfgs"
-            r = runner.invoke(draw_main, ["export-cfg", str(path)],)
+            r = runner.invoke(
+                draw_main, ["export-cfg", str(path)], catch_exceptions=False
+            )
             self.assertEqual(r.exit_code, 0)
             num_files = 0
             for p in path.glob("*.cfg"):
