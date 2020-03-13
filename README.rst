@@ -1,7 +1,7 @@
 |Build Status| |gap| |codecov| |gap| |Using Black Formatting| |gap| |Python 3.6+|
 
-.. |Build Status| image:: https://dev.azure.com/GavinHuttley/MutationMotif/_apis/build/status/MutationMotif.MutationMotif?branchName=master
-    :target: https://dev.azure.com/GavinHuttley/MutationMotif/_build/latest?definitionId=1&branchName=master
+.. |Build Status| image:: https://dev.azure.com/GavinHuttley/MutationMotif/_apis/build/status/MutationMotif.MutationMotif?branchName=develop
+    :target: https://dev.azure.com/GavinHuttley/MutationMotif/_build/latest?definitionId=1&branchName=develop
 .. |codecov| image:: https://codecov.io/gh/HuttleyLab/MutationMotif/branch/master/graph/badge.svg
     :target: https://codecov.io/gh/HuttleyLab/MutationMotif
 .. |Using Black Formatting| image:: https://img.shields.io/badge/code%20style-black-000000.svg
