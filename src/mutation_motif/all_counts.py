@@ -124,9 +124,6 @@ def main(
     start_time = time.time()
 
     # run the program
-    all_counts = []
-    header = None
-    num_rows = 0
     basenames = []
     tables = []
     for fn in counts_files:

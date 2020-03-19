@@ -1,6 +1,4 @@
 """export seq files for different mutation types"""
-
-
 import os
 import re
 import time
