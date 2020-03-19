@@ -39,6 +39,35 @@ def load_table_from_delimited_file(path, sep="\t"):
             line[count_index] = int(line[count_index])
             records.append(line)
         table = make_table(header=header, rows=records)
+    if "direction" in table.columns:
+        table = make_consistent_direction_style(table)
+    return table
+
+
+def make_consistent_direction_style(table):
+    """returns a table with the XtoY style"""
+    current = table.distinct_values("direction")
+    pattern = re.compile("[ACGT]to[ACGT]")
+    map = {}
+    for d in current:
+        if "to" in d:
+            expect = 4
+            val = d
+        elif ">" in d:
+            expect = 3
+            val = f"{d[0]}to{d[2]}"
+        else:
+            raise ValueError(f"unknown direction '{d}'")
+
+        assert len(d) == expect, f"unknown direction '{d}'"
+        match = pattern.search(val)
+        if match is None:
+            raise ValueError(f"unknown direction '{d}'")
+
+        map[d] = val
+
+    new_col = [map[v] for v in table.columns["direction"]]
+    table.columns["direction"] = numpy.array(new_col, dtype="U")
     return table
 
 
@@ -67,6 +96,7 @@ def spectra_table(table, group_label):
     result = make_table(
         header=["count", "start", "direction", group_label], rows=results
     )
+    result = make_consistent_direction_style(result)
     return result
 
 

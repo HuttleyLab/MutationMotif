@@ -3,9 +3,10 @@ import os
 
 from scitrack import CachingLogger
 
-from cogent3 import load_table, make_table
+from cogent3 import make_table
 from cogent3.maths.stats import chisqprob
 from mutation_motif import draw, log_lin, util
+from mutation_motif.util import load_table_from_delimited_file
 
 __author__ = "Gavin Huttley"
 __copyright__ = "Copyright 2016-2020, Gavin Huttley, Yicheng Zhu"
@@ -29,7 +30,7 @@ def main(
 ):
     args = locals()
 
-    table = load_table(countsfile, sep="\t")
+    table = load_table_from_delimited_file(countsfile, sep="\t")
     if not dry_run:
         log_file_path = os.path.join(util.abspath(outpath), "spectra_analysis.log")
         LOGGER.log_file_path = log_file_path
@@ -46,7 +47,7 @@ def main(
 
         # be sure there's two files
         assert countsfile2, f"must provide second counts file"
-        counts_table2 = load_table(countsfile2, sep="\t")
+        counts_table2 = load_table_from_delimited_file(countsfile2, sep="\t")
         LOGGER.input_file(countsfile2)
         counts_table2 = counts_table2.with_new_column(
             "group", lambda x: "2", columns=counts_table2.header[0]

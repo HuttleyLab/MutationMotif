@@ -8,9 +8,9 @@ from collections import Counter
 import click
 from scitrack import CachingLogger
 
-from cogent3 import load_table, make_table
 from mutation_motif.complement import make_strand_symmetric_table
-from mutation_motif.util import abspath, get_subtables, makedirs
+from mutation_motif.util import (abspath, get_subtables,
+                                 load_table_from_delimited_file, makedirs)
 
 __author__ = "Gavin Huttley"
 __copyright__ = "Copyright 2016-2020, Gavin Huttley, Yicheng Zhu"
@@ -124,15 +124,12 @@ def main(
     start_time = time.time()
 
     # run the program
-    all_counts = []
-    header = None
-    num_rows = 0
     basenames = []
     tables = []
     for fn in counts_files:
         basenames.append(os.path.basename(fn))
         mutation = direction.findall(fn)[0]
-        table = load_table(fn, sep="\t")
+        table = load_table_from_delimited_file(fn, sep="\t")
         table.title = mutation
         tables.append(table)
 

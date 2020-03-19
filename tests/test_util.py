@@ -6,8 +6,9 @@ from numpy import array
 from numpy.testing import assert_array_equal
 from pkg_resources import resource_filename
 
-from cogent3 import DNA, load_aligned_seqs
+from cogent3 import DNA, load_aligned_seqs, make_table
 from mutation_motif.util import (array_to_str, get_grid_config, just_nucs,
+                                 make_consistent_direction_style,
                                  seqs_to_array)
 
 
@@ -94,6 +95,50 @@ class TestCfgParsing(TestCase):
             out = Path(dirname) / "grid.cfg"
             out.write_text(cfg)
             cfg = get_grid_config(str(out))
+
+
+class TestDirectionStyle(TestCase):
+    """test conversion of X>Y to AtoY"""
+
+    def test_make_consistent_style(self):
+        """correctly converts X>Y to XtoY"""
+        data = {
+            "count": [1599, 1153, 896, 711],
+            "direction": ["AtoC", "AtoG", "TtoC", "AtoT"],
+        }
+        table = make_table(data=data)
+        result = make_consistent_direction_style(table)
+        self.assertEqual(
+            result.columns["direction"].tolist(), ["AtoC", "AtoG", "TtoC", "AtoT"]
+        )
+
+        data = {
+            "count": [1599, 1153, 896, 711],
+            "direction": ["A>C", "A>G", "T>C", "A>T"],
+        }
+        table = make_table(data=data)
+        result = make_consistent_direction_style(table)
+        self.assertEqual(
+            result.columns["direction"].tolist(), ["AtoC", "AtoG", "TtoC", "AtoT"]
+        )
+
+        # wrong separator raises
+        with self.assertRaises(ValueError):
+            data = {
+                "count": [1599, 1153, 896, 711],
+                "direction": ["A:C", "A:C", "A:C", "A:C"],
+            }
+            table = make_table(data=data)
+            _ = make_consistent_direction_style(table)
+
+        # wrong length for separator raises
+        with self.assertRaises(AssertionError):
+            data = {
+                "count": [1599, 1153, 896, 711],
+                "direction": ["A to C", "A to C", "A to C", "A to C"],
+            }
+            table = make_table(data=data)
+            _ = make_consistent_direction_style(table)
 
 
 if __name__ == "__main__":
