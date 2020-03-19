@@ -38,7 +38,7 @@ def load_table_from_delimited_file(path, sep="\t"):
             line = line.strip().split(sep)
             line[count_index] = int(line[count_index])
             records.append(line)
-        table = make_table(header=header, rows=records, static_column_types=True)
+        table = make_table(header=header, rows=records)
     if "direction" in table.columns:
         table = make_consistent_direction_style(table)
     return table
