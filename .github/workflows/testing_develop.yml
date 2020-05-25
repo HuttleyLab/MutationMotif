@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  push:
+    branches: [ "develop" ]
+  pull_request:
+    branches: [ "develop" ]
+
+jobs:
+  tests:
+    name: "Python ${{ matrix.python-version }}"
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [macos-latest]
+        python-version: [3.6, 3.7, 3.8]
+
+    steps:
+      - uses: "actions/checkout@v2"
+      - uses: "actions/setup-python@v1"
+        with:
+          python-version: "${{ matrix.python-version }}"
+
+      - name: Make conda environment
+        uses: goanpeca/setup-miniconda@v1
+        with:
+           activate-environment: mm
+           environment-file: mm-environment.yml
+           python-version: 3.8
+
+      - name: "Run tox targets for ${{ matrix.python-version }}"
+        shell: bash -l {0}
+        run: |
+          conda activate mm
+          conda info
+          conda list
+          python -m tox
+
