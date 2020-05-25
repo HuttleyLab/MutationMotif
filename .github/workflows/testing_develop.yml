@@ -35,7 +35,5 @@ jobs:
           conda activate mm
           conda info
           conda list
-          python -m pip uninstall cogent3 -y
-          python -m pip install git+https://github.com/cogent3/cogent3.git@develop#egg=cogent3
-          conda list
           python -m tox
+

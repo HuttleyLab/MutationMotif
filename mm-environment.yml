@@ -16,6 +16,7 @@ dependencies:
     - black
     - isort
     - tox
+    - tox-gh-actions
     - pytest
     - pytest-cov
     - -e .
