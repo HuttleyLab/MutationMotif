@@ -1,13 +1,15 @@
 #!/usr/bin/env python
 import os
+
 from itertools import combinations
 
 import click
-from scitrack import CachingLogger
 
 from cogent3 import make_table
 from cogent3.maths.stats import chisqprob
 from mutation_motif import draw, log_lin, motif_count, spectra_analysis, util
+from scitrack import CachingLogger
+
 
 __author__ = "Gavin Huttley"
 __copyright__ = "Copyright 2016-2020, Gavin Huttley, Yicheng Zhu"
