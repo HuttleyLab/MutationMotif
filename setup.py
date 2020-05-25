@@ -4,6 +4,7 @@ import sys
 
 from setuptools import find_packages, setup
 
+
 __author__ = "Gavin Huttley"
 __copyright__ = "Copyright 2014, Gavin Huttley"
 __credits__ = ["Gavin Huttley"]
@@ -22,18 +23,13 @@ if sys.version_info < (3, 6):
 
 short_description = "MutationMotif"
 
-# This ends up displayed by the installer
-long_description = (
-    "MutationMotif implements statistical methods for the "
-    "analysis of point mutation spectra and provides sequence "
-    "logo style visualisation of the fitted models. "
-    "The tests evaluate the association of flanking DNA sequence "
-    "with mutation direction. Statistical tests for contrasting "
-    "samples are also included. The tests control for "
-    "heterogeneity in sequence composition across the genome. "
-    "The methods are described in "
-    "`Zhu et al (2017) <https://www.ncbi.nlm.nih.gov/pubmed/27974498>`_."
-)
+readme_path = pathlib.Path(__file__).parent / "README.rst"
+long_description = readme_path.read_text()
+PROJECT_URLS = {
+    "Documentation": "https://github.com/HuttleyLab/mutationmotif",
+    "Bug Tracker": "https://github.com/HuttleyLab/mutationmotif/issues",
+    "Source Code": "https://github.com/HuttleyLab/mutationmotif",
+}
 
 PACKAGE_DIR = "src"
 
@@ -70,15 +66,10 @@ setup(
         "cogent3",
         "click",
         "pandas",
-        "plotly",
-        "psutil",
         "requests",
         "rpy2",
         "scitrack",
     ],
-    # note: http://stackoverflow.com/questions/3472430/how-can-i-make-setuptools-install-a-package-thats-not-on-pypi
-    # and http://stackoverflow.com/questions/17366784/setuptools-unable-to-use-link-from-dependency-links/17442663#17442663
-    # changing it to http://github.com/mtai/python-gearman/tarball/master#egg=gearman-2.0.0beta instead
     entry_points={
         "console_scripts": [
             "mutation_analysis=mutation_motif.mutation_analysis:main",
@@ -98,4 +89,5 @@ setup(
             "cfgs/spectra.cfg",
         ]
     },
+    project_urls=PROJECT_URLS,
 )
