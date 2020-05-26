@@ -4,9 +4,14 @@ from numpy import array
 from numpy.testing import assert_array_equal
 
 from cogent3 import DNA, make_aligned_seqs
-from mutation_motif.profile import (MakeCircleRange, chosen_base_indices,
-                                    filter_seqs_by_chosen_base, get_control,
-                                    get_random_indices, get_zero_counts)
+from mutation_motif.profile import (
+    MakeCircleRange,
+    chosen_base_indices,
+    filter_seqs_by_chosen_base,
+    get_control,
+    get_random_indices,
+    get_zero_counts,
+)
 
 
 class TestChooseBases(TestCase):

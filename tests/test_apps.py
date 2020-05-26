@@ -1,5 +1,6 @@
 import os
 import shutil
+
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest import TestCase, main
@@ -12,6 +13,7 @@ from mutation_motif.aln_to_counts import main as aln_to_counts_main
 from mutation_motif.draw import main as draw_main
 from mutation_motif.mutation_analysis import main as mut_main
 from mutation_motif.util import makedirs
+
 
 test_datadir = Path(__file__).parent / "data"
 

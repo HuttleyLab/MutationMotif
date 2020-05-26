@@ -4,6 +4,7 @@ import sys
 
 from setuptools import find_packages, setup
 
+
 __author__ = "Gavin Huttley"
 __copyright__ = "Copyright 2014, Gavin Huttley"
 __credits__ = ["Gavin Huttley"]

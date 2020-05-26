@@ -1,8 +1,10 @@
 import numpy
 import pandas as pd
+
 from rpy2.robjects import Formula
 from rpy2.robjects import r as R
 from rpy2.robjects.vectors import DataFrame, FactorVector, IntVector, StrVector
+
 
 __author__ = "Gavin Huttley"
 __copyright__ = "Copyright 2016-2020, Gavin Huttley, Yicheng Zhu"

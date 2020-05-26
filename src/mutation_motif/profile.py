@@ -5,6 +5,7 @@ from numpy import array, asarray, logical_and, ndarray, zeros
 
 from cogent3 import DNA
 
+
 __author__ = "Gavin Huttley"
 __copyright__ = "Copyright 2016-2020, Gavin Huttley, Yicheng Zhu"
 __credits__ = ["Gavin Huttley", "Yicheng Zhu"]

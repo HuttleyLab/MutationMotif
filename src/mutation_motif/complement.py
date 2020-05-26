@@ -1,5 +1,6 @@
 from cogent3 import DNA, make_table
 
+
 __author__ = "Gavin Huttley"
 __copyright__ = "Copyright 2016-2020, Gavin Huttley, Yicheng Zhu"
 __credits__ = ["Gavin Huttley"]
