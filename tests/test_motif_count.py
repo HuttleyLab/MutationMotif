@@ -2,10 +2,14 @@ from unittest import TestCase, main
 
 from cogent3 import DNA
 from cogent3.core.alignment import ArrayAlignment
-from mutation_motif.motif_count import (get_combined_counts, get_count_table,
-                                        profile_to_seq_counts,
-                                        reduced_multiple_positions,
-                                        reduced_one_position)
+from mutation_motif.motif_count import (
+    get_combined_counts,
+    get_count_table,
+    profile_to_seq_counts,
+    reduced_multiple_positions,
+    reduced_one_position,
+)
+
 
 obs = """
 TATGT

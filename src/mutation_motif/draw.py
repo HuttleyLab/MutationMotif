@@ -1,11 +1,12 @@
 import os
 import sys
+
 from configparser import ConfigParser
 
 import click
 import numpy
+
 from pkg_resources import resource_filename
-from scitrack import CachingLogger
 
 from cogent3.core.profile import MotifCountsArray
 from cogent3.draw.drawable import Drawable, get_domain
@@ -13,13 +14,23 @@ from cogent3.draw.logo import get_base_logo_layout, get_logo
 from cogent3.draw.logo import get_mi_char_heights as c3_get_mi
 from cogent3.util.union_dict import UnionDict
 from mutation_motif.height import get_mi_char_heights, get_re_char_heights
-from mutation_motif.util import (abspath, est_ylim, get_grid_config,
-                                 get_nbr_config, get_nbr_matrix_config,
-                                 get_nbr_path_config,
-                                 get_order_max_re_from_summary,
-                                 get_position_number, get_selected_indices,
-                                 get_spectra_config, get_summary_config,
-                                 load_loglin_stats, makedirs)
+from mutation_motif.util import (
+    abspath,
+    est_ylim,
+    get_grid_config,
+    get_nbr_config,
+    get_nbr_matrix_config,
+    get_nbr_path_config,
+    get_order_max_re_from_summary,
+    get_position_number,
+    get_selected_indices,
+    get_spectra_config,
+    get_summary_config,
+    load_loglin_stats,
+    makedirs,
+)
+from scitrack import CachingLogger
+
 
 __author__ = "Gavin Huttley"
 __copyright__ = "Copyright 2016-2020, Gavin Huttley, Yicheng Zhu"

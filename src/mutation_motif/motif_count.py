@@ -4,6 +4,7 @@ from itertools import product
 from cogent3 import make_table
 from mutation_motif.util import array_to_str
 
+
 __author__ = "Gavin Huttley"
 __copyright__ = "Copyright 2016-2020, Gavin Huttley, Yicheng Zhu"
 __credits__ = ["Gavin Huttley", "Yicheng Zhu"]
