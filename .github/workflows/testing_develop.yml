@@ -35,6 +35,10 @@ jobs:
           conda activate mm
           conda info
           conda list
+
+      - name: "Run tox targets for ${{ matrix.python-version }}"
+        run: |
+          conda activate mm
           python -m tox
           ls
           ls tests
