@@ -1,0 +1,22 @@
+name: mm
+channels:
+  - plotly
+  - conda-forge
+dependencies:
+  - python=3.8
+  - plotly
+  - plotly-orca
+  - rpy2
+  - pip
+  - pip:
+    - numpydoc
+    - psutil
+    - pep517
+    - twine
+    - black
+    - isort
+    - tox
+    - tox-gh-actions
+    - pytest
+    - pytest-cov
+    - -e .
