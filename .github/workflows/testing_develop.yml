@@ -36,6 +36,7 @@ jobs:
           conda info
           conda list
           python -m tox
+          ls
           ls tests
 
       - name: Upload coverage to Codecov
