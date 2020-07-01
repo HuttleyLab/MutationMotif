@@ -63,8 +63,7 @@ setup(
     ],
     install_requires=[
         "numpy",
-        # TODO remove when cogent3 2020.06 released
-        "cogent3 @ git+https://github.com/cogent3/cogent3.git@develop#egg=cogent3[extra]",
+        "cogent3",
         "click",
         "pandas",
         "plotly",
