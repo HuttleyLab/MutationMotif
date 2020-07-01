@@ -10,7 +10,10 @@
     :target: https://www.python.org/downloads/release/python-360/
 .. |gap| unicode:: 0xA0
 
-.. image:: images/grid.svg
+.. raw:: html
+
+    <iframe src="https://widgets.figshare.com/articles/12593252/embed?show_title=0" width="568" height="351" frameborder="0"></iframe>
+
 
 ##############
 Mutation Motif
