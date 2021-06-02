@@ -524,6 +524,8 @@ def get_1way_position_drawable(
     xtick_text = [f"{i - mid}" for i in xtick_vals]
     layout.xaxis.tickvals = xtick_vals
     layout.xaxis.ticktext = xtick_text
+    layout.xaxis.tickfont.size = plot_cfg.xtick_fontsize
+    layout.yaxis.tickfont.size = plot_cfg.ytick_fontsize
 
     layout.annotations = get_matrix_row_col_titles(
         ["Position"],
