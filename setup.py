@@ -43,7 +43,7 @@ setup(
     long_description_content_type="text/x-rst",
     url="https://github.com/HuttleyLab/mutationmotif",
     platforms=["any"],
-    license=["BSD"],
+    license="BSD",
     keywords=[
         "biology",
         "genomics",
@@ -63,7 +63,7 @@ setup(
     ],
     install_requires=[
         "numpy",
-        "cogent3",
+        "cogent3[extra]",
         "click",
         "pandas",
         "plotly",
