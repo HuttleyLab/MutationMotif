@@ -1,0 +1,11 @@
+cogent3[extra]
+click
+pandas
+plotly
+kaleido
+rpy2
+scitrack
+tox
+tox-gh-actions
+pytest
+pytest-cov
