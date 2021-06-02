@@ -9,16 +9,15 @@ from configparser import ConfigParser, NoOptionError, NoSectionError
 
 import numpy
 
+from cogent3 import DNA, load_table, make_table
+from cogent3.core.alignment import ArrayAlignment
+from cogent3.parse.fasta import MinimalFastaParser
+from cogent3.util.union_dict import UnionDict
 from numpy import around
 from numpy.core._multiarray_umath import fabs
 from pandas import read_json
 # to be used as a decorator for click commands
 from pkg_resources import resource_filename
-
-from cogent3 import DNA, load_table, make_table
-from cogent3.core.alignment import ArrayAlignment
-from cogent3.parse.fasta import MinimalFastaParser
-from cogent3.util.union_dict import UnionDict
 
 
 __author__ = "Gavin Huttley"

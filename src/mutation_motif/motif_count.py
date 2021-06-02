@@ -2,6 +2,7 @@ from collections import Counter
 from itertools import product
 
 from cogent3 import make_table
+
 from mutation_motif.util import array_to_str
 
 

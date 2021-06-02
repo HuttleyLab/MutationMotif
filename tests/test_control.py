@@ -1,9 +1,9 @@
 from unittest import TestCase, main
 
+from cogent3 import DNA, make_aligned_seqs
 from numpy import array
 from numpy.testing import assert_array_equal
 
-from cogent3 import DNA, make_aligned_seqs
 from mutation_motif.profile import (
     MakeCircleRange,
     chosen_base_indices,
@@ -118,8 +118,7 @@ class TestAlignFiltering(TestCase):
     min_chosen_bases2 = 4
 
     def test_filter_seqs_1(self):
-        """only seqs with >= 1 potential pseudo-SNP base should be returned
-        """
+        """only seqs with >= 1 potential pseudo-SNP base should be returned"""
         test_data, sample_indices = filter_seqs_by_chosen_base(
             self.data, self.sampled_indices, self.min_chosen_bases1
         )
@@ -138,8 +137,7 @@ class TestAlignFiltering(TestCase):
         assert_array_equal(sample_indices[1], array([7, 13]))
 
     def test_filter_seqs_4(self):
-        """only seqs with >= 4 potential pseudo-SNP base should be returned
-        """
+        """only seqs with >= 4 potential pseudo-SNP base should be returned"""
         test_data, sample_indices = filter_seqs_by_chosen_base(
             self.data, self.sampled_indices, self.min_chosen_bases2
         )
@@ -185,8 +183,7 @@ class TestAlignSnpAnnotation(TestCase):
     chosen_base = direction[0]
 
     def test_get_control(self):
-        """return a valid control
-        """
+        """return a valid control"""
         expected = [
             [[2, 2, 0, 2, 0, 1, 2, 2, 1, 2, 0, 2, 0, 2, 2]],
             [[2, 0, 2, 0, 2, 2, 2, 2, 2, 3, 3, 2, 2, 2, 0]],

@@ -6,13 +6,14 @@ from configparser import ConfigParser
 import click
 import numpy
 
-from pkg_resources import resource_filename
-
 from cogent3.core.profile import MotifCountsArray
 from cogent3.draw.drawable import Drawable, get_domain
 from cogent3.draw.logo import get_base_logo_layout, get_logo
 from cogent3.draw.logo import get_mi_char_heights as c3_get_mi
 from cogent3.util.union_dict import UnionDict
+from pkg_resources import resource_filename
+from scitrack import CachingLogger
+
 from mutation_motif.height import get_mi_char_heights, get_re_char_heights
 from mutation_motif.util import (
     abspath,
@@ -29,7 +30,6 @@ from mutation_motif.util import (
     load_loglin_stats,
     makedirs,
 )
-from scitrack import CachingLogger
 
 
 __author__ = "Gavin Huttley"
@@ -546,6 +546,7 @@ def get_1way_position_drawable(
     height = plot_cfg.height
     width = plot_cfg.width
     fig = Drawable(layout=layout, height=height, width=width)
+
     return fig
 
 
@@ -1289,7 +1290,11 @@ _dry_run = click.option(
 @_force_overwrite
 @_dry_run
 def nbr_matrix(
-    paths_cfg, plot_cfg, figpath, force_overwrite, dry_run,
+    paths_cfg,
+    plot_cfg,
+    figpath,
+    force_overwrite,
+    dry_run,
 ):
     """draws square matrix of sequence logo's from neighbour analysis"""
     config_path = abspath(paths_cfg)
@@ -1371,7 +1376,12 @@ def grid(fig_config, figpath):
 @_force_overwrite
 @_dry_run
 def spectra_grid(
-    json_path, group_label, plot_cfg, figpath, force_overwrite, dry_run,
+    json_path,
+    group_label,
+    plot_cfg,
+    figpath,
+    force_overwrite,
+    dry_run,
 ):
     """draws logo from mutation spectra analysis"""
     # the following is for logging
@@ -1413,7 +1423,11 @@ def spectra_grid(
 @_force_overwrite
 @_dry_run
 def nbr(
-    json_paths, plot_cfg, group_label, force_overwrite, dry_run,
+    json_paths,
+    plot_cfg,
+    group_label,
+    force_overwrite,
+    dry_run,
 ):
     """makes motifs for independent or higher order interactions"""
     LOGGER.log_args()
@@ -1470,7 +1484,13 @@ def nbr(
 @_force_overwrite
 @_dry_run
 def mi(
-    json_path, plot_cfg, group_label, figpath, use_freq, force_overwrite, dry_run,
+    json_path,
+    plot_cfg,
+    group_label,
+    figpath,
+    use_freq,
+    force_overwrite,
+    dry_run,
 ):
     """draws conventional sequence logo, using MI, from first order effects"""
     global mi_use_freqs
