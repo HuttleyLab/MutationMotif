@@ -8,6 +8,8 @@ from collections import Counter
 
 import click
 
+from scitrack import CachingLogger
+
 from mutation_motif.complement import make_strand_symmetric_table
 from mutation_motif.util import (
     abspath,
@@ -15,7 +17,6 @@ from mutation_motif.util import (
     load_table_from_delimited_file,
     makedirs,
 )
-from scitrack import CachingLogger
 
 
 __author__ = "Gavin Huttley"

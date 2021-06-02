@@ -6,8 +6,8 @@ from tempfile import TemporaryDirectory
 from unittest import TestCase, main
 
 from click.testing import CliRunner
-
 from cogent3 import load_table
+
 from mutation_motif.all_counts import main as all_count_main
 from mutation_motif.aln_to_counts import main as aln_to_counts_main
 from mutation_motif.draw import main as draw_main
@@ -289,7 +289,10 @@ class TestDraw(TestCase):
             shutil.copytree(test_datadir / "CtoT", data_path)
             cfg_path = str(Path(dirname) / "nbr_paths.cfg")
             shutil.copy(test_datadir / "nbr_paths.cfg", cfg_path)
-            r = runner.invoke(draw_main, ["nbr", f"-p{cfg_path}"],)
+            r = runner.invoke(
+                draw_main,
+                ["nbr", f"-p{cfg_path}"],
+            )
             self.assertEqual(r.exit_code, 0)
             fnames = [f"{n}.pdf" for n in ("one", "two", "three", "four", "summary")]
             for fn in fnames:

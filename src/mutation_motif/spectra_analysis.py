@@ -3,9 +3,10 @@ import os
 
 from cogent3 import make_table
 from cogent3.maths.stats import chisqprob
+from scitrack import CachingLogger
+
 from mutation_motif import draw, log_lin, util
 from mutation_motif.util import load_table_from_delimited_file
-from scitrack import CachingLogger
 
 
 __author__ = "Gavin Huttley"

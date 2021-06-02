@@ -2,11 +2,11 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest import TestCase, main
 
+from cogent3 import DNA, load_aligned_seqs, make_table
 from numpy import array
 from numpy.testing import assert_array_equal
 from pkg_resources import resource_filename
 
-from cogent3 import DNA, load_aligned_seqs, make_table
 from mutation_motif.util import (
     array_to_str,
     get_grid_config,

@@ -16,8 +16,7 @@ __status__ = "Development"
 
 
 def get_mi_char_heights(freq_matrix, mi):
-    """returns char height for each position in aln.
-    """
+    """returns char height for each position in aln."""
     result = freq_matrix * mi
     result[isnan(result)] = 0
     return result

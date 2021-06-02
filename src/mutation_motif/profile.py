@@ -1,9 +1,8 @@
 from random import choice
 from random import seed as set_seed
 
-from numpy import array, asarray, logical_and, ndarray, zeros
-
 from cogent3 import DNA
+from numpy import array, asarray, logical_and, ndarray, zeros
 
 
 __author__ = "Gavin Huttley"

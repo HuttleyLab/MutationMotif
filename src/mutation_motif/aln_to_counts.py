@@ -5,9 +5,10 @@ import time
 
 import click
 
+from scitrack import CachingLogger
+
 from mutation_motif import motif_count, profile
 from mutation_motif.util import abspath, just_nucs, load_from_fasta, makedirs
-from scitrack import CachingLogger
 
 
 __author__ = "Gavin Huttley"

@@ -1,6 +1,7 @@
 from unittest import TestCase, main
 
 from cogent3 import DNA, make_table
+
 from mutation_motif.complement import (
     _reverse_complement,
     make_strand_symmetric_table,

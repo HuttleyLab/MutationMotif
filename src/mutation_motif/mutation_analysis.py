@@ -7,8 +7,9 @@ import click
 
 from cogent3 import make_table
 from cogent3.maths.stats import chisqprob
-from mutation_motif import draw, log_lin, motif_count, spectra_analysis, util
 from scitrack import CachingLogger
+
+from mutation_motif import draw, log_lin, motif_count, spectra_analysis, util
 
 
 __author__ = "Gavin Huttley"
@@ -121,7 +122,13 @@ def get_four_position_effects(table, positions, group_label=None):
 
 
 def single_group(
-    counts_table, outpath, group_label, group_ref, positions, first_order, dry_run,
+    counts_table,
+    outpath,
+    group_label,
+    group_ref,
+    positions,
+    first_order,
+    dry_run,
 ):
     # Collect statistical analysis results
     summary = []
@@ -195,7 +202,10 @@ def single_group(
         LOGGER.output_file(outfilename, label="analysis3")
 
     fig = draw.get_3way_position_drawable(
-        results, None, group_label=group_label, group_ref=group_ref,
+        results,
+        None,
+        group_label=group_label,
+        group_ref=group_ref,
     )
     if not dry_run:
         outfilename = os.path.join(outpath, "3.pdf")
@@ -215,7 +225,10 @@ def single_group(
         LOGGER.output_file(outfilename, label="analysis4")
 
     fig = draw.get_4way_position_drawable(
-        results, None, group_label=group_label, group_ref=group_ref,
+        results,
+        None,
+        group_label=group_label,
+        group_ref=group_ref,
     )
     if not dry_run:
         outfilename = os.path.join(outpath, "4.pdf")
@@ -376,7 +389,13 @@ def nbr(
         print()
 
     msg = single_group(
-        counts_table, outpath, group_label, group_ref, positions, first_order, dry_run,
+        counts_table,
+        outpath,
+        group_label,
+        group_ref,
+        positions,
+        first_order,
+        dry_run,
     )
     click.secho(msg, fg="green")
 
@@ -398,8 +417,7 @@ def spectra(
     dry_run,
     verbose,
 ):
-    """log-linear analysis of mutation spectra between groups
-    """
+    """log-linear analysis of mutation spectra between groups"""
     spectra_analysis.main(
         countsfile,
         outpath,

@@ -2,9 +2,9 @@ from unittest import TestCase, main
 
 import numpy
 
+from cogent3 import DNA, load_aligned_seqs
 from numpy import array
 
-from cogent3 import DNA, load_aligned_seqs
 from mutation_motif.entropy import (
     as_freq_matrix,
     get_entropy_terms,

@@ -2,6 +2,7 @@ from unittest import TestCase, main
 
 from cogent3 import DNA
 from cogent3.core.alignment import ArrayAlignment
+
 from mutation_motif.motif_count import (
     get_combined_counts,
     get_count_table,
