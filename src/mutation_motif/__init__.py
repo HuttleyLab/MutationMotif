@@ -1,3 +1,4 @@
+"""MutationMotif, see https://www.ncbi.nlm.nih.gov/pubmed/27974498"""
 from warnings import filterwarnings
 
 

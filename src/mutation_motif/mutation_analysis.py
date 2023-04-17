@@ -6,7 +6,7 @@ from itertools import combinations
 import click
 
 from cogent3 import make_table
-from cogent3.maths.stats import chisqprob
+from scipy.stats.distributions import chi2
 from scitrack import CachingLogger
 
 from mutation_motif import draw, log_lin, motif_count, spectra_analysis, util
@@ -82,7 +82,7 @@ def get_position_effects(table, position_sets, group_label=None):
         if deviance < 0:
             p = 1.0
         else:
-            p = chisqprob(deviance, df)
+            p = chi2.sf(deviance, df)
 
         pos_results[position_set] = dict(
             rel_entropy=rel_entropy,
