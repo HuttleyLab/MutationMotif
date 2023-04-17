@@ -4,7 +4,8 @@ Formatting](https://img.shields.io/badge/code%20style-black-000000.svg)
   [![Python
 3.8+](https://img.shields.io/pypi/pyversions/cogent3)](https://www.python.org/downloads/release/python-360/)
 
-<iframe src="https://widgets.figshare.com/articles/12593252/embed" width="1881" height="891" allowfullscreen="true" frameborder="0"> </iframe>
+
+![logo](https://ndownloader.figstatic.com/files/23575181)
 
 # Mutation Motif
 
