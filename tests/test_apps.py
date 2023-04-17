@@ -84,7 +84,7 @@ class TestCounting(TestCase):
                 self.assertIn("strand", counts.header)
                 # num_pos = 4, so there are 4**4 possible seqs, x 2 strands
                 # x 2 samples (M and R)
-                self.assertEqual(counts.shape[0], 4 ** 4 * 2 * 2)
+                self.assertEqual(counts.shape[0], 4**4 * 2 * 2)
 
     def test_aln_to_counts(self):
         """exercising aln_to_counts"""

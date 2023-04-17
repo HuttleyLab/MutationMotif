@@ -17,5 +17,3 @@ def test(session):
         "--cov",
         "mutation_motif",
     )
-
-

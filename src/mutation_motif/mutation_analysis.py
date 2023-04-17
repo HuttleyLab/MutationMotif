@@ -6,8 +6,9 @@ from itertools import combinations
 import click
 
 from cogent3 import make_table
-from scitrack import CachingLogger
 from scipy.stats.distributions import chi2
+from scitrack import CachingLogger
+
 from mutation_motif import draw, log_lin, motif_count, spectra_analysis, util
 
 

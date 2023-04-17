@@ -54,12 +54,12 @@ test = [
     "nox",
 ]
 dev = [
-    "black",
+    "black==23.3.0",
     "click",
     "cog",
     "docformatter",
     "flit",
-    "isort",
+    "isort==5.12.0",
     "pytest",
     "pytest-cov",
     "pytest-xdist",
@@ -80,11 +80,11 @@ exclude = '''
   | \.git
   | \.hg
   | \.mypy_cache
+  | \.nox
   | \.tox
   | \.venv
   | _build
   | build
-  | doc
   | dist
   | tests/data
 )/
