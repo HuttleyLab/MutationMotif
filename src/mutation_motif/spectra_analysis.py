@@ -2,9 +2,8 @@ import json
 import os
 
 from cogent3 import make_table
-from cogent3.maths.stats import chisqprob
 from scitrack import CachingLogger
-
+from scipy.stats.distributions import chi2
 from mutation_motif import draw, log_lin, util
 from mutation_motif.util import load_table_from_delimited_file
 
@@ -86,7 +85,7 @@ def main(
             for row in r:
                 row[grp_index] = grp_labels[row[grp_index]]
 
-        p = chisqprob(dev, df)
+        p = chi2.sf(dev, df)
         if p < 1e-6:
             prob = "%.2e" % p
         else:
