@@ -5,7 +5,6 @@ plotly
 kaleido
 rpy2
 scitrack
-tox
-tox-gh-actions
+nox
 pytest
 pytest-cov
