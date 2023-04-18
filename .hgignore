@@ -23,3 +23,5 @@ draw_results
 *.ipynb_checkpoints*
 *pytest_cache*
 *.tox
+*.nox
+*lcov*.info
