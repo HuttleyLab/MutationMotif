@@ -38,7 +38,7 @@ classifiers = [
     ]
 dynamic = ["version", "description"]
 
-[project.sdist]
+[tool.flit.sdist]
 include = ["requirements.txt", "src/*", "pyproject.toml"]
 exclude = ["doc/*.html"]
 
