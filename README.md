@@ -79,15 +79,15 @@ $ aln_to_counts --help
 The counts table format has a simple structure, illustrated by the
 following:
 
-  count   pos0   pos1   pos2   pos3   mut
-  ------- ------ ------ ------ ------ ------
-  5663    C      T      T      T      M
-  2639    G      C      A      T      M
-  2425    G      C      A      G      M
-  \...    \...   \...   \...   \...   \...
-  882     G      G      G      T      R
-  6932    A      G      T      G      R
-  10550   A      A      A      A      R
+ | count  | pos0  | pos1  | pos2  | pos3  | mut |
+ |--------| ------| ------| ------| ------| -----  |
+ | 5663   | C     | T     | T     | T     | M |
+ | 2639   | G     | C     | A     | T     | M |
+ | 2425   | G     | C     | A     | G     | M |
+ | \...   | \...  | \...  | \...  | \...  | \... |
+ | 882    | G     | G     | G     | T     | R |
+ | 6932   | A     | G     | T     | G     | R |
+ | 10550  | A     | A     | A     | A     | R |
 
 The mutation status **must** be indicated by `R` (reference) and `M`
 (mutated). In this instance, the flank size is 2 and mutation was
