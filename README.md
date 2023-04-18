@@ -4,7 +4,7 @@
 Formatting](https://img.shields.io/badge/code%20style-black-000000.svg)
 [![Python
 3.8+](https://img.shields.io/pypi/pyversions/cogent3)](https://www.python.org/downloads/release/python-360/)
-[![Coverage Status](https://coveralls.io/repos/github/HuttleyLab/MutationMotif/badge.svg?branch=develop)](https://coveralls.io/github/HuttleyLab/MutationMotif?branch=develop)
+
 
 ![logo](https://ndownloader.figstatic.com/files/23575181)
 

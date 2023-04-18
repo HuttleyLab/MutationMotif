@@ -5,16 +5,6 @@ from cogent3 import DNA
 from numpy import array, asarray, logical_and, ndarray, zeros
 
 
-__author__ = "Gavin Huttley"
-__copyright__ = "Copyright 2016-2020, Gavin Huttley, Yicheng Zhu"
-__credits__ = ["Gavin Huttley", "Yicheng Zhu"]
-__license__ = "BSD-3"
-__version__ = "0.3"
-__maintainer__ = "Gavin Huttley"
-__email__ = "Gavin.Huttley@anu.edu.au"
-__status__ = "Development"
-
-
 def get_zero_counts(dim, dtype, pseudo_count=1):
     """returns a ProfileCounts instance zeroed"""
     data = zeros((4, dim), dtype=dtype)
