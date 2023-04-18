@@ -17,6 +17,8 @@ develop-eggs
 .installed.cfg
 lib
 lib64
+build/*
+dist/*
 
 # Installer logs
 pip-log.txt
@@ -42,3 +44,6 @@ tests/draw_results
 
 # vi
 .*.swp
+
+# project specific
+working/*
