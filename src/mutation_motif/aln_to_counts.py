@@ -11,16 +11,6 @@ from mutation_motif import motif_count, profile
 from mutation_motif.util import abspath, just_nucs, load_from_fasta, makedirs
 
 
-__author__ = "Gavin Huttley"
-__copyright__ = "Copyright 2016-2020, Gavin Huttley, Yicheng Zhu"
-__credits__ = ["Gavin Huttley", "Yicheng Zhu"]
-__license__ = "BSD-3"
-__version__ = "0.3"
-__maintainer__ = "Gavin Huttley"
-__email__ = "Gavin.Huttley@anu.edu.au"
-__status__ = "Development"
-
-
 LOGGER = CachingLogger(create_dir=True)
 fn_suffixes = re.compile(r"\.(fa|fasta)\.*(gz|gzip|bz2)*$")
 

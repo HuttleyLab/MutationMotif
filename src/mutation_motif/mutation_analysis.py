@@ -12,16 +12,6 @@ from scitrack import CachingLogger
 from mutation_motif import draw, log_lin, motif_count, spectra_analysis, util
 
 
-__author__ = "Gavin Huttley"
-__copyright__ = "Copyright 2016-2020, Gavin Huttley, Yicheng Zhu"
-__credits__ = ["Gavin Huttley", "Yicheng Zhu"]
-__license__ = "BSD-3"
-__version__ = "0.3"
-__maintainer__ = "Gavin Huttley"
-__email__ = "Gavin.Huttley@anu.edu.au"
-__status__ = "Development"
-
-
 LOGGER = CachingLogger(create_dir=True)
 
 
