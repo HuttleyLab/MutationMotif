@@ -1,9 +1,10 @@
-[![CI Status](https://github.com/HuttleyLab/MutationMotif/workflows/CI/badge.svg?branch=develop)](https://github.com/HuttleyLab/MutationMotif/actions?workflow=CI)
-    ![Using Black
+[![CI Status](https://github.com/HuttleyLab/MutationMotif/workflows/CI/badge.svg?branch=develop)](https://github.com/HuttleyLab/MutationMotif/actions?workflow=CI) 
+[![Coverage Status](https://coveralls.io/repos/github/HuttleyLab/MutationMotif/badge.svg?branch=develop)](https://coveralls.io/github/HuttleyLab/MutationMotif?branch=develop) 
+![Using Black
 Formatting](https://img.shields.io/badge/code%20style-black-000000.svg)
-  [![Python
+[![Python
 3.8+](https://img.shields.io/pypi/pyversions/cogent3)](https://www.python.org/downloads/release/python-360/)
-
+[![Coverage Status](https://coveralls.io/repos/github/HuttleyLab/MutationMotif/badge.svg?branch=develop)](https://coveralls.io/github/HuttleyLab/MutationMotif?branch=develop)
 
 ![logo](https://ndownloader.figstatic.com/files/23575181)
 
