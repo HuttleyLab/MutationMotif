@@ -24,8 +24,10 @@ pip-log.txt
 # Unit test / coverage reports
 .coverage
 .tox
+.nox
 coverage.xml
 nosetests.xml
+*lcov*.info
 tests/draw_results
 
 # Translations
