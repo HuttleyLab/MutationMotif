@@ -11,7 +11,8 @@ syntax:glob
 *.wpr
 *.pdf
 _build/*
-build
+build/*
+dist/*
 *htmlcov*
 *.idea
 draw_results
@@ -25,3 +26,4 @@ draw_results
 *.tox
 *.nox
 *lcov*.info
+working/*

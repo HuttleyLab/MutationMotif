@@ -1,6 +1,7 @@
 [build-system]
 requires = ["flit_core >=3.2,<4"]
 build-backend = "flit_core.buildapi"
+platform = "darwin|linux"
 
 [project]
 name = "mutation_motif"
@@ -9,7 +10,7 @@ authors = [
 ]
 keywords = ["biology", "genomics", "statistics", "genetics", "evolution", "bioinformatics"]
 readme = "README.md"
-license = { file = "LICENSE" }
+license = { file = "license.txt" }
 requires-python = ">=3.8,<3.11"
 dependencies = ["click",
         "cogent3[extra]",
@@ -29,14 +30,15 @@ classifiers = [
         "License :: OSI Approved :: BSD License",
         "Topic :: Scientific/Engineering :: Bio-Informatics",
         "Topic :: Software Development :: Libraries :: Python Modules",
-        "Operating System :: OS Independent",
+        "Operating System :: MacOS",
+        "Operating System :: POSIX :: Linux",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
     ]
 dynamic = ["version", "description"]
 
-[project.sdist]
+[tool.flit.sdist]
 include = ["requirements.txt", "src/*", "pyproject.toml"]
 exclude = ["doc/*.html"]
 
