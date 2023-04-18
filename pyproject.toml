@@ -10,7 +10,7 @@ authors = [
 ]
 keywords = ["biology", "genomics", "statistics", "genetics", "evolution", "bioinformatics"]
 readme = "README.md"
-license = { file = "LICENSE" }
+license = { file = "license.txt" }
 requires-python = ">=3.8,<3.11"
 dependencies = ["click",
         "cogent3[extra]",
