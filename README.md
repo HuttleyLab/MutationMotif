@@ -26,9 +26,7 @@ mutations](https://www.ncbi.nlm.nih.gov/pubmed/27974498).
 
 ## Installation
 
-We recommend installation of dependencies via conda since creating image
-files using [Plotly](https://plot.ly/python/) requires a command line
-tool plus you also need to have the python bindings to [R
+We recommend installation of dependencies via conda since you also need to have the python bindings to [R
 installed](https://rpy2.readthedocs.io/en/latest/overview.html#installation).
 Follow the [miniconda install
 instructions](https://docs.conda.io/en/latest/miniconda.html) for your
@@ -39,7 +37,7 @@ environment `myenv` into which we install the essential requirements
 using conda, then use pip to install `mutation_motif`.
 
 ```
-$ conda env create -n myenv -c plotly python=3.11
+$ conda env create -n myenv -c python=3.11
 $ conda activate myenv
 $ conda install -c conda-forge rpy2
 $ python -m pip install "mutation_motif @ git+https://github.com/HuttleyLab/MutationMotif.git@develop"
