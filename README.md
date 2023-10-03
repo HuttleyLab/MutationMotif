@@ -39,9 +39,10 @@ environment `myenv` into which we install the essential requirements
 using conda, then use pip to install `mutation_motif`.
 
 ```
-$ conda env create -n myenv -c plotly python=3 plotly plotly-orca rpy2
+$ conda env create -n myenv -c plotly python=3.11
 $ conda activate myenv
-$ python -m pip install git+https://github.com/HuttleyLab/MutationMotif.git@develop#egg=mutation_motif
+$ conda install -c conda-forge rpy2
+$ python -m pip install "mutation_motif @ git+https://github.com/HuttleyLab/MutationMotif.git@develop"
 ```
 
 **Note:** The above installs the developer version. To use the release, change
