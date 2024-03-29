@@ -136,7 +136,8 @@ def load_loglin_stats(infile_path):
         new_data[new_key] = {}
         for key, value in list(data[position_set].items()):
             if key == "stats":
-                value = read_json(value)
+                with io.StringIO(value) as stream:
+                    value = read_json(stream)
             new_data[new_key][key] = value
     return new_data
 
