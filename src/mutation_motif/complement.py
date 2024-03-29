@@ -15,7 +15,7 @@ def _reverse_complement(table):
     """returns a table with sequences reverse complemented"""
     pos_indices = [i for i, c in enumerate(table.header) if c.startswith("pos")]
 
-    rows = table.tolist()
+    rows = table.to_list()
     for row in rows:
         # we use the cogent3 DnaSeq object to do reverse complementing
         seq = DNA.make_seq("".join(row[i] for i in pos_indices))
@@ -47,14 +47,14 @@ def make_strand_symmetric_table(table):
     ][0]
     for plus, minus in list(MUTATION_COMPLEMENTS.items()):
         plus_table = table.filtered('direction=="%s"' % plus)
-        plus_data = add_strand_column(plus_table.tolist(), "+")
+        plus_data = add_strand_column(plus_table.to_list(), "+")
         new_data.extend(plus_data)
 
         minus_table = table.filtered('direction=="%s"' % minus)
         if minus_table.shape[0] == 0:
             continue
         minus_table = _reverse_complement(minus_table)
-        minus_data = minus_table.tolist()
+        minus_data = minus_table.to_list()
         for row in minus_data:
             row[direction_index] = plus
         minus_data = add_strand_column(minus_data, "-")

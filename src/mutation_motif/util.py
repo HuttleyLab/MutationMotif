@@ -233,7 +233,7 @@ def get_order_max_re_from_summary(table):
     rows = []
     for order in orders:
         subtable = table.filtered(lambda x: x == order, columns="order")
-        rows.append([order, max(subtable.tolist("RE"))])
+        rows.append([order, max(subtable.to_list("RE"))])
     return rows
 
 

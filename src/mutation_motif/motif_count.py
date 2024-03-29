@@ -61,7 +61,7 @@ def get_count_table(observed, control, k=None):
 def reduced_multiple_positions(table, *positions):
     base_counts = {"M": Counter(), "R": Counter()}
     columns = ["count", "mut"] + list(positions)
-    for row in table.tolist(columns):
+    for row in table.to_list(columns):
         count = row[0]
         mut = row[1]
         motif = tuple(row[2:])
@@ -72,7 +72,7 @@ def reduced_multiple_positions(table, *positions):
 def reduced_one_position(table, pos):
     """returns base counts for one position"""
     base_counts = {"M": Counter(), "R": Counter()}
-    for count, base, mut in table.tolist(["count", pos, "mut"]):
+    for count, base, mut in table.to_list(["count", pos, "mut"]):
         base_counts[mut][base] += count
     return base_counts
 

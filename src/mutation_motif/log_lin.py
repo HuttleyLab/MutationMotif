@@ -9,7 +9,7 @@ from rpy2.robjects.vectors import DataFrame, FactorVector, IntVector, StrVector
 def as_dataframe(table):
     """returns a DataFrame instance. Requires counts to be
     [[col1, col2, col3, ..]]"""
-    data = dict(list(zip(table.header, list(zip(*table.tolist())))))
+    data = dict(list(zip(table.header, list(zip(*table.to_list())))))
     for column in data:
         if type(data[column][0]) in (str, str):
             klass = StrVector
