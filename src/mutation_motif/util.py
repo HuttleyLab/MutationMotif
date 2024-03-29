@@ -6,6 +6,8 @@ import os
 import re
 
 from configparser import ConfigParser, NoOptionError, NoSectionError
+# to be used as a decorator for click commands
+from importlib import resources
 
 import numpy
 
@@ -16,8 +18,6 @@ from cogent3.util.union_dict import UnionDict
 from numpy import around
 from numpy.core._multiarray_umath import fabs
 from pandas import read_json
-# to be used as a decorator for click commands
-from pkg_resources import resource_filename
 
 
 def load_table_from_delimited_file(path, sep="\t"):
@@ -136,7 +136,8 @@ def load_loglin_stats(infile_path):
         new_data[new_key] = {}
         for key, value in list(data[position_set].items()):
             if key == "stats":
-                value = read_json(value)
+                with io.StringIO(value) as stream:
+                    value = read_json(stream)
             new_data[new_key][key] = value
     return new_data
 
@@ -149,7 +150,7 @@ def is_valid(data):
 def load_from_fasta(filename):
     infile = open_(filename, mode="rt")
     parser = MinimalFastaParser(infile)
-    seqs = [(n, s) for n, s in parser]
+    seqs = list(parser)
     infile.close()
     return ArrayAlignment(data=seqs, moltype=DNA)
 
@@ -165,8 +166,7 @@ def seqs_to_array(d_aln):
     also
     filter sequences and save just_nuc sequences.
     """
-    just_bases = just_nucs(d_aln.array_seqs)
-    return just_bases
+    return just_nucs(d_aln.array_seqs)
 
 
 def just_nucs(seqs):
@@ -175,8 +175,7 @@ def just_nucs(seqs):
     give the indices of those just_nucs seq idx.
     """
     (indices,) = (seqs <= 3).all(axis=1).nonzero()
-    just_bases = seqs.take(indices, axis=0)
-    return just_bases
+    return seqs.take(indices, axis=0)
 
 
 def open_(filename, mode="r"):
@@ -217,8 +216,7 @@ _pos_num = re.compile(r"\d+$")
 
 def get_position_number(pos):
     """returns the position index from a string formatted as 'pos##'"""
-    num = int(_pos_num.search(pos).group())
-    return num
+    return int(_pos_num.search(pos).group())
 
 
 def get_order_max_re_from_summary(table):
@@ -233,13 +231,13 @@ def get_order_max_re_from_summary(table):
     rows = []
     for order in orders:
         subtable = table.filtered(lambda x: x == order, columns="order")
-        rows.append([order, max(subtable.tolist("RE"))])
+        rows.append([order, max(subtable.to_list("RE"))])
     return rows
 
 
 def get_config_parser(path, default):
     if not path or not os.path.exists(path):
-        path = resource_filename("mutation_motif", f"cfgs/{default}")
+        path = resources.files("mutation_motif") / f"cfgs/{default}"
 
     parser = ConfigParser()
     parser.optionxform = str  # stops automatic conversion to lower case
@@ -269,11 +267,7 @@ def get_fig_properties(parser, section="fig setup"):
 
     # font sizes, title, label text padding
     for option in parser.options(section):
-        valid = False
-        for attr in ("pad", "font", "angle"):
-            if attr in option:
-                valid = True
-                break
+        valid = any(attr in option for attr in ("pad", "font", "angle"))
         if not valid:
             continue
 
@@ -327,8 +321,7 @@ def get_spectra_config(path):
 
 def get_nbr_config(path, section):
     parser = get_config_parser(path, default="nbr.cfg")
-    cfg = get_fig_properties(parser, section=section)
-    return cfg
+    return get_fig_properties(parser, section=section)
 
 
 def get_nbr_matrix_config(path):
@@ -410,8 +403,7 @@ def get_grid_config(path):
 
 def get_summary_config(path):
     parser = get_config_parser(path, default="nbr.cfg")
-    cfg = get_fig_properties(parser, section="summary")
-    return cfg
+    return get_fig_properties(parser, section="summary")
 
 
 def get_nbr_path_config(path):
@@ -420,7 +412,7 @@ def get_nbr_path_config(path):
     cfg = UnionDict()
     for section in parser.sections():
         paths = {k: parser.get(section, k) for k in ("inpath", "outpath")}
-        if not paths.get("inpath", None):
+        if not paths.get("inpath"):
             continue
 
         if dirname and dirname not in paths["inpath"]:

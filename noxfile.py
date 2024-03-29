@@ -1,7 +1,7 @@
 import nox
 
 
-_py_versions = range(8, 11)
+_py_versions = range(9, 12)
 
 
 @nox.session(python=[f"3.{v}" for v in _py_versions])
@@ -12,8 +12,5 @@ def test(session):
         "pytest",
         "-s",
         "-x",
-        "--cov-report",
-        f"lcov:lcov-{session.python}.info",
-        "--cov",
-        "mutation_motif",
+        *session.posargs,  # propagates sys.argv to pytest
     )

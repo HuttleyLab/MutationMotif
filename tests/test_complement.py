@@ -30,7 +30,7 @@ class TestEntropy(TestCase):
             [442, "T", "G", "T", "C", "M", "AtoC"],
         ]
         got = _reverse_complement(table)
-        raw_got = got.tolist()
+        raw_got = got.to_list()
 
         self.assertEqual(raw_got, ex)
 
@@ -58,7 +58,7 @@ class TestEntropy(TestCase):
 
         table = make_table(header=self.header, rows=self.data + data)
         r = make_strand_symmetric_table(table)
-        self.assertEqual(r.tolist(), exp)
+        self.assertEqual(r.to_list(), exp)
 
 
 if __name__ == "__main__":

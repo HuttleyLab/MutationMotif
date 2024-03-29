@@ -47,7 +47,7 @@ def get_grouped_combined_counts(table, position, group_label):
         counts = counts.with_new_column(
             group_label, lambda x: category, columns=counts.header[0]
         )
-        all_data.extend(counts.tolist(header))
+        all_data.extend(counts.to_list(header))
     counts = make_table(header=header, rows=all_data)
     counts.sorted(columns=[group_label, "mut"])
     return counts
@@ -364,8 +364,8 @@ def nbr(
         )
         # now combine
         header = [group_label] + list(counts_table2.header[:-1])
-        raw1 = counts_table1.tolist(header)
-        raw2 = counts_table2.tolist(header)
+        raw1 = counts_table1.to_list(header)
+        raw2 = counts_table2.to_list(header)
         counts_table = make_table(header=header, rows=raw1 + raw2)
 
         if not dry_run:

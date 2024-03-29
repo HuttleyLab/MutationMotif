@@ -2,6 +2,7 @@ import os
 import sys
 
 from configparser import ConfigParser
+from importlib import resources
 
 import click
 import numpy
@@ -11,7 +12,6 @@ from cogent3.draw.drawable import Drawable, get_domain
 from cogent3.draw.logo import get_base_logo_layout, get_logo
 from cogent3.draw.logo import get_mi_char_heights as c3_get_mi
 from cogent3.util.union_dict import UnionDict
-from pkg_resources import resource_filename
 from scitrack import CachingLogger
 
 from mutation_motif.height import get_mi_char_heights, get_re_char_heights
@@ -1531,6 +1531,6 @@ def export_cfg(outpath):
         )
         sys.exit(1)
 
-    path = resource_filename("mutation_motif", f"cfgs")
+    path = resources.files("mutation_motif") / "cfgs"
     shutil.copytree(path, outpath)
     click.secho("Contents written to %s" % outpath, fg="green")
