@@ -1,3 +1,4 @@
+from importlib import resources
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest import TestCase, main
@@ -5,7 +6,6 @@ from unittest import TestCase, main
 from cogent3 import DNA, load_aligned_seqs, make_table
 from numpy import array
 from numpy.testing import assert_array_equal
-from pkg_resources import resource_filename
 
 from mutation_motif.util import (
     array_to_str,
@@ -83,7 +83,7 @@ class TestAlignSnpAnnotation2(TestCase):
 class TestCfgParsing(TestCase):
     def test_grid_cfg_consistency(self):
         """fails if num rows/cols don't match paths sections"""
-        path = resource_filename("mutation_motif", f"cfgs/grid.cfg")
+        path = resources.files("mutation_motif") / "cfgs/grid.cfg"
         cfg = Path(path).read_text()
         with TemporaryDirectory(dir=".") as dirname:
             out = Path(dirname) / "grid.cfg"
@@ -93,7 +93,7 @@ class TestCfgParsing(TestCase):
 
     def test_grid_cfg(self):
         """exercising parser"""
-        path = resource_filename("mutation_motif", f"cfgs/grid.cfg")
+        path = resources.files("mutation_motif") / "cfgs/grid.cfg"
         cfg = Path(path).read_text()
         with TemporaryDirectory(dir=".") as dirname:
             out = Path(dirname) / "grid.cfg"
