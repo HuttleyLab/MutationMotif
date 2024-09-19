@@ -6,6 +6,7 @@ import os
 import re
 
 from configparser import ConfigParser, NoOptionError, NoSectionError
+
 # to be used as a decorator for click commands
 from importlib import resources
 
@@ -193,7 +194,7 @@ def makedirs(path):
     """creates dir path"""
     try:
         os.makedirs(path)
-    except OSError as e:
+    except OSError:
         pass
 
 

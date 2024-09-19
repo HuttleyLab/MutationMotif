@@ -1459,7 +1459,7 @@ def nbr(
         LOGGER.output_file(paths[summary].outpath)
         click.secho(f"Wrote {paths[summary].outpath}", fg="green")
 
-    click.secho(f"Done!", fg="green")
+    click.secho("Done!", fg="green")
     LOGGER.shutdown()
 
 

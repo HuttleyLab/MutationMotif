@@ -77,9 +77,9 @@ class TestCounting(TestCase):
             )
             # should produce directory containing 6 txt files
             self.assertEqual(r.exit_code, 0, r.output)
-            dirlist = {str(p.name) for p in splitdir.glob(f"*")}
+            dirlist = {str(p.name) for p in splitdir.glob("*")}
             self.assertEqual(len(dirlist), 6)
-            for p in splitdir.glob(f"*"):
+            for p in splitdir.glob("*"):
                 counts = load_table(str(p), sep="\t")
                 self.assertIn("strand", counts.header)
                 # num_pos = 4, so there are 4**4 possible seqs, x 2 strands

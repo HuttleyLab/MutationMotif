@@ -1,7 +1,7 @@
 from unittest import TestCase, main
 
 from numpy import array
-from numpy.testing import assert_allclose, assert_array_equal
+from numpy.testing import assert_allclose
 
 from mutation_motif.height import get_mi_char_heights, get_re_char_heights
 

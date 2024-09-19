@@ -1,6 +1,7 @@
 """measures of entropy for DNA sequences that are represented as numpy arrays.
 
 Assumes bases recoded to ints in range 0 <= b < 4"""
+
 from warnings import filterwarnings
 
 from numpy import array, errstate, isnan, log2
