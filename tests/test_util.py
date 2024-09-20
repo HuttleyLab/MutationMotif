@@ -43,7 +43,9 @@ class TestJustNucs(TestCase):
 
 class TestAlignSnpAnnotation(TestCase):
     d_aln = load_aligned_seqs(
-        "data/load_seqs_to_array.fasta", array_align=True, moltype=DNA
+        "data/load_seqs_to_array.fasta",
+        array_align=True,
+        moltype=DNA,
     )
 
     def test_seqs_to_array(self):
@@ -63,7 +65,7 @@ class TestAlignSnpAnnotation(TestCase):
                 (3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3),
                 (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
                 (2, 0, 1, 2, 3, 1, 2, 2, 2, 0, 2, 2, 2, 2, 2, 3, 0, 2, 2, 3, 0),
-            ]
+            ],
         )
 
         assert_array_equal(data, expect)
@@ -113,7 +115,8 @@ class TestDirectionStyle(TestCase):
         table = make_table(data=data)
         result = make_consistent_direction_style(table)
         self.assertEqual(
-            result.columns["direction"].tolist(), ["AtoC", "AtoG", "TtoC", "AtoT"]
+            result.columns["direction"].tolist(),
+            ["AtoC", "AtoG", "TtoC", "AtoT"],
         )
 
         data = {
@@ -123,7 +126,8 @@ class TestDirectionStyle(TestCase):
         table = make_table(data=data)
         result = make_consistent_direction_style(table)
         self.assertEqual(
-            result.columns["direction"].tolist(), ["AtoC", "AtoG", "TtoC", "AtoT"]
+            result.columns["direction"].tolist(),
+            ["AtoC", "AtoG", "TtoC", "AtoT"],
         )
 
         # wrong separator raises

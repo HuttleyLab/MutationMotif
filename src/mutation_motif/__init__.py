@@ -2,7 +2,6 @@
 
 from warnings import filterwarnings
 
-
 filterwarnings("ignore", "Attempting to set identical bottom==top")
 filterwarnings("ignore", "invalid value encountered.*")
 

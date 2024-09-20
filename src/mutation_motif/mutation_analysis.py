@@ -1,16 +1,13 @@
 #!/usr/bin/env python
 import os
-
 from itertools import combinations
 
 import click
-
 from cogent3 import make_table
 from scipy.stats.distributions import chi2
 from scitrack import CachingLogger
 
 from mutation_motif import draw, log_lin, motif_count, spectra_analysis, util
-
 
 LOGGER = CachingLogger(create_dir=True)
 
@@ -45,7 +42,9 @@ def get_grouped_combined_counts(table, position, group_label):
             header = [group_label] + list(counts.header)
 
         counts = counts.with_new_column(
-            group_label, lambda x: category, columns=counts.header[0]
+            group_label,
+            lambda x: category,
+            columns=counts.header[0],
         )
         all_data.extend(counts.to_list(header))
     counts = make_table(header=header, rows=all_data)
@@ -64,10 +63,13 @@ def get_position_effects(table, position_sets, group_label=None):
             counts = motif_count.get_combined_counts(table, position_set)
         else:
             counts = get_grouped_combined_counts(
-                table, position_set, group_label=group_label
+                table,
+                position_set,
+                group_label=group_label,
             )
         rel_entropy, deviance, df, stats, formula = log_lin.position_effect(
-            counts, group_label=group_label
+            counts,
+            group_label=group_label,
         )
         if deviance < 0:
             p = 1.0
@@ -92,21 +94,27 @@ def single_position_effects(table, positions, group_label=None):
 
 def get_two_position_effects(table, positions, group_label=None):
     two_pos_results = get_position_effects(
-        table, list(combinations(positions, 2)), group_label=group_label
+        table,
+        list(combinations(positions, 2)),
+        group_label=group_label,
     )
     return two_pos_results
 
 
 def get_three_position_effects(table, positions, group_label=None):
     three_pos_results = get_position_effects(
-        table, list(combinations(positions, 3)), group_label=group_label
+        table,
+        list(combinations(positions, 3)),
+        group_label=group_label,
     )
     return three_pos_results
 
 
 def get_four_position_effects(table, positions, group_label=None):
     result = get_position_effects(
-        table, list(combinations(positions, 4)), group_label=group_label
+        table,
+        list(combinations(positions, 4)),
+        group_label=group_label,
     )
     return result
 
@@ -127,7 +135,9 @@ def single_group(
     # Single position analysis
     print("Doing single position analysis")
     single_results = single_position_effects(
-        counts_table, positions, group_label=group_label
+        counts_table,
+        positions,
+        group_label=group_label,
     )
     summary += make_summary(single_results)
 
@@ -138,7 +148,10 @@ def single_group(
         LOGGER.output_file(outfilename, label="analysis1")
 
     fig = draw.get_1way_position_drawable(
-        single_results, None, group_label=group_label, group_ref=group_ref
+        single_results,
+        None,
+        group_label=group_label,
+        group_ref=group_ref,
     )
 
     if not dry_run:
@@ -172,7 +185,10 @@ def single_group(
         LOGGER.output_file(outfilename, label="analysis2")
 
     fig = draw.get_2way_position_drawable(
-        results, None, group_label=group_label, group_ref=group_ref
+        results,
+        None,
+        group_label=group_label,
+        group_ref=group_ref,
     )
     if not dry_run:
         outfilename = os.path.join(outpath, "2.pdf")
@@ -181,7 +197,9 @@ def single_group(
 
     print("Doing three positions analysis")
     results = get_three_position_effects(
-        counts_table, positions, group_label=group_label
+        counts_table,
+        positions,
+        group_label=group_label,
     )
     summary += make_summary(results)
 
@@ -204,7 +222,9 @@ def single_group(
 
     print("Doing four positions analysis")
     results = get_four_position_effects(
-        counts_table, positions, group_label=group_label
+        counts_table,
+        positions,
+        group_label=group_label,
     )
     summary += make_summary(results)
 
@@ -251,7 +271,9 @@ def single_group(
 _countsfile = click.option("-1", "--countsfile", help="tab delimited file of counts.")
 _outpath = click.option("-o", "--outpath", help="Directory path to write data.")
 _countsfile2 = click.option(
-    "-2", "--countsfile2", help="second group motif counts file."
+    "-2",
+    "--countsfile2",
+    help="second group motif counts file.",
 )
 _strand_symmetry = click.option(
     "-s",
@@ -260,7 +282,10 @@ _strand_symmetry = click.option(
     help="single counts file but second group is strand.",
 )
 _force_overwrite = click.option(
-    "-F", "--force_overwrite", is_flag=True, help="Overwrite existing files."
+    "-F",
+    "--force_overwrite",
+    is_flag=True,
+    help="Overwrite existing files.",
 )
 _dry_run = click.option(
     "-D",
@@ -351,7 +376,9 @@ def nbr(
         group_label = group_label or "group"
         group_ref = group_ref or "1"
         counts_table1 = counts_table.with_new_column(
-            group_label, lambda x: "1", columns=counts_table.header[0]
+            group_label,
+            lambda x: "1",
+            columns=counts_table.header[0],
         )
 
         fn2 = util.abspath(countsfile2)
@@ -360,7 +387,9 @@ def nbr(
         LOGGER.input_file(fn2, label="countsfile2_path")
 
         counts_table2 = counts_table2.with_new_column(
-            group_label, lambda x: "2", columns=counts_table2.header[0]
+            group_label,
+            lambda x: "2",
+            columns=counts_table2.header[0],
         )
         # now combine
         header = [group_label] + list(counts_table2.header[:-1])

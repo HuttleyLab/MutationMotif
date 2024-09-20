@@ -8,7 +8,6 @@ from numpy import array, errstate, isnan, log2
 
 from mutation_motif.util import is_valid
 
-
 filterwarnings("ignore", "invalid value encountered in multiply")
 
 
@@ -60,7 +59,10 @@ def get_entropy_terms(data, pseudocount=0, check_valid=False, freq_matrix=False)
 def get_mit(data, pseudocount=0, check_valid=False, freq_matrix=False):
     """returns MI terms for axis=0"""
     entropy_terms = get_entropy_terms(
-        data, pseudocount=pseudocount, check_valid=check_valid, freq_matrix=freq_matrix
+        data,
+        pseudocount=pseudocount,
+        check_valid=check_valid,
+        freq_matrix=freq_matrix,
     )
     mit = 0.5 - entropy_terms
     mit[isnan(mit)] = 0

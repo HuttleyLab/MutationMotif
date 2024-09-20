@@ -1,6 +1,5 @@
 import os
 import shutil
-
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest import TestCase, main
@@ -13,7 +12,6 @@ from mutation_motif.aln_to_counts import main as aln_to_counts_main
 from mutation_motif.draw import main as draw_main
 from mutation_motif.mutation_analysis import main as mut_main
 from mutation_motif.util import makedirs
-
 
 test_datadir = Path(__file__).parent / "data"
 
@@ -31,12 +29,14 @@ class TestCounting(TestCase):
         r = runner.invoke(all_count_main, ["-cdata/*.txt", "-o%s" % self.dirname])
         self.assertNotEqual(r.exit_code, 0)
         r = runner.invoke(
-            all_count_main, ["-cdata/directions/*.txt", "-o%s" % self.dirname]
+            all_count_main,
+            ["-cdata/directions/*.txt", "-o%s" % self.dirname],
         )
         # should produce directory containing two files
         dirlist = os.listdir(self.dirname)
         self.assertEqual(
-            set(dirlist), set(["combined_counts.txt", "combined_counts.log"])
+            set(dirlist),
+            set(["combined_counts.txt", "combined_counts.log"]),
         )
         # check the contents of combined_counts
         counts = load_table(os.path.join(self.dirname, "combined_counts.txt"), sep="\t")
@@ -51,14 +51,16 @@ class TestCounting(TestCase):
         with TemporaryDirectory(dir=".") as dirname:
             outpath = Path(dirname)
             r = runner.invoke(
-                all_count_main, ["-cdata/directions/*.txt", f"-o{outpath}", "-s"]
+                all_count_main,
+                ["-cdata/directions/*.txt", f"-o{outpath}", "-s"],
             )
 
             # should produce directory containing two files
             self.assertEqual(r.exit_code, 0, r.output)
             dirlist = {str(p.name) for p in outpath.glob("*")}
             self.assertEqual(
-                dirlist, set(["combined_counts.txt", "combined_counts.log"])
+                dirlist,
+                set(["combined_counts.txt", "combined_counts.log"]),
             )
             counts = load_table(f"{outpath / 'combined_counts.txt'}", sep="\t")
             self.assertIn("strand", counts.header)
@@ -359,7 +361,9 @@ class TestDraw(TestCase):
         with TemporaryDirectory(dir=".") as dirname:
             path = Path(dirname) / "cfgs"
             r = runner.invoke(
-                draw_main, ["export-cfg", str(path)], catch_exceptions=False
+                draw_main,
+                ["export-cfg", str(path)],
+                catch_exceptions=False,
             )
             self.assertEqual(r.exit_code, 0)
             num_files = 0

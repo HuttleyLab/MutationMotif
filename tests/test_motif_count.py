@@ -11,7 +11,6 @@ from mutation_motif.motif_count import (
     reduced_one_position,
 )
 
-
 obs = """
 TATGT
 TATTT

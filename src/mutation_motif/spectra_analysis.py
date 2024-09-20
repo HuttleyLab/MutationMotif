@@ -8,7 +8,6 @@ from scitrack import CachingLogger
 from mutation_motif import draw, log_lin, util
 from mutation_motif.util import load_table_from_delimited_file
 
-
 LOGGER = CachingLogger(create_dir=True)
 
 
@@ -18,7 +17,13 @@ def dump_json(data, outfile_path):
 
 
 def main(
-    countsfile, outpath, countsfile2, strand_symmetry, force_overwrite, dry_run, verbose
+    countsfile,
+    outpath,
+    countsfile2,
+    strand_symmetry,
+    force_overwrite,
+    dry_run,
+    verbose,
 ):
     args = locals()
 
@@ -42,10 +47,14 @@ def main(
         counts_table2 = load_table_from_delimited_file(countsfile2, sep="\t")
         LOGGER.input_file(countsfile2)
         counts_table2 = counts_table2.with_new_column(
-            "group", lambda x: "2", columns=counts_table2.header[0]
+            "group",
+            lambda x: "2",
+            columns=counts_table2.header[0],
         )
         counts_table1 = table.with_new_column(
-            "group", lambda x: "1", columns=table.header[0]
+            "group",
+            lambda x: "1",
+            columns=table.header[0],
         )
 
         counts_table1 = util.spectra_table(counts_table1, group_label)
@@ -67,7 +76,8 @@ def main(
         columns = [c for c in counts_table.header if c != "start"]
         subtable = subtable.get_columns(columns)
         total_re, dev, df, collated, formula = log_lin.spectra_difference(
-            subtable, group_label
+            subtable,
+            group_label,
         )
         r = [list(x) for x in collated.to_records(index=False)]
 

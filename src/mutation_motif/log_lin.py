@@ -1,6 +1,5 @@
 import numpy
 import pandas as pd
-
 from rpy2.robjects import Formula
 from rpy2.robjects import r as R
 from rpy2.robjects.vectors import DataFrame, FactorVector, IntVector, StrVector
@@ -9,7 +8,11 @@ from rpy2.robjects.vectors import DataFrame, FactorVector, IntVector, StrVector
 def as_dataframe(table):
     """returns a DataFrame instance. Requires counts to be
     [[col1, col2, col3, ..]]"""
-    data = dict(list(zip(table.header, list(zip(*table.to_list())))))
+    data = dict(
+        list(
+            zip(table.header, list(zip(*table.to_list(), strict=False)), strict=False)
+        ),
+    )
     for column in data:
         if type(data[column][0]) in (str, str):
             klass = StrVector

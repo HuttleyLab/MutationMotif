@@ -27,3 +27,4 @@ draw_results
 *.nox
 *lcov*.info
 working/*
+.ruff_cache/*

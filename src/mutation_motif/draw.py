@@ -1,12 +1,10 @@
 import os
 import sys
-
 from configparser import ConfigParser
 from importlib import resources
 
 import click
 import numpy
-
 from cogent3.core.profile import MotifCountsArray
 from cogent3.draw.drawable import Drawable, get_domain
 from cogent3.draw.logo import get_base_logo_layout, get_logo
@@ -30,7 +28,6 @@ from mutation_motif.util import (
     load_loglin_stats,
     makedirs,
 )
-
 
 LOGGER = CachingLogger(create_dir=True)
 
@@ -81,7 +78,7 @@ def get_mi_plot_data(pwise_results, positions, group_label=None, group_ref=None)
         arr = mut_stats.to_numpy()
         c = arr[:, 1].astype(int)
         b = arr[:, 0]
-        data = dict(zip(b, c))
+        data = dict(zip(b, c, strict=False))
         counts.append([data[b] for b in base_order])
     counts = MotifCountsArray(counts, base_order)
     freqs = counts.to_freq_array()
@@ -92,7 +89,7 @@ def get_mi_plot_data(pwise_results, positions, group_label=None, group_ref=None)
         char_heights = []
         for i in range(mi.shape[0]):
             hts = get_mi_char_heights(mit[i], mi[i])
-            char_heights.append({b: v for b, v in zip(base_order, hts)})
+            char_heights.append({b: v for b, v in zip(base_order, hts, strict=False)})
     else:
         char_heights = []
         hts = c3_get_mi(freqs)
@@ -140,10 +137,11 @@ def get_re_plot_data(pwise_results, positions, group_label=None, group_ref=None)
         rets_ = arr[:, 1].astype(float)
         chars_ = arr[:, 0]
         hts = get_re_char_heights(
-            rets_, re_positionwise=pwise_results[pos]["rel_entropy"]
+            rets_,
+            re_positionwise=pwise_results[pos]["rel_entropy"],
         )
 
-        vals = {b: ret for b, ret in zip(chars_, hts)}
+        vals = {b: ret for b, ret in zip(chars_, hts, strict=False)}
         char_heights.append(vals)
 
     char_heights.insert(mid, {})
@@ -223,7 +221,7 @@ def get_matrix_row_col_titles(
                 "xanchor": "center",
                 "yanchor": "middle",
                 "textangle": textangle,
-            }
+            },
         )
         # note that plotly display is in cartesian, so the y array coordinate
         # needs to be reversed
@@ -309,7 +307,9 @@ def get_position_grid_drawable(directions, plot_cfg, ylim=None):
         axnum = coords_to_axis[(row, col)]
         # setup subplot layout
         base_layout = get_base_logo_layout(
-            axnum, plot_cfg.xtick_fontsize, plot_cfg.ytick_fontsize
+            axnum,
+            plot_cfg.xtick_fontsize,
+            plot_cfg.ytick_fontsize,
         )
         layout |= base_layout
         ax = "" if axnum == 1 else f"{axnum}"
@@ -401,7 +401,7 @@ def get_summary_drawable(data, plot_cfg, ylim=None):
     plot_cfg = default_cfg
 
     order_vals = get_order_max_re_from_summary(data)
-    order, stat = list(zip(*order_vals))
+    order, stat = list(zip(*order_vals, strict=False))
 
     if ylim is None and "ylim" not in plot_cfg:
         ylim = (0, est_ylim(stat))
@@ -494,7 +494,8 @@ def get_1way_position_drawable(
     """
     plot_cfg = get_nbr_config(plot_cfg, "1-way plot")
     positions = sorted(
-        [k for k in data if k.startswith("pos")], key=get_position_number
+        [k for k in data if k.startswith("pos")],
+        key=get_position_number,
     )
     heights = get_heights(data, positions, group_label=group_label, group_ref=group_ref)
     if ylim is None and "ylim" not in plot_cfg:
@@ -627,7 +628,9 @@ def _get_multi_way_position_drawables(
         col, row = group_coords[group]
 
         base_layout = get_base_logo_layout(
-            axnum, plot_cfg.xtick_fontsize, plot_cfg.ytick_fontsize
+            axnum,
+            plot_cfg.xtick_fontsize,
+            plot_cfg.ytick_fontsize,
         )
         layout |= base_layout
         ax = "" if axnum == 1 else f"{axnum}"
@@ -641,7 +644,9 @@ def _get_multi_way_position_drawables(
         # note that plotly display is cartesian, so the y array coordinate
         # needs to be reversed
         layout[f"yaxis{ax}"] |= dict(
-            domain=group_domains[group].y, title=None, range=[0, ylim]
+            domain=group_domains[group].y,
+            title=None,
+            range=[0, ylim],
         )
         # make sure xaxis has correct range
 
@@ -660,7 +665,7 @@ def _get_multi_way_position_drawables(
 
         for i, base in enumerate(bases):
             chars = list(mut_stats[base])
-            char_re = list(zip(chars, hts))
+            char_re = list(zip(chars, hts, strict=False))
             char_heights[indices[i]] = char_re
 
         r = get_logo(char_heights, axnum=axnum, ylim=ylim, layout=base_layout)
@@ -697,7 +702,11 @@ def _get_multi_way_position_drawables(
 
 # get 2-way interactions drawable, a lower triangular grid plot
 def get_2way_position_drawable(
-    data, plot_cfg, group_label=None, group_ref=None, ylim=None
+    data,
+    plot_cfg,
+    group_label=None,
+    group_ref=None,
+    ylim=None,
 ):
     """produces mutation motif Drawable for a single mutation direction of
     2nd order interactions.
@@ -750,7 +759,11 @@ def get_2way_position_drawable(
 
 # get 3-way interactions drawable, a lower triangular grid plot
 def get_3way_position_drawable(
-    data, plot_cfg, group_label=None, group_ref=None, ylim=None
+    data,
+    plot_cfg,
+    group_label=None,
+    group_ref=None,
+    ylim=None,
 ):
     """produces mutation motif Drawable for a single mutation direction of
     3rd order interactions.
@@ -799,7 +812,11 @@ def get_3way_position_drawable(
 
 
 def get_4way_position_drawable(
-    data, plot_cfg, group_label=None, group_ref=None, ylim=None
+    data,
+    plot_cfg,
+    group_label=None,
+    group_ref=None,
+    ylim=None,
 ):
     """produces mutation motif Drawable for a single mutation direction of
     4th order interactions.
@@ -877,10 +894,16 @@ def get_spectra_row(data, bases, axnum, ylim=1, domain=(0, 1), colours=None):
     yref = "y" if axnum == 1 else f"y{axnum}"
     anchor = "" if axnum == 1 else axnum
     layout["xaxis"] = dict(
-        domain=[0, 1], showticklabels=False, range=[1, 5], anchor=f"y{anchor}"
+        domain=[0, 1],
+        showticklabels=False,
+        range=[1, 5],
+        anchor=f"y{anchor}",
     )
     layout["yaxis"] = dict(
-        domain=domain, range=[0, ylim], anchor=f"x{anchor}", ticks="inside"
+        domain=domain,
+        range=[0, ylim],
+        anchor=f"x{anchor}",
+        ticks="inside",
     )
     layout["xaxis"] |= axis_lines
     layout["yaxis"] |= axis_lines
@@ -891,7 +914,12 @@ def get_spectra_row(data, bases, axnum, ylim=1, domain=(0, 1), colours=None):
 
         val = data[b]
         c = get_character(
-            letter=b, x=i + 1, y=0, height=val, width=1, fillcolor=colours[b]
+            letter=b,
+            x=i + 1,
+            y=0,
+            height=val,
+            width=1,
+            fillcolor=colours[b],
         )
         c.xref = xref
         c.yref = yref
@@ -934,7 +962,7 @@ def get_spectra_grid_drawable(
     plot_cfg = default_cfg
 
     if group_ref is None:
-        group_ref = {"strand": "+", "group": "1"}.get(group_label, None)
+        group_ref = {"strand": "+", "group": "1"}.get(group_label)
 
     assert group_ref is not None, group_ref
 
@@ -1126,7 +1154,9 @@ def get_grid_drawable(plot_cfg, ylim=None):
     for coord in plot_cfg.paths:
         data = load_loglin_stats(plot_cfg.paths[coord])
         coords_to_axis[tuple(coord)] = _get_axis_num(
-            plot_cfg.num_rows, coord[1], coord[0]
+            plot_cfg.num_rows,
+            coord[1],
+            coord[0],
         )
         if positions is None:
             positions = list(data)
@@ -1154,18 +1184,26 @@ def get_grid_drawable(plot_cfg, ylim=None):
         col, row = coord
         axnum = coords_to_axis[tuple(coord)]
         base_layout = get_base_logo_layout(
-            axnum, plot_cfg.xtick_fontsize, plot_cfg.ytick_fontsize
+            axnum,
+            plot_cfg.xtick_fontsize,
+            plot_cfg.ytick_fontsize,
         )
         layout |= base_layout
         ax = "" if axnum == 1 else f"{axnum}"
         # domains
         layout[f"xaxis{ax}"]["domain"] = get_domain(
-            plot_cfg.num_cols, col, is_y=False, space=plot_cfg.space
+            plot_cfg.num_cols,
+            col,
+            is_y=False,
+            space=plot_cfg.space,
         )
         # note that plotly display is cartesian, so the y array coordinate
         # needs to be reversed
         layout[f"yaxis{ax}"]["domain"] = get_domain(
-            plot_cfg.num_rows, row, is_y=True, space=plot_cfg.space
+            plot_cfg.num_rows,
+            row,
+            is_y=True,
+            space=plot_cfg.space,
         )
         # tweaks to axis display
         layout[f"xaxis{ax}"].tickvals = xtick_vals
@@ -1242,7 +1280,6 @@ def get_grid_drawable(plot_cfg, ylim=None):
 @click.group()
 def main():
     """draw mutation motif logo's and spectra"""
-    pass
 
 
 # defining the CLI options
@@ -1254,18 +1291,25 @@ _paths_cfg = click.option(
 )
 
 _figpath = click.option(
-    "--figpath", help="Filename for plot file. Suffix defines format."
+    "--figpath",
+    help="Filename for plot file. Suffix defines format.",
 )
 _plot_cfg = click.option(
-    "--plot_cfg", help="Config file for plot size, font size settings."
+    "--plot_cfg",
+    help="Config file for plot size, font size settings.",
 )
 
 _sample_size = click.option(
-    "--sample_size", is_flag=True, help="Include sample size on each subplot."
+    "--sample_size",
+    is_flag=True,
+    help="Include sample size on each subplot.",
 )
 
 _force_overwrite = click.option(
-    "-F", "--force_overwrite", is_flag=True, help="Overwrite existing files."
+    "-F",
+    "--force_overwrite",
+    is_flag=True,
+    help="Overwrite existing files.",
 )
 _dry_run = click.option(
     "-D",
@@ -1395,7 +1439,9 @@ def spectra_grid(
         LOGGER.input_file(plot_cfg)
 
     fig = get_spectra_grid_drawable(
-        json_path, plot_cfg=plot_cfg, group_label=group_label
+        json_path,
+        plot_cfg=plot_cfg,
+        group_label=group_label,
     )
     fig.write(figpath)
     LOGGER.output_file(figpath)
@@ -1507,7 +1553,10 @@ def mi(
 
     data = load_loglin_stats(json_path)
     fig = get_1way_position_drawable(
-        data, plot_cfg, group_label=group_label, get_heights=get_mi_plot_data
+        data,
+        plot_cfg,
+        group_label=group_label,
+        get_heights=get_mi_plot_data,
     )
     for ann in fig.layout.annotations:
         if "RE" in ann.text:
@@ -1527,7 +1576,8 @@ def export_cfg(outpath):
 
     if os.path.exists(outpath):
         click.secho(
-            "outpath already exists, delete it or choose different dest", fg="red"
+            "outpath already exists, delete it or choose different dest",
+            fg="red",
         )
         sys.exit(1)
 
