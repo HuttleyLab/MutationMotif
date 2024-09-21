@@ -88,35 +88,31 @@ def get_position_effects(table, position_sets, group_label=None):
 
 
 def single_position_effects(table, positions, group_label=None):
-    single_results = get_position_effects(table, positions, group_label=group_label)
-    return single_results
+    return get_position_effects(table, positions, group_label=group_label)
 
 
 def get_two_position_effects(table, positions, group_label=None):
-    two_pos_results = get_position_effects(
+    return get_position_effects(
         table,
         list(combinations(positions, 2)),
         group_label=group_label,
     )
-    return two_pos_results
 
 
 def get_three_position_effects(table, positions, group_label=None):
-    three_pos_results = get_position_effects(
+    return get_position_effects(
         table,
         list(combinations(positions, 3)),
         group_label=group_label,
     )
-    return three_pos_results
 
 
 def get_four_position_effects(table, positions, group_label=None):
-    result = get_position_effects(
+    return get_position_effects(
         table,
         list(combinations(positions, 4)),
         group_label=group_label,
     )
-    return result
 
 
 def single_group(

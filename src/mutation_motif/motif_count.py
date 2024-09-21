@@ -40,8 +40,7 @@ def get_count_table(observed, control, k=None):
     if k is None:
         k = length
 
-    states = list(set(observed.keys()) | set(control.keys()))
-    states.sort()
+    states = sorted(set(observed.keys()) | set(control.keys()))
     for state in states:
         state = "".join(state)
         control_counts = control[state]
@@ -50,12 +49,14 @@ def get_count_table(observed, control, k=None):
             # we skip unobserved states
             continue
 
-        rows.append([control_counts] + list(state) + ["R"])
-        rows.append([observed_counts] + list(state) + ["M"])
-
+        rows.extend(
+            (
+                [control_counts] + list(state) + ["R"],
+                [observed_counts] + list(state) + ["M"],
+            ),
+        )
     header = ["count"] + ["pos%d" % i for i in range(k)] + ["mut"]
-    table = make_table(header=header, rows=rows)
-    return table
+    return make_table(header=header, rows=rows)
 
 
 def reduced_multiple_positions(table, *positions):
@@ -96,9 +97,12 @@ def get_combined_counts(table, positions):
 
     combined = []
     for state in states:
-        combined.append(["R"] + list(state) + [unmut_counts[state]])
-        combined.append(["M"] + list(state) + [mut_counts[state]])
-
+        combined.extend(
+            (
+                ["R"] + list(state) + [unmut_counts[state]],
+                ["M"] + list(state) + [mut_counts[state]],
+            ),
+        )
     counts_table = make_table(header=header, rows=combined)
     counts_table = counts_table.sorted(columns=header[:-1])
     return counts_table
