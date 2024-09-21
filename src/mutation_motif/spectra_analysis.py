@@ -2,7 +2,6 @@ import json
 import os
 
 from cogent3 import make_table
-from scipy.stats.distributions import chi2
 from scitrack import CachingLogger
 
 from mutation_motif import draw, log_lin, util
@@ -74,27 +73,21 @@ def main(
     results = []
     saveable = {}
     for start_base in counts_table.distinct_values("start"):
-        subtable = counts_table.filtered('start == "%s"' % start_base)
-        columns = [c for c in counts_table.header if c != "start"]
-        subtable = subtable.get_columns(columns)
-        total_re, dev, df, collated, formula = log_lin.spectra_difference(
+        subtable = select_mutating_base(counts_table, start_base)
+        result = log_lin.spectra_difference(
             subtable,
             group_label,
         )
-        r = [list(x) for x in collated.to_records(index=False)]
+        r = [list(x) for x in result.df.to_records(index=False)]
 
         if not strand_symmetry:
             grp_labels = {"1": countsfile, "2": countsfile2}
-            grp_index = list(collated.columns).index("group")
+            grp_index = list(result.df.columns).index("group")
             for row in r:
                 row[grp_index] = grp_labels[row[grp_index]]
 
-        p = chi2.sf(dev, df)
-        if p < 1e-6:
-            prob = "%.2e" % p
-        else:
-            prob = "%.6f" % p
-
+        p = result.pvalue
+        prob = "%.2e" % p if p < 1e-6 else "%.6f" % p
         for row in r:
             row.insert(0, start_base)
             row.append(prob)
@@ -111,16 +104,16 @@ def main(
         stats = "  :  ".join(significance)
         print(f"Start base={start_base}  {stats}")
         saveable[start_base] = dict(
-            rel_entropy=total_re,
-            deviance=dev,
-            df=df,
-            prob=p,
-            formula=formula,
-            stats=collated.to_json(),
+            rel_entropy=result.relative_entropy,
+            deviance=result.deviance,
+            df=result.nfp,
+            prob=result.pvalue,
+            formula=result.formula,
+            stats=result.df.to_json(),
         )
 
     table = make_table(
-        header=["start_base"] + list(collated.columns) + ["prob"],
+        header=["start_base"] + list(result.df.columns) + ["prob"],
         rows=results,
         digits=5,
     ).sorted(columns="ret")
@@ -140,3 +133,10 @@ def main(
         fig = draw.get_spectra_grid_drawable(json_path, group_label=group_label)
         write_fig(fig, fig_path)
         LOGGER.shutdown()
+
+
+def select_mutating_base(counts_table, start_base):
+    subtable = counts_table.filtered(f'start == "{start_base}"')
+    columns = [c for c in counts_table.header if c != "start"]
+    subtable = subtable.get_columns(columns)
+    return subtable

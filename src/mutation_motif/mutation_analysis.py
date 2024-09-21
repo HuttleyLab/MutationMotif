@@ -4,10 +4,16 @@ from itertools import combinations
 
 import click
 from cogent3 import make_table
-from scipy.stats.distributions import chi2
 from scitrack import CachingLogger
 
-from mutation_motif import draw, log_lin, motif_count, spectra_analysis, util
+from mutation_motif import (
+    __version__,
+    draw,
+    log_lin,
+    motif_count,
+    spectra_analysis,
+    util,
+)
 
 LOGGER = CachingLogger(create_dir=True)
 
@@ -67,21 +73,17 @@ def get_position_effects(table, position_sets, group_label=None):
                 position_set,
                 group_label=group_label,
             )
-        rel_entropy, deviance, df, stats, formula = log_lin.position_effect(
+        result = log_lin.position_effect(
             counts,
             group_label=group_label,
         )
-        if deviance < 0:
-            p = 1.0
-        else:
-            p = chi2.sf(deviance, df)
-
+        p = result.pvalue
         pos_results[position_set] = dict(
-            rel_entropy=rel_entropy,
-            deviance=deviance,
-            df=df,
-            stats=stats,
-            formula=formula,
+            rel_entropy=result.relative_entropy,
+            deviance=result.deviance,
+            df=result.nfp,
+            stats=result.df,
+            formula=result.formula,
             prob=p,
         )
     return pos_results

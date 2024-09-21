@@ -1,83 +1,121 @@
+import dataclasses
+import typing
+
 import numpy
-import pandas as pd
-from rpy2.robjects import Formula
-from rpy2.robjects import r as R
-from rpy2.robjects.vectors import DataFrame, FactorVector, IntVector, StrVector
+import pandas
+import statsmodels.api as sm
+import statsmodels.formula.api as smf
+from cogent3.util.table import Table
+from scipy.stats import chi2
+
+_poisson = sm.families.Poisson()
+_glm = smf.glm
 
 
-def as_dataframe(table):
-    """returns a DataFrame instance. Requires counts to be
-    [[col1, col2, col3, ..]]"""
-    data = dict(
-        list(
-            zip(table.header, list(zip(*table.to_list(), strict=False)), strict=False)
-        ),
-    )
-    for column in data:
-        if type(data[column][0]) in (str, str):
-            klass = StrVector
-        else:
-            klass = IntVector
-
-        data[column] = klass(data[column])
-
-    return DataFrame(data)
+def table_to_pandas_with_factors(
+    table: Table,
+    factor_columns: list[str],
+) -> pandas.DataFrame:
+    """Returns a pandas DataFrame with factor columns converted to pandas category type"""
+    df = table.to_pandas()
+    for column in factor_columns:
+        df[column].astype("category")
+    return df
 
 
-def get_rpy2_factorvector_index_map(fac):
-    """returns dict mapping factor vector indices to factors"""
-    mapping = dict([(i + 1, f) for i, f in enumerate(fac.levels)])
-    return mapping
+class DevianceToRelativeEntropy:
+    """converts a deviance to relative entropy"""
+
+    def __init__(self, N: int) -> None:
+        self.denom = 2 * N
+
+    def __call__(self, val: int | float) -> float:
+        return val / self.denom
 
 
-def convert_rdf_to_pandasdf(r_df):
-    """converts an rpy2 dataframe to a pandas dataframe"""
-    converted = {}
-    for col_name, col_vector in list(r_df.items()):
-        if type(col_vector) == FactorVector:
-            index_factor_map = get_rpy2_factorvector_index_map(col_vector)
-            col_vector = [index_factor_map[val] for val in col_vector]
-        converted[col_name] = list(col_vector)
-    return pd.DataFrame(converted)
+class CalcRet:
+    """computes residual relative entropy terms."""
 
+    def __init__(
+        self,
+        dev_to_re: typing.Callable[[float], float],
+        epsilon: float = 1e-9,
+    ):
+        self.dev_to_re = dev_to_re
+        self.epsilon = epsilon
 
-def DevianceToRelativeEntropy(N):
-    """converts deviance to Relative Entropy"""
-    denom = 2 * N
-
-    def call(val):
-        return val / denom
-
-    return call
-
-
-def CalcRet(dev_to_re, epsilon=1e-9):
-    """factory function for computing residual relative entropy terms.
-
-    dev_to_re is a function for converting a deviance to relative entropy"""
-
-    def call(obs, exp):
+    def __call__(
+        self,
+        obs: list[float],
+        exp: list[float],
+    ) -> list[float]:
         result = []
         for i in range(len(obs)):
             o, e = obs[i], exp[i]
-            e = e or epsilon  # to avoide zero division
-            o = o or epsilon  # avoid zero counts
-            ret = dev_to_re(2 * o * numpy.log(o / e))
+            e = e or self.epsilon  # to avoide zero division
+            o = o or self.epsilon  # avoid zero counts
+            ret = self.dev_to_re(2 * o * numpy.log(o / e))
             result.append(ret)
         return result
 
-    return call
+
+@dataclasses.dataclass
+class loglin_result:
+    relative_entropy: float
+    deviance: float
+    nfp: int
+    formula: str
+    df: pandas.DataFrame
+    pvalue: float
 
 
-def position_effect(counts_table, group_label=None, test=False):
-    """returns total relative entropy, degrees of freedom and stats
+def stats_from_loglin(
+    counts_table: Table,
+    factors: list[str],
+    formula: str,
+) -> loglin_result:
+    df = table_to_pandas_with_factors(counts_table, factors)
+    model = _glm(formula=formula, data=df, family=_poisson).fit()
+    dev = model.deviance
+    nfp = model.df_resid
+    dev_to_re = DevianceToRelativeEntropy(counts_table.sum_columns("count"))
+    calc_ret = CalcRet(dev_to_re)
+    total_re = dev_to_re(dev)
+    df["fitted"] = model.predict()
+    df["ret"] = calc_ret(df["count"], df["fitted"])
+    return loglin_result(
+        relative_entropy=float(total_re),
+        deviance=float(dev),
+        nfp=int(nfp),
+        formula=formula,
+        df=df,
+        pvalue=chi2.sf(dev, nfp),
+    )
 
-    fit's a log-lin model that excludes only the full interaction term
 
-    Arguments:
-        - group_label: name of column containing group data
+def position_effect(
+    counts_table: Table,
+    group_label: str | None = None,
+    test: bool = False,
+) -> loglin_result:
+    """fit's a log-linear model for a single mutation direction
+
+    Parameters
+    ----------
+    counts_table
+        table of counts for mutated bases and their controls
+    group_label
+        will group data by this column and test for a difference between the
+        groups
+    test
+        verbose output
+
+    Notes
+    -----
+    The method is assuming the counts are for a single mutation direction.
+    The log-linear model excludes only the full interaction term.
     """
-    num_pos = sum(1 for c in counts_table.header if c.startswith("base"))
+    num_pos = sum(bool(c.startswith("base")) for c in counts_table.header)
     assert 1 <= num_pos <= 4, "Can only handle 4 positions"
 
     if num_pos == 1:
@@ -91,55 +129,42 @@ def position_effect(counts_table, group_label=None, test=False):
 
     factors = columns[:-1]
     formula = " - ".join([" * ".join(factors), " : ".join(factors)])
-    formula = "count ~ %s" % formula
-    null = Formula(formula)
+    formula = f"count ~ {formula}"
     if test:
         print(formula)
 
     counts_table = counts_table.get_columns(columns)
-    d = as_dataframe(counts_table)
-
-    f = R.glm(null, data=d, family="poisson")
-    f_attr = dict(list(f.items()))
-    dev = f_attr["deviance"][0]
-    df = f_attr["df.residual"][0]
-
-    collated = convert_rdf_to_pandasdf(f_attr["data"])
-    collated["fitted"] = list(f_attr["fitted.values"])
-    dev_to_re = DevianceToRelativeEntropy(collated["count"].sum())
-    calc_ret = CalcRet(dev_to_re)
-    total_re = dev_to_re(dev)
-
-    collated["ret"] = calc_ret(collated["count"], collated["fitted"])
-    collated = collated.reindex(columns + ["fitted", "ret"], axis=1)
-    collated = collated.sort_values(by=columns[:-1])
-    return total_re, dev, df, collated, formula
+    return stats_from_loglin(counts_table, factors, formula)
 
 
-def spectra_difference(counts_table, group_label, test=False):
-    """group_label is the column name for category"""
+def spectra_difference(
+    counts_table: Table,
+    group_label: str,
+    test: bool = False,
+) -> loglin_result:
+    """fits a log-linear model for equivalence of spectra between groups
+
+    Parameters
+    ----------
+    counts_table
+        table of counts for mutation outcomes from one starting base, split by
+        group where group can be, for example, "strand".
+    group_label
+        the column containing the group factor labels
+    test
+        verbose output
+
+    Notes
+    -----
+    For a A mmutation spectra is the distribution of mutations across the four
+    The log-linear model excludes only the full interaction term.
+    """
     # we compare direction between group
     columns = ["count", "direction", group_label]
     assert set(columns) <= set(counts_table.header)
-    formula = "count ~ direction + %s" % group_label
-    null = Formula(formula)
+    formula = f"count ~ direction + {group_label}"
     if test:
         print(formula)
 
     counts_table = counts_table.get_columns(columns)
-    d = as_dataframe(counts_table)
-    f = R.glm(null, data=d, family="poisson")
-    f_attr = dict(list(f.items()))
-    dev = f_attr["deviance"][0]
-    df = f_attr["df.residual"][0]
-
-    collated = convert_rdf_to_pandasdf(f_attr["data"])
-    collated["fitted"] = list(f_attr["fitted.values"])
-    dev_to_re = DevianceToRelativeEntropy(collated["count"].sum())
-    calc_ret = CalcRet(dev_to_re)
-    total_re = dev_to_re(dev)
-
-    collated["ret"] = calc_ret(collated["count"], collated["fitted"])
-    collated = collated.reindex(columns + ["fitted", "ret"], axis=1)
-    collated = collated.sort_values(by=columns[:-1])
-    return total_re, dev, df, collated, formula
+    return stats_from_loglin(counts_table, columns[1:], formula)
