@@ -10,7 +10,6 @@ from mutation_motif.profile import (
     filter_seqs_by_chosen_base,
     get_control,
     get_random_indices,
-    get_zero_counts,
 )
 
 
@@ -254,16 +253,6 @@ class TestIndices(TestCase):
         ]
 
         self.assertEqual(full_list, expect)
-
-
-class TestProfile(TestCase):
-    def test_zero_counts(self):
-        """zero profile constructed correctly"""
-        c = get_zero_counts(5, int, pseudo_count=0)
-        self.assertEqual(c.shape, (4, 5))
-        self.assertEqual(c.tolist(), [[0, 0, 0, 0, 0]] * 4)
-        c = get_zero_counts(5, int, pseudo_count=1)
-        self.assertEqual(c.tolist(), [[1, 1, 1, 1, 1]] * 4)
 
 
 if __name__ == "__main__":
