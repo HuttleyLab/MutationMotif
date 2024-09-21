@@ -1,10 +1,9 @@
-[![CI Status](https://github.com/HuttleyLab/MutationMotif/workflows/CI/badge.svg?branch=develop)](https://github.com/HuttleyLab/MutationMotif/actions?workflow=CI) 
+[![CI](https://github.com/HuttleyLab/MutationMotif/actions/workflows/testing_develop.yml/badge.svg)](https://github.com/HuttleyLab/MutationMotif/actions/workflows/testing_develop.yml)
 [![Coverage Status](https://coveralls.io/repos/github/HuttleyLab/MutationMotif/badge.svg?branch=develop)](https://coveralls.io/github/HuttleyLab/MutationMotif?branch=develop) 
-![Using Black
-Formatting](https://img.shields.io/badge/code%20style-black-000000.svg)
 [![Python
-3.8+](https://img.shields.io/pypi/pyversions/cogent3)](https://www.python.org/downloads/release/python-360/)
-
+3.10+](https://img.shields.io/pypi/pyversions/cogent3)](https://www.python.org/downloads/release/python-360/)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/ffc29377d3684100b74a868e4a15970d)](https://app.codacy.com/gh/HuttleyLab/MutationMotif/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 
 ![logo](https://ndownloader.figstatic.com/files/23575181)
 
