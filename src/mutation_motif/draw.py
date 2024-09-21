@@ -433,7 +433,7 @@ def get_summary_drawable(data, plot_cfg, ylim=None):
     )
     layout.xaxis = UnionDict(
         tickmode="array",
-        ticktext=list([str(o) for o in order]),
+        ticktext=[str(o) for o in order],
         tickvals=order,
         tickfont=dict(size=plot_cfg.xtick_fontsize),
         titlefont=dict(size=plot_cfg.xlabel_fontsize),
@@ -1374,7 +1374,7 @@ def nbr_matrix(
 
     fig.write(figpath)
     LOGGER.output_file(figpath)
-    click.secho("Wrote %s" % figpath, fg="green")
+    click.secho(f"Wrote {figpath}", fg="green")
     LOGGER.shutdown()
 
 
@@ -1400,7 +1400,7 @@ def grid(fig_config, figpath):
 
     fig = get_grid_drawable(fig_config)
     fig.write(path=figpath)
-    click.secho("Wrote Cogent3 %s" % figpath, fg="green")
+    click.secho(f"Wrote {figpath}", fg="green")
     LOGGER.shutdown()
 
 
@@ -1445,7 +1445,7 @@ def spectra_grid(
     )
     fig.write(figpath)
     LOGGER.output_file(figpath)
-    click.secho("Wrote %s" % figpath, fg="green")
+    click.secho(f"Wrote {figpath}", fg="green")
     LOGGER.shutdown()
 
 
@@ -1564,7 +1564,7 @@ def mi(
             break
     fig.write(figpath)
     LOGGER.output_file(figpath)
-    click.secho("Wrote %s" % figpath, fg="green")
+    click.secho(f"Wrote {figpath}", fg="green")
     LOGGER.shutdown()
 
 
@@ -1583,4 +1583,4 @@ def export_cfg(outpath):
 
     path = resources.files("mutation_motif") / "cfgs"
     shutil.copytree(path, outpath)
-    click.secho("Contents written to %s" % outpath, fg="green")
+    click.secho(f"Contents written to {outpath}", fg="green")

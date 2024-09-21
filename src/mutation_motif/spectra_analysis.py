@@ -100,14 +100,14 @@ def main(
         results += r
 
         significance = [
-            "RE=%.6f" % total_re,
-            "Dev=%.2f" % dev,
-            "df=%d" % df,
-            "p=%s" % p,
+            f"RE={result.relative_entropy:.6f}",
+            f"Dev={result.deviance:.2f}",
+            f"df={result.nfp}",
+            f"p={p}",
         ]
 
         stats = "  :  ".join(significance)
-        print("Start base=%s  %s" % (start_base, stats))
+        print(f"Start base={start_base}  {stats}")
         saveable[start_base] = dict(
             rel_entropy=total_re,
             deviance=dev,

@@ -32,7 +32,7 @@ def get_count_table(observed, control, k=None):
         list(map(len, list(observed.keys()))) + list(map(len, list(control.keys()))),
     )
     if len(lengths) != 1:
-        raise ValueError("Motifs not all same length: %s" % str(lengths))
+        raise ValueError(f"Motifs not all same length: {lengths}")
 
     length = list(lengths)[0]
     if k and length != k:
