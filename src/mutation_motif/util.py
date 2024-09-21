@@ -21,6 +21,7 @@ from pandas import read_json
 
 def load_table_from_delimited_file(path, sep="\t"):
     """returns a Table object after a quicker loading"""
+    path = str(path)
     with open_(path, "rt") as infile:
         header = infile.readline().strip().split(sep)
         count_index = header.index("count")
