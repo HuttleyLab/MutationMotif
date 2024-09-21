@@ -11,7 +11,7 @@ authors = [
 keywords = ["biology", "genomics", "statistics", "genetics", "evolution", "bioinformatics"]
 readme = "README.md"
 license = { file = "license.txt" }
-requires-python = ">3.8,<3.12"
+requires-python = ">3.9,<3.13"
 dependencies = ["click",
         "cogent3[extra]",
         "kaleido",
@@ -32,9 +32,9 @@ classifiers = [
         "Topic :: Software Development :: Libraries :: Python Modules",
         "Operating System :: MacOS",
         "Operating System :: POSIX :: Linux",
-        "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
     ]
 dynamic = ["version", "description"]
 
