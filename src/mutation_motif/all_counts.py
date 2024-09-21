@@ -32,7 +32,7 @@ _directions = [
     "TtoC",
     "TtoG",
 ]
-direction = re.compile("(%s)" % "|".join(_directions))
+direction = re.compile(f'({"|".join(_directions)})')
 
 
 def check_found_filenames(filenames):
@@ -41,13 +41,15 @@ def check_found_filenames(filenames):
     for fn in filenames:
         d = direction.findall(fn)
         found.update(d)
+
     total = sum(found.values())
     if total != 12 or set(found) != set(_directions):
-        print("ERROR: counts_pattern did not identify 12 files -- %s" % filenames)
-        print(
+        msg = (
+            f"ERROR: counts_pattern did not identify 12 files -- {filenames}\n"
             "Note that each file must contain a single direction pattern"
             ", e.g. CtoT, AtoG",
         )
+        click.secho(msg, fg="red")
         exit(-1)
 
 
@@ -94,11 +96,7 @@ def main(
     direction tables, adding a new column ``direction``."""
     LOGGER.log_args()
     output_path = abspath(output_path)
-    if strand_symmetric and split_dir:
-        split_dir = abspath(split_dir)
-    else:
-        split_dir = None
-
+    split_dir = abspath(split_dir) if strand_symmetric and split_dir else None
     # check we the glob pattern produces the correct number of files
     counts_files = glob.glob(counts_pattern)
     check_found_filenames(counts_files)
@@ -152,11 +150,7 @@ def main(
             for group, subtable in group_subtables:
                 # we first assume that group is part of the filenames!
                 fn = [bn for bn in basenames if group in bn]
-                if len(fn) == 1:
-                    fn = fn[0]
-                else:
-                    fn = "%s.txt" % group
-
+                fn = fn[0] if len(fn) == 1 else f"{group}.txt"
                 counts_filename = os.path.join(split_dir, fn)
                 subtable.write(counts_filename, sep="\t")
                 LOGGER.output_file(counts_filename)
@@ -164,7 +158,7 @@ def main(
     # determine runtime
     duration = time.time() - start_time
     if not dry_run:
-        LOGGER.log_message("%.2f" % (duration / 60.0), label="run duration (minutes)")
+        LOGGER.log_message(f"{duration / 60.0:.2f}", label="run duration (minutes)")
 
-    print("Done!")
+    click.secho("Done!", fg="green")
     LOGGER.shutdown()

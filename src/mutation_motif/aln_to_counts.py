@@ -25,8 +25,7 @@ def get_counts_filename(align_path, output_dir):
 
     fn = os.path.basename(align_path)
     fn = fn_suffixes.sub(".txt", fn)
-    counts_filename = os.path.join(output_dir, fn)
-    return counts_filename
+    return os.path.join(output_dir, fn)
 
 
 def align_to_counts(
@@ -221,5 +220,5 @@ def main(
     # determine runtime
     duration = time.time() - start_time
     if not dry_run:
-        LOGGER.log_message("%.2f" % (duration / 60.0), label="run duration (minutes)")
+        LOGGER.log_message(f"{duration / 60.0:.2f}", label="run duration (minutes)")
     LOGGER.shutdown()
