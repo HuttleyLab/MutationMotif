@@ -13,3 +13,16 @@ def test(session):
         "-x",
         *session.posargs,  # propagates sys.argv to pytest
     )
+
+
+@nox.session(python=["3.12"])
+def testcov(session):
+    session.install(".[test]")
+    session.chdir("tests")
+    session.run(
+        "pytest",
+        "--cov-report",
+        "html",
+        "--cov",
+        "mutation_motif",
+    )
