@@ -149,10 +149,10 @@ def single_group(
         group_label=group_label,
         group_ref=group_ref,
     )
-
+    write_fig = util.pdf_writer()
     if not dry_run:
         outfilename = os.path.join(outpath, "1.pdf")
-        fig.write(outfilename)
+        write_fig(fig, outfilename)
         LOGGER.output_file(outfilename)
 
     if first_order:
@@ -188,7 +188,7 @@ def single_group(
     )
     if not dry_run:
         outfilename = os.path.join(outpath, "2.pdf")
-        fig.write(outfilename)
+        write_fig(fig, outfilename)
         LOGGER.output_file(outfilename)
 
     print("Doing three positions analysis")
@@ -213,7 +213,7 @@ def single_group(
     )
     if not dry_run:
         outfilename = os.path.join(outpath, "3.pdf")
-        fig.write(outfilename)
+        write_fig(fig, outfilename)
         LOGGER.output_file(outfilename)
 
     print("Doing four positions analysis")
@@ -238,7 +238,7 @@ def single_group(
     )
     if not dry_run:
         outfilename = os.path.join(outpath, "4.pdf")
-        fig.write(outfilename)
+        write_fig(fig, outfilename)
         LOGGER.output_file(outfilename)
 
     # now generate summary plot
@@ -251,7 +251,7 @@ def single_group(
     fig = draw.get_summary_drawable(summary, None)
     if not dry_run:
         outfilename = os.path.join(outpath, "summary.pdf")
-        fig.write(outfilename)
+        write_fig(fig, outfilename)
         LOGGER.output_file(outfilename)
 
     if not dry_run:

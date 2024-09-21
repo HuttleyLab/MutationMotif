@@ -27,10 +27,11 @@ from mutation_motif.util import (
     get_summary_config,
     load_loglin_stats,
     makedirs,
+    pdf_writer,
 )
 
 LOGGER = CachingLogger(create_dir=True)
-
+write_pdf = pdf_writer()
 
 _axis_lines = dict(
     mirror=True,
@@ -1372,7 +1373,7 @@ def nbr_matrix(
 
     fig = get_position_grid_drawable(plot_data, plot_cfg)
 
-    fig.write(figpath)
+    write_pdf(fig, figpath)
     LOGGER.output_file(figpath)
     click.secho(f"Wrote {figpath}", fg="green")
     LOGGER.shutdown()
@@ -1399,7 +1400,7 @@ def grid(fig_config, figpath):
     LOGGER.log_file_path = log_file_path
 
     fig = get_grid_drawable(fig_config)
-    fig.write(path=figpath)
+    write_pdf(fig, figpath)
     click.secho(f"Wrote {figpath}", fg="green")
     LOGGER.shutdown()
 
@@ -1443,7 +1444,7 @@ def spectra_grid(
         plot_cfg=plot_cfg,
         group_label=group_label,
     )
-    fig.write(figpath)
+    write_pdf(fig, figpath)
     LOGGER.output_file(figpath)
     click.secho(f"Wrote {figpath}", fg="green")
     LOGGER.shutdown()
@@ -1493,7 +1494,7 @@ def nbr(
         LOGGER.input_file(paths[order].inpath)
         data = load_loglin_stats(paths[order].inpath)
         fig = funcs[order](data, plot_cfg, group_label=group_label)
-        fig.write(paths[order].outpath)
+        write_pdf(fig, paths[order].outpath)
         LOGGER.output_file(paths[order].outpath)
         click.secho(f"Wrote {paths[order].outpath}", fg="green")
 
@@ -1501,7 +1502,7 @@ def nbr(
     if summary in paths:
         LOGGER.input_file(paths[summary].inpath)
         fig = get_summary_drawable(paths[summary].inpath, plot_cfg)
-        fig.write(paths[summary].outpath)
+        write_pdf(fig, paths[summary].outpath)
         LOGGER.output_file(paths[summary].outpath)
         click.secho(f"Wrote {paths[summary].outpath}", fg="green")
 
@@ -1562,7 +1563,7 @@ def mi(
         if "RE" in ann.text:
             ann.text = ann.text.replace("RE", "MI")
             break
-    fig.write(figpath)
+    write_pdf(fig, figpath)
     LOGGER.output_file(figpath)
     click.secho(f"Wrote {figpath}", fg="green")
     LOGGER.shutdown()

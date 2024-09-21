@@ -4,6 +4,7 @@ import io
 import json
 import os
 import re
+import time
 from configparser import ConfigParser, NoOptionError, NoSectionError
 
 # to be used as a decorator for click commands
@@ -457,3 +458,20 @@ def est_ylim(char_heights):
     ylim = max(ylim, 1e-6)
 
     return ylim
+
+
+class pdf_writer:
+    """class that handles super annooying mathjax warning box in plotly pdf's"""
+
+    def __init__(self) -> None:
+        self._done_once = False
+
+    def __call__(self, fig, path):
+        # the sleep, plus successive write, is ESSENTIAL to avoid the super annoying
+        # "[MathJax]/extensions/MathMenu.js" text box error
+        # but we only need to do this once
+        if not self._done_once:
+            fig.write(path)
+            time.sleep(2)
+            self._done_once = True
+        fig.write(path)

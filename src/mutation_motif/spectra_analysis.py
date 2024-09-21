@@ -6,7 +6,9 @@ from scipy.stats.distributions import chi2
 from scitrack import CachingLogger
 
 from mutation_motif import draw, log_lin, util
-from mutation_motif.util import load_table_from_delimited_file
+from mutation_motif.util import load_table_from_delimited_file, pdf_writer
+
+write_fig = pdf_writer()
 
 LOGGER = CachingLogger(create_dir=True)
 
@@ -136,5 +138,5 @@ def main(
         LOGGER.log_message(str(significance), label="significance")
         fig_path = os.path.join(outpath, "spectra.pdf")
         fig = draw.get_spectra_grid_drawable(json_path, group_label=group_label)
-        fig.write(fig_path)
+        write_fig(fig, fig_path)
         LOGGER.shutdown()
