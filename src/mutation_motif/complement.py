@@ -1,6 +1,5 @@
 from cogent3 import DNA, make_table
 
-
 MUTATION_COMPLEMENTS = {
     "CtoG": "GtoC",
     "CtoA": "GtoT",

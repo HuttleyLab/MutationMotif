@@ -10,7 +10,6 @@ from mutation_motif.profile import (
     filter_seqs_by_chosen_base,
     get_control,
     get_random_indices,
-    get_zero_counts,
 )
 
 
@@ -22,7 +21,7 @@ class TestChooseBases(TestCase):
             (3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3),
             (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
             (2, 0, 1, 2, 3, 1, 2, 2, 2, 0, 2, 2, 2, 2, 2, 3, 0, 2, 2, 3),
-        ]
+        ],
     )
 
     data_odd = array(
@@ -30,7 +29,7 @@ class TestChooseBases(TestCase):
             (2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2),
             (1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
             (2, 0, 1, 2, 3, 1, 2, 2, 2, 0, 2, 2, 2, 2, 2, 3, 0, 2, 2, 3, 0),
-        ]
+        ],
     )
 
     chosen_pair = "AC"
@@ -78,7 +77,7 @@ class TestChooseBases(TestCase):
         indicies = chosen_base_indices(self.data_odd, self.chosen_base, self.step1)
         expect = [
             array(
-                [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
+                [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
             ),  # every position valid
             array([]),  # no valid positions
             array([0, 3, 6, 7, 8, 11, 12, 13, 14, 17, 18]),
@@ -109,7 +108,7 @@ class TestAlignFiltering(TestCase):
             (2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2),
             (1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
             (2, 0, 1, 2, 3, 1, 2, 2, 2, 0, 2, 2, 2, 2, 2, 3, 0, 2, 2, 3, 0),
-        ]
+        ],
     )
 
     sampled_indices = [array([1, 4, 7, 13, 16, 19]), array([]), array([7, 13])]
@@ -120,7 +119,9 @@ class TestAlignFiltering(TestCase):
     def test_filter_seqs_1(self):
         """only seqs with >= 1 potential pseudo-SNP base should be returned"""
         test_data, sample_indices = filter_seqs_by_chosen_base(
-            self.data, self.sampled_indices, self.min_chosen_bases1
+            self.data,
+            self.sampled_indices,
+            self.min_chosen_bases1,
         )
 
         assert_array_equal(
@@ -129,7 +130,7 @@ class TestAlignFiltering(TestCase):
                 [
                     (2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2),
                     (2, 0, 1, 2, 3, 1, 2, 2, 2, 0, 2, 2, 2, 2, 2, 3, 0, 2, 2, 3, 0),
-                ]
+                ],
             ),
         )
 
@@ -139,7 +140,9 @@ class TestAlignFiltering(TestCase):
     def test_filter_seqs_4(self):
         """only seqs with >= 4 potential pseudo-SNP base should be returned"""
         test_data, sample_indices = filter_seqs_by_chosen_base(
-            self.data, self.sampled_indices, self.min_chosen_bases2
+            self.data,
+            self.sampled_indices,
+            self.min_chosen_bases2,
         )
 
         assert_array_equal(
@@ -192,7 +195,11 @@ class TestAlignSnpAnnotation(TestCase):
 
         for i in range(5):
             control = get_control(
-                self.d_aln, self.chosen_base, self.step, self.slice_side, seed=self.seed
+                self.d_aln,
+                self.chosen_base,
+                self.step,
+                self.slice_side,
+                seed=self.seed,
             )
             self.assertTrue(control.tolist() in expected)
 
@@ -205,7 +212,10 @@ class TestIndices(TestCase):
     def test_even_circle_size(self):
         """raise the AssertionError when circle size is not 2n + 1 long"""
         self.assertRaises(
-            AssertionError, MakeCircleRange, self.circle_size_1, self.slice_side
+            AssertionError,
+            MakeCircleRange,
+            self.circle_size_1,
+            self.slice_side,
         )
 
     def test_MakeCircleRange(self):
@@ -243,16 +253,6 @@ class TestIndices(TestCase):
         ]
 
         self.assertEqual(full_list, expect)
-
-
-class TestProfile(TestCase):
-    def test_zero_counts(self):
-        """zero profile constructed correctly"""
-        c = get_zero_counts(5, int, pseudo_count=0)
-        self.assertEqual(c.shape, (4, 5))
-        self.assertEqual(c.tolist(), [[0, 0, 0, 0, 0]] * 4)
-        c = get_zero_counts(5, int, pseudo_count=1)
-        self.assertEqual(c.tolist(), [[1, 1, 1, 1, 1]] * 4)
 
 
 if __name__ == "__main__":

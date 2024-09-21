@@ -1,7 +1,6 @@
 from unittest import TestCase, main
 
 import numpy
-
 from cogent3 import DNA, load_aligned_seqs
 from numpy import array
 
@@ -19,7 +18,9 @@ class TestEntropy(TestCase):
     ref_data = ref_aln.seq_data
 
     ctl_aln = load_aligned_seqs(
-        "data/entropy/control.fasta", array_align=True, moltype=DNA
+        "data/entropy/control.fasta",
+        array_align=True,
+        moltype=DNA,
     )
     ctl_data = ctl_aln.seq_data
 
@@ -55,11 +56,16 @@ class TestEntropy(TestCase):
     def test_freq_matrix_pc1(self):
         """returns the correct frequency matrix when the pseudocount=1"""
         matrix = as_freq_matrix(self.ref_data, pseudocount=1, check_valid=True).round(
-            decimals=5
+            decimals=5,
         )
 
         expect_matrix = array(
-            [[0.21429, 0.21429], [0.5, 0.42857], [0.14286, 0.28571], [0.14286, 0.07143]]
+            [
+                [0.21429, 0.21429],
+                [0.5, 0.42857],
+                [0.14286, 0.28571],
+                [0.14286, 0.07143],
+            ],
         )
 
         numpy.testing.assert_equal(matrix, expect_matrix)
@@ -67,7 +73,7 @@ class TestEntropy(TestCase):
     def test_get_entropy_terms_pc0(self):
         """returns the correct entropy terms when the pseudocount=0"""
         et = get_entropy_terms(self.ref_data, pseudocount=0, check_valid=True).round(
-            decimals=5
+            decimals=5,
         )
 
         expect_et = array(
@@ -76,7 +82,7 @@ class TestEntropy(TestCase):
                 [0.44218, 0.5],
                 [0.33219, 0.52109],
                 [0.33219, float("nan")],
-            ]
+            ],
         )
 
         numpy.testing.assert_equal(et, expect_et)
@@ -84,11 +90,16 @@ class TestEntropy(TestCase):
     def test_get_entropy_terms_pc1(self):
         """returns the correct entropy terms when the pseudocount=1"""
         et = get_entropy_terms(self.ref_data, pseudocount=1, check_valid=True).round(
-            decimals=5
+            decimals=5,
         )
 
         expect_et = array(
-            [[0.47623, 0.47623], [0.5, 0.52388], [0.40105, 0.51639], [0.40105, 0.27195]]
+            [
+                [0.47623, 0.47623],
+                [0.5, 0.52388],
+                [0.40105, 0.51639],
+                [0.40105, 0.27195],
+            ],
         )
 
         numpy.testing.assert_equal(et, expect_et)
@@ -98,7 +109,7 @@ class TestEntropy(TestCase):
         mit = get_mit(self.ref_data, pseudocount=0, check_valid=True).round(decimals=5)
 
         expect_mit = array(
-            [[0.03561, 0.03561], [0.05782, 0], [0.16781, -0.02109], [0.16781, 0.0]]
+            [[0.03561, 0.03561], [0.05782, 0], [0.16781, -0.02109], [0.16781, 0.0]],
         )
 
         numpy.testing.assert_equal(mit, expect_mit)
@@ -108,7 +119,12 @@ class TestEntropy(TestCase):
         mit = get_mit(self.ref_data, pseudocount=1, check_valid=True).round(decimals=5)
 
         expect_mit = array(
-            [[0.02377, 0.02377], [0, -0.02388], [0.09895, -0.01639], [0.09895, 0.22805]]
+            [
+                [0.02377, 0.02377],
+                [0, -0.02388],
+                [0.09895, -0.01639],
+                [0.09895, 0.22805],
+            ],
         )
 
         numpy.testing.assert_equal(mit, expect_mit)
@@ -116,11 +132,14 @@ class TestEntropy(TestCase):
     def test_get_ret_pc0(self):
         """returns the correct ret terms when the pseudocount=0"""
         ret = get_ret(
-            self.ref_data, self.ctl_data, pseudocount=0, check_valid=True
+            self.ref_data,
+            self.ctl_data,
+            pseudocount=0,
+            check_valid=True,
         ).round(decimals=5)
 
         expect_ret = array(
-            [[0, 0.2], [0.15782, 1.16096], [0, 0.47549], [-0.1, float("nan")]]
+            [[0, 0.2], [0.15782, 1.16096], [0, 0.47549], [-0.1, float("nan")]],
         )
 
         numpy.testing.assert_equal(ret, expect_ret)
@@ -128,11 +147,14 @@ class TestEntropy(TestCase):
     def test_get_ret_pc1(self):
         """returns the correct ret terms when the pseudocount=1"""
         ret = get_ret(
-            self.ref_data, self.ctl_data, pseudocount=1, check_valid=True
+            self.ref_data,
+            self.ctl_data,
+            pseudocount=1,
+            check_valid=True,
         ).round(decimals=5)
 
         expect_ret = array(
-            [[0, 0.12535], [0.11120, 0.67927], [0, 0.28571], [-0.08357, -0.21429]]
+            [[0, 0.12535], [0.11120, 0.67927], [0, 0.28571], [-0.08357, -0.21429]],
         )
 
         numpy.testing.assert_equal(ret, expect_ret)

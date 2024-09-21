@@ -4,13 +4,13 @@ import io
 import json
 import os
 import re
-
+import time
 from configparser import ConfigParser, NoOptionError, NoSectionError
+
 # to be used as a decorator for click commands
 from importlib import resources
 
 import numpy
-
 from cogent3 import DNA, load_table, make_table
 from cogent3.core.alignment import ArrayAlignment
 from cogent3.parse.fasta import MinimalFastaParser
@@ -22,6 +22,7 @@ from pandas import read_json
 
 def load_table_from_delimited_file(path, sep="\t"):
     """returns a Table object after a quicker loading"""
+    path = str(path)
     with open_(path, "rt") as infile:
         header = infile.readline().strip().split(sep)
         count_index = header.index("count")
@@ -80,13 +81,16 @@ def spectra_table(table, group_label):
         start = direction[0]
         for group_category in group_categories:
             condition = dict(
-                direction=direction, label=group_label, category=group_category
+                direction=direction,
+                label=group_label,
+                category=group_category,
             )
             sub_table = table.filtered(filter_template % condition)
             total = sub_table.summed("count")
             results.append([total, start, direction, group_category])
     result = make_table(
-        header=["count", "start", "direction", group_label], rows=results
+        header=["count", "start", "direction", group_label],
+        rows=results,
     )
     result = make_consistent_direction_style(result)
     return result
@@ -193,7 +197,7 @@ def makedirs(path):
     """creates dir path"""
     try:
         os.makedirs(path)
-    except OSError as e:
+    except OSError:
         pass
 
 
@@ -204,7 +208,8 @@ def get_selected_indices(stats, group_label=None, group_ref=None):
         indices = numpy.logical_and(stats["mut"] == "M", stats[group_label] == val)
     elif group_label and group_ref:
         indices = numpy.logical_and(
-            stats["mut"] == "M", stats[group_label] == group_ref
+            stats["mut"] == "M",
+            stats[group_label] == group_ref,
         )
     else:
         indices = stats["mut"] == "M"
@@ -224,7 +229,9 @@ def get_order_max_re_from_summary(table):
     if isinstance(table, str):
         table = load_table(table, sep="\t")
     table = table.with_new_column(
-        "order", lambda x: x.count(":") + 1, columns="Position"
+        "order",
+        lambda x: x.count(":") + 1,
+        columns="Position",
     )
     orders = table.distinct_values("order")
     table = table.get_columns(["order", "RE"])
@@ -421,12 +428,11 @@ def get_nbr_path_config(path):
             if section != "summary":
                 assert inpath.endswith(".json"), f"{inpath} missing json suffix"
 
-        outpath = paths.get("outpath", None)
+        outpath = paths.get("outpath")
         if not outpath:
             outpath = paths["inpath"].replace(".json", ".pdf")
-        else:
-            if dirname and dirname not in outpath:
-                outpath = os.path.join(dirname, outpath)
+        elif dirname and dirname not in outpath:
+            outpath = os.path.join(dirname, outpath)
         paths["outpath"] = outpath
 
         cfg[section] = UnionDict(paths)
@@ -452,3 +458,20 @@ def est_ylim(char_heights):
     ylim = max(ylim, 1e-6)
 
     return ylim
+
+
+class pdf_writer:
+    """class that handles super annooying mathjax warning box in plotly pdf's"""
+
+    def __init__(self) -> None:
+        self._done_once = False
+
+    def __call__(self, fig, path):
+        # the sleep, plus successive write, is ESSENTIAL to avoid the super annoying
+        # "[MathJax]/extensions/MathMenu.js" text box error
+        # but we only need to do this once
+        if not self._done_once:
+            fig.write(path)
+            time.sleep(2)
+            self._done_once = True
+        fig.write(path)

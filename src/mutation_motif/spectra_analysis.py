@@ -2,12 +2,12 @@ import json
 import os
 
 from cogent3 import make_table
-from scipy.stats.distributions import chi2
 from scitrack import CachingLogger
 
 from mutation_motif import draw, log_lin, util
-from mutation_motif.util import load_table_from_delimited_file
+from mutation_motif.util import load_table_from_delimited_file, pdf_writer
 
+write_fig = pdf_writer()
 
 LOGGER = CachingLogger(create_dir=True)
 
@@ -18,7 +18,13 @@ def dump_json(data, outfile_path):
 
 
 def main(
-    countsfile, outpath, countsfile2, strand_symmetry, force_overwrite, dry_run, verbose
+    countsfile,
+    outpath,
+    countsfile2,
+    strand_symmetry,
+    force_overwrite,
+    dry_run,
+    verbose,
 ):
     args = locals()
 
@@ -38,14 +44,18 @@ def main(
         group_label = "group"
 
         # be sure there's two files
-        assert countsfile2, f"must provide second counts file"
+        assert countsfile2, "must provide second counts file"
         counts_table2 = load_table_from_delimited_file(countsfile2, sep="\t")
         LOGGER.input_file(countsfile2)
         counts_table2 = counts_table2.with_new_column(
-            "group", lambda x: "2", columns=counts_table2.header[0]
+            "group",
+            lambda x: "2",
+            columns=counts_table2.header[0],
         )
         counts_table1 = table.with_new_column(
-            "group", lambda x: "1", columns=table.header[0]
+            "group",
+            lambda x: "1",
+            columns=table.header[0],
         )
 
         counts_table1 = util.spectra_table(counts_table1, group_label)
@@ -63,26 +73,21 @@ def main(
     results = []
     saveable = {}
     for start_base in counts_table.distinct_values("start"):
-        subtable = counts_table.filtered('start == "%s"' % start_base)
-        columns = [c for c in counts_table.header if c != "start"]
-        subtable = subtable.get_columns(columns)
-        total_re, dev, df, collated, formula = log_lin.spectra_difference(
-            subtable, group_label
+        subtable = select_mutating_base(counts_table, start_base)
+        result = log_lin.spectra_difference(
+            subtable,
+            group_label,
         )
-        r = [list(x) for x in collated.to_records(index=False)]
+        r = [list(x) for x in result.df.to_records(index=False)]
 
         if not strand_symmetry:
             grp_labels = {"1": countsfile, "2": countsfile2}
-            grp_index = list(collated.columns).index("group")
+            grp_index = list(result.df.columns).index("group")
             for row in r:
                 row[grp_index] = grp_labels[row[grp_index]]
 
-        p = chi2.sf(dev, df)
-        if p < 1e-6:
-            prob = "%.2e" % p
-        else:
-            prob = "%.6f" % p
-
+        p = result.pvalue
+        prob = "%.2e" % p if p < 1e-6 else "%.6f" % p
         for row in r:
             row.insert(0, start_base)
             row.append(prob)
@@ -90,25 +95,25 @@ def main(
         results += r
 
         significance = [
-            "RE=%.6f" % total_re,
-            "Dev=%.2f" % dev,
-            "df=%d" % df,
-            "p=%s" % p,
+            f"RE={result.relative_entropy:.6f}",
+            f"Dev={result.deviance:.2f}",
+            f"df={result.nfp}",
+            f"p={p}",
         ]
 
         stats = "  :  ".join(significance)
-        print("Start base=%s  %s" % (start_base, stats))
+        print(f"Start base={start_base}  {stats}")
         saveable[start_base] = dict(
-            rel_entropy=total_re,
-            deviance=dev,
-            df=df,
-            prob=p,
-            formula=formula,
-            stats=collated.to_json(),
+            rel_entropy=result.relative_entropy,
+            deviance=result.deviance,
+            df=result.nfp,
+            prob=result.pvalue,
+            formula=result.formula,
+            stats=result.df.to_json(),
         )
 
     table = make_table(
-        header=["start_base"] + list(collated.columns) + ["prob"],
+        header=["start_base"] + list(result.df.columns) + ["prob"],
         rows=results,
         digits=5,
     ).sorted(columns="ret")
@@ -126,5 +131,12 @@ def main(
         LOGGER.log_message(str(significance), label="significance")
         fig_path = os.path.join(outpath, "spectra.pdf")
         fig = draw.get_spectra_grid_drawable(json_path, group_label=group_label)
-        fig.write(fig_path)
+        write_fig(fig, fig_path)
         LOGGER.shutdown()
+
+
+def select_mutating_base(counts_table, start_base):
+    subtable = counts_table.filtered(f'start == "{start_base}"')
+    columns = [c for c in counts_table.header if c != "start"]
+    subtable = subtable.get_columns(columns)
+    return subtable

@@ -1,15 +1,14 @@
 """export seq files for different mutation types"""
+
 import os
 import re
 import time
 
 import click
-
 from scitrack import CachingLogger
 
 from mutation_motif import motif_count, profile
 from mutation_motif.util import abspath, just_nucs, load_from_fasta, makedirs
-
 
 LOGGER = CachingLogger(create_dir=True)
 fn_suffixes = re.compile(r"\.(fa|fasta)\.*(gz|gzip|bz2)*$")
@@ -31,7 +30,14 @@ def get_counts_filename(align_path, output_dir):
 
 
 def align_to_counts(
-    align_path, output_path, flank_size, direction, step, seed, randomise, dry_run
+    align_path,
+    output_path,
+    flank_size,
+    direction,
+    step,
+    seed,
+    randomise,
+    dry_run,
 ):
     """returns counts table from alignment of sequences centred on a SNP"""
 
@@ -48,19 +54,31 @@ def align_to_counts(
     seqs = just_nucs(seqs)
     if not randomise:
         orig, ctl = profile.get_profiles(
-            seqs, chosen_base=chosen_base, step=step, flank_size=flank_size, seed=seed
+            seqs,
+            chosen_base=chosen_base,
+            step=step,
+            flank_size=flank_size,
+            seed=seed,
         )
     else:
         LOGGER.log_message(
             "A randomised selection of starting base "
-            "locations use for observed counts."
+            "locations use for observed counts.",
         )
         # we are setting a randomised set of locations as our observed SNPs
         ctl = profile.get_control(
-            seqs, chosen_base=chosen_base, step=step, flank_size=flank_size, seed=seed
+            seqs,
+            chosen_base=chosen_base,
+            step=step,
+            flank_size=flank_size,
+            seed=seed,
         )
         orig = profile.get_control(
-            seqs, chosen_base=chosen_base, step=step, flank_size=flank_size, seed=seed
+            seqs,
+            chosen_base=chosen_base,
+            step=step,
+            flank_size=flank_size,
+            seed=seed,
         )
 
     # convert profiles to a motif count table
@@ -104,7 +122,7 @@ def align_to_counts(
             "TtoA",
             "TtoC",
             "TtoG",
-        ]
+        ],
     ),
     help="Mutation direction.",
 )
@@ -134,7 +152,10 @@ def align_to_counts(
     help="Do a dry run of the analysis without writing output.",
 )
 @click.option(
-    "-F", "--force_overwrite", is_flag=True, help="Overwrite output and run.log files."
+    "-F",
+    "--force_overwrite",
+    is_flag=True,
+    help="Overwrite output and run.log files.",
 )
 def main(
     align_path,
@@ -183,7 +204,14 @@ def main(
     # run the program
 
     counts_table = align_to_counts(
-        align_path, output_path, flank_size, direction, step, seed, randomise, dry_run
+        align_path,
+        output_path,
+        flank_size,
+        direction,
+        step,
+        seed,
+        randomise,
+        dry_run,
     )
 
     if not dry_run:

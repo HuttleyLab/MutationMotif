@@ -1,13 +1,12 @@
 """combines counts from each mutation direction into a single table"""
+
 import glob
 import os
 import re
 import time
-
 from collections import Counter
 
 import click
-
 from scitrack import CachingLogger
 
 from mutation_motif.complement import make_strand_symmetric_table
@@ -17,7 +16,6 @@ from mutation_motif.util import (
     load_table_from_delimited_file,
     makedirs,
 )
-
 
 LOGGER = CachingLogger(create_dir=True)
 _directions = [
@@ -48,7 +46,7 @@ def check_found_filenames(filenames):
         print("ERROR: counts_pattern did not identify 12 files -- %s" % filenames)
         print(
             "Note that each file must contain a single direction pattern"
-            ", e.g. CtoT, AtoG"
+            ", e.g. CtoT, AtoG",
         )
         exit(-1)
 
@@ -79,10 +77,18 @@ def check_found_filenames(filenames):
     help="Do a dry run of the analysis without writing output.",
 )
 @click.option(
-    "-F", "--force_overwrite", is_flag=True, help="Overwrite output and run.log files."
+    "-F",
+    "--force_overwrite",
+    is_flag=True,
+    help="Overwrite output and run.log files.",
 )
 def main(
-    counts_pattern, output_path, strand_symmetric, split_dir, dry_run, force_overwrite
+    counts_pattern,
+    output_path,
+    strand_symmetric,
+    split_dir,
+    dry_run,
+    force_overwrite,
 ):
     """export tab delimited combined counts table by appending the 12 mutation
     direction tables, adding a new column ``direction``."""

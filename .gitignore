@@ -19,6 +19,7 @@ lib
 lib64
 build/*
 dist/*
+.ruff_cache/*
 
 # Installer logs
 pip-log.txt
