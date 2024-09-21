@@ -266,6 +266,11 @@ def single_group(
     return msg
 
 
+_click_command_opts = dict(
+    no_args_is_help=True,
+    context_settings={"show_default": True},
+)
+
 _countsfile = click.option("-1", "--countsfile", help="tab delimited file of counts.")
 _outpath = click.option("-o", "--outpath", help="Directory path to write data.")
 _countsfile2 = click.option(
@@ -295,6 +300,7 @@ _verbose = click.option("-v", "--verbose", is_flag=True, help="Display more outp
 
 
 @click.group()
+@click.version_option(__version__)  # add version option
 def main():
     pass
 
@@ -314,7 +320,7 @@ _group_ref = click.option(
 )
 
 
-@main.command()
+@main.command(**_click_command_opts)
 @_countsfile
 @_outpath
 @_countsfile2
@@ -417,7 +423,7 @@ def nbr(
     click.secho(msg, fg="green")
 
 
-@main.command()
+@main.command(**_click_command_opts)
 @_countsfile
 @_outpath
 @_countsfile2

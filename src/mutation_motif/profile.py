@@ -148,8 +148,7 @@ def get_control(
     for i in range(len(seq_array)):
         row = seq_array[i].take(sampled_indices[i])
         rows.append(row)
-    sampled_data = array(rows)
-    return sampled_data
+    return array(rows)
 
 
 def get_observed(data, flank_size):
