@@ -30,8 +30,7 @@ jobs:
       - name: "Installs for ${{ matrix.python-version }}"
         run: |
           python --version
-          pip install --upgrade pip wheel setuptools flit
-          pip install --upgrade nox
+          pip install --upgrade pip wheel setuptools flit nox
 
       - name: "Run nox for ${{ matrix.python-version }}"
         run: "nox -s test-${{ matrix.python-version }} -- --cov-report lcov:lcov-${{matrix.os}}-${{matrix.python-version}}.lcov --cov-report term --cov-append --cov mutation_motif"

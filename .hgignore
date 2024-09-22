@@ -21,6 +21,7 @@ draw_results
 *sublime*
 .cache*
 *.wpu
+*.wpr
 *.ipynb_checkpoints*
 *pytest_cache*
 *.tox
