@@ -120,6 +120,7 @@ class OrderedGroup(click.Group):
 @click.group(cls=OrderedGroup)
 @click.version_option(__version__)  # add version option
 def main():
+    """mm: point mutation analysis tools"""
     pass
 
 
@@ -181,7 +182,7 @@ def main():
 )
 @_dry_run
 @_force_overwrite
-def prep_make(
+def prep_nbr(
     align_path,
     output_path,
     flank_size,
@@ -192,7 +193,7 @@ def prep_make(
     dry_run,
     force_overwrite,
 ):
-    """Export tab delimited counts table from alignment centred on SNP position.
+    """export tab delimited counts table from alignment centred on SNP position
 
     Output file is written to the same path with just the file suffix changed
     from fasta to txt."""
@@ -272,7 +273,7 @@ def prep_make(
 )
 @_dry_run
 @_force_overwrite
-def prep_merge(
+def prep_spectra(
     counts_pattern,
     output_path,
     strand_symmetric,

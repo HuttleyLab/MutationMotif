@@ -15,7 +15,7 @@ def test_all_counts_fail(tmp_dir):
     # should fail, as data files not in this directory
     r = RUNNER.invoke(
         mut_main,
-        ["prep-merge", "-cdata/*.txt", f"-o{tmp_dir!s}"],
+        ["prep-spectra", "-cdata/*.txt", f"-o{tmp_dir!s}"],
         catch_exceptions=False,
     )
     assert r.exit_code != 0
@@ -24,7 +24,7 @@ def test_all_counts_fail(tmp_dir):
 def test_all_counts(tmp_dir):
     r = RUNNER.invoke(
         mut_main,
-        ["prep-merge", "-cdata/directions/*.txt", f"-o{tmp_dir!s}"],
+        ["prep-spectra", "-cdata/directions/*.txt", f"-o{tmp_dir!s}"],
         catch_exceptions=False,
     )
     assert r.exit_code == 0
@@ -42,7 +42,7 @@ def test_all_counts_1(tmp_dir):
     """exercising all_counts with strand symmetric"""
     r = RUNNER.invoke(
         mut_main,
-        ["prep-merge", "-cdata/directions/*.txt", f"-o{tmp_dir}", "-s"],
+        ["prep-spectra", "-cdata/directions/*.txt", f"-o{tmp_dir}", "-s"],
     )
 
     # should produce directory containing two files
@@ -59,7 +59,7 @@ def test_all_counts_splitdir(tmp_dir):
     r = RUNNER.invoke(
         mut_main,
         [
-            "prep-merge",
+            "prep-spectra",
             "-cdata/directions/*.txt",
             f"-o{tmp_dir}",
             "-s",
@@ -70,12 +70,10 @@ def test_all_counts_splitdir(tmp_dir):
     assert r.exit_code == 0, r.output
     dirlist = {p.name for p in splitdir.glob("*")}
     assert len(dirlist) == 6
-    for p in splitdir.glob("*"):
-        counts = load_table(p, sep="\t")
-        assert "strand" in counts.header
-        # num_pos = 4, so there are 4**4 possible seqs, x 2 strands
-        # x 2 samples (M and R)
-        assert counts.shape[0] == 4**4 * 2 * 2
+    expected_size = 4**4 * 2 * 2
+    tables = [load_table(p, sep="\t") for p in splitdir.glob("*")]
+    assert all(t.shape[0] == expected_size for t in tables)
+    assert all("strand" in t.header for t in tables)
 
 
 def test_aln_to_counts(tmp_path):
@@ -84,7 +82,7 @@ def test_aln_to_counts(tmp_path):
     r = RUNNER.invoke(
         mut_main,
         [
-            "prep-make",
+            "prep-nbr",
             "-adata/sample_AtoC.fasta",
             f"-o{tmp_path}",
             "-f1",
