@@ -37,6 +37,11 @@ classifiers = [
     ]
 dynamic = ["version", "description"]
 
+[project.urls]
+Documentation = "https://github.com/HuttleyLab/MutationMotif"
+"Bug Tracker" = "https://github.com/HuttleyLab/MutationMotif/issues"
+"Source Code" = "https://github.com/HuttleyLab/MutationMotif"
+
 [tool.flit.sdist]
 include = ["requirements.txt", "src/*", "pyproject.toml"]
 exclude = ["doc/*.html"]
