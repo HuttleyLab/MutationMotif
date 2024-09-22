@@ -1,21 +1,14 @@
-#!/usr/bin/env python
 import os
 from itertools import combinations
 
-import click
 from cogent3 import make_table
-from scitrack import CachingLogger
 
 from mutation_motif import (
-    __version__,
     draw,
     log_lin,
     motif_count,
-    spectra_analysis,
     util,
 )
-
-LOGGER = CachingLogger(create_dir=True)
 
 
 def make_summary(results):
@@ -125,6 +118,7 @@ def single_group(
     positions,
     first_order,
     dry_run,
+    LOGGER,
 ):
     # Collect statistical analysis results
     summary = []
@@ -264,190 +258,3 @@ def single_group(
     msg = "Done! Check %s for your results" % outpath
     LOGGER.shutdown()
     return msg
-
-
-_click_command_opts = dict(
-    no_args_is_help=True,
-    context_settings={"show_default": True},
-)
-
-_countsfile = click.option("-1", "--countsfile", help="tab delimited file of counts.")
-_outpath = click.option("-o", "--outpath", help="Directory path to write data.")
-_countsfile2 = click.option(
-    "-2",
-    "--countsfile2",
-    help="second group motif counts file.",
-)
-_strand_symmetry = click.option(
-    "-s",
-    "--strand_symmetry",
-    is_flag=True,
-    help="single counts file but second group is strand.",
-)
-_force_overwrite = click.option(
-    "-F",
-    "--force_overwrite",
-    is_flag=True,
-    help="Overwrite existing files.",
-)
-_dry_run = click.option(
-    "-D",
-    "--dry_run",
-    is_flag=True,
-    help="Do a dry run of the analysis without writing output.",
-)
-_verbose = click.option("-v", "--verbose", is_flag=True, help="Display more output.")
-
-
-@click.group()
-@click.version_option(__version__)  # add version option
-def main():
-    pass
-
-
-_first_order = click.option(
-    "--first_order",
-    is_flag=True,
-    help="Consider only first order effects. Defaults "
-    "to considering up to 4th order interactions.",
-)
-_group_label = click.option("-g", "--group_label", help="second group label.")
-_group_ref = click.option(
-    "-r",
-    "--group_ref",
-    default=None,
-    help="reference group value for results presentation.",
-)
-
-
-@main.command(**_click_command_opts)
-@_countsfile
-@_outpath
-@_countsfile2
-@_first_order
-@_strand_symmetry
-@_group_label
-@_group_ref
-@_verbose
-@_dry_run
-def nbr(
-    countsfile,
-    outpath,
-    countsfile2,
-    first_order,
-    strand_symmetry,
-    group_label,
-    group_ref,
-    verbose,
-    dry_run,
-):
-    """log-linear analysis of neighbouring base influence on point mutation
-
-    Writes estimated statistics, figures and a run log to the specified
-    directory outpath.
-
-    See documentation for count table format requirements.
-    """
-    LOGGER.log_args()
-
-    outpath = util.abspath(outpath)
-
-    if not dry_run:
-        util.makedirs(outpath)
-        runlog_path = os.path.join(outpath, "analysis.log")
-        LOGGER.log_file_path = runlog_path
-
-    counts_filename = util.abspath(countsfile)
-    counts_table = util.load_table_from_delimited_file(counts_filename, sep="\t")
-
-    LOGGER.input_file(counts_filename, label="countsfile1_path")
-
-    positions = [c for c in counts_table.header if c.startswith("pos")]
-    if not first_order and len(positions) != 4:
-        raise ValueError("Requires four positions for analysis")
-
-    group_label = group_label or None
-    group_ref = group_ref or None
-    if strand_symmetry:
-        group_label = "strand"
-        group_ref = group_ref or "+"
-        if group_label not in counts_table.header:
-            print("ERROR: no column named 'strand', exiting.")
-            exit(-1)
-
-    if countsfile2:
-        print("Performing 2 group analysis")
-        group_label = group_label or "group"
-        group_ref = group_ref or "1"
-        counts_table1 = counts_table.with_new_column(
-            group_label,
-            lambda x: "1",
-            columns=counts_table.header[0],
-        )
-
-        fn2 = util.abspath(countsfile2)
-        counts_table2 = util.load_table_from_delimited_file(fn2, sep="\t")
-
-        LOGGER.input_file(fn2, label="countsfile2_path")
-
-        counts_table2 = counts_table2.with_new_column(
-            group_label,
-            lambda x: "2",
-            columns=counts_table2.header[0],
-        )
-        # now combine
-        header = [group_label] + list(counts_table2.header[:-1])
-        raw1 = counts_table1.to_list(header)
-        raw2 = counts_table2.to_list(header)
-        counts_table = make_table(header=header, rows=raw1 + raw2)
-
-        if not dry_run:
-            outfile = os.path.join(outpath, "group_counts_table.txt")
-            counts_table.write(outfile, sep="\t")
-            LOGGER.output_file(outfile, label="group_counts")
-
-    if dry_run or verbose:
-        print()
-        print(counts_table)
-        print()
-
-    msg = single_group(
-        counts_table,
-        outpath,
-        group_label,
-        group_ref,
-        positions,
-        first_order,
-        dry_run,
-    )
-    click.secho(msg, fg="green")
-
-
-@main.command(**_click_command_opts)
-@_countsfile
-@_outpath
-@_countsfile2
-@_strand_symmetry
-@_force_overwrite
-@_dry_run
-@_verbose
-def spectra(
-    countsfile,
-    outpath,
-    countsfile2,
-    strand_symmetry,
-    force_overwrite,
-    dry_run,
-    verbose,
-):
-    """log-linear analysis of mutation spectra between groups"""
-    spectra_analysis.main(
-        countsfile,
-        outpath,
-        countsfile2,
-        strand_symmetry,
-        force_overwrite,
-        dry_run,
-        verbose,
-    )
-    click.secho("Done spectra!", fg="green")

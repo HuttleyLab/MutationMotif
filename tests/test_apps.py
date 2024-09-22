@@ -6,10 +6,7 @@ import pytest
 from click.testing import CliRunner
 from cogent3 import load_table
 
-from mutation_motif.all_counts import main as all_count_main
-from mutation_motif.aln_to_counts import main as aln_to_counts_main
-from mutation_motif.draw import main as draw_main
-from mutation_motif.mutation_analysis import main as mut_main
+from mutation_motif.cli import main as mut_main
 
 RUNNER = CliRunner()
 
@@ -17,8 +14,8 @@ RUNNER = CliRunner()
 def test_all_counts_fail(tmp_dir):
     # should fail, as data files not in this directory
     r = RUNNER.invoke(
-        all_count_main,
-        ["-cdata/*.txt", f"-o{tmp_dir!s}"],
+        mut_main,
+        ["prep-spectra", "-cdata/*.txt", f"-o{tmp_dir!s}"],
         catch_exceptions=False,
     )
     assert r.exit_code != 0
@@ -26,8 +23,8 @@ def test_all_counts_fail(tmp_dir):
 
 def test_all_counts(tmp_dir):
     r = RUNNER.invoke(
-        all_count_main,
-        ["-cdata/directions/*.txt", f"-o{tmp_dir!s}"],
+        mut_main,
+        ["prep-spectra", "-cdata/directions/*.txt", f"-o{tmp_dir!s}"],
         catch_exceptions=False,
     )
     assert r.exit_code == 0
@@ -44,8 +41,8 @@ def test_all_counts(tmp_dir):
 def test_all_counts_1(tmp_dir):
     """exercising all_counts with strand symmetric"""
     r = RUNNER.invoke(
-        all_count_main,
-        ["-cdata/directions/*.txt", f"-o{tmp_dir}", "-s"],
+        mut_main,
+        ["prep-spectra", "-cdata/directions/*.txt", f"-o{tmp_dir}", "-s"],
     )
 
     # should produce directory containing two files
@@ -60,8 +57,9 @@ def test_all_counts_1(tmp_dir):
 def test_all_counts_splitdir(tmp_dir):
     splitdir = tmp_dir / "splitdir"
     r = RUNNER.invoke(
-        all_count_main,
+        mut_main,
         [
+            "prep-spectra",
             "-cdata/directions/*.txt",
             f"-o{tmp_dir}",
             "-s",
@@ -72,20 +70,19 @@ def test_all_counts_splitdir(tmp_dir):
     assert r.exit_code == 0, r.output
     dirlist = {p.name for p in splitdir.glob("*")}
     assert len(dirlist) == 6
-    for p in splitdir.glob("*"):
-        counts = load_table(p, sep="\t")
-        assert "strand" in counts.header
-        # num_pos = 4, so there are 4**4 possible seqs, x 2 strands
-        # x 2 samples (M and R)
-        assert counts.shape[0] == 4**4 * 2 * 2
+    expected_size = 4**4 * 2 * 2
+    tables = [load_table(p, sep="\t") for p in splitdir.glob("*")]
+    assert all(t.shape[0] == expected_size for t in tables)
+    assert all("strand" in t.header for t in tables)
 
 
 def test_aln_to_counts(tmp_path):
     """exercising aln_to_counts"""
     # should fail, as data files not in this directory
     r = RUNNER.invoke(
-        aln_to_counts_main,
+        mut_main,
         [
+            "prep-nbr",
             "-adata/sample_AtoC.fasta",
             f"-o{tmp_path}",
             "-f1",
@@ -97,7 +94,7 @@ def test_aln_to_counts(tmp_path):
     assert r.exit_code == 0, r.output
     dirlist = list(tmp_path.glob("*"))
 
-    assert set(p.name for p in dirlist) == {"sample_AtoC.txt", "sample_AtoC.log"}
+    assert {p.name for p in dirlist} == {"sample_AtoC.txt", "sample_AtoC.log"}
     counts = load_table(tmp_path / "sample_AtoC.txt", sep="\t")
     # two columns with pos, two groups giving shape=2*16
     assert counts.shape[0] == 32
@@ -107,7 +104,7 @@ def test_nbr(tmp_path):
     """exercising, making sure output generated"""
     r = RUNNER.invoke(
         mut_main,
-        ["nbr", "-1data/counts-CtoT.txt", f"-o{tmp_path}"],
+        ["ll-nbr", "-1data/counts-CtoT.txt", f"-o{tmp_path}"],
         catch_exceptions=False,
     )
     assert r.exit_code == 0, r.output
@@ -133,7 +130,7 @@ def test_nbr_ssym(tmp_path):
     r = RUNNER.invoke(
         mut_main,
         [
-            "nbr",
+            "ll-nbr",
             "-1data/counts-CtoT-ss.txt",
             f"-o{tmp_path}",
             "--strand_symmetry",
@@ -163,7 +160,7 @@ def test_spectra(tmp_path):
     r = RUNNER.invoke(
         mut_main,
         [
-            "spectra",
+            "ll-spectra",
             "-1data/auto_intergen_combined_counts.txt",
             "-2data/auto_intron_combined_counts.txt",
             f"-o{tmp_path}",
@@ -187,7 +184,7 @@ def test_spectra_ssym(tmp_path):
     r = RUNNER.invoke(
         mut_main,
         [
-            "spectra",
+            "ll-spectra",
             "-1data/counts-combined.txt",
             f"-o{tmp_path}",
             "--strand_symmetry",
@@ -209,9 +206,9 @@ def test_spectra_grid(tmp_path):
     """exercising draw spectra grid"""
     # first
     r = RUNNER.invoke(
-        draw_main,
+        mut_main,
         [
-            "spectra-grid",
+            "draw-spectra-grid",
             f"--figpath={tmp_path}/spectra_grid.pdf",
             "--json_path=data/spectra_analysis.json",
             "--group_label=strand",
@@ -226,9 +223,9 @@ def test_spectra_grid(tmp_path):
 def test_grid(tmp_path):
     """exercise drawing arbitrary grid"""
     r = RUNNER.invoke(
-        draw_main,
+        mut_main,
         [
-            "grid",
+            "draw-grid",
             f"--figpath={tmp_path}/grid.pdf",
             "--fig_config=data/arbitrary_grid.cfg",
         ],
@@ -248,8 +245,8 @@ def test_nbr_app(DATA_DIR, tmp_path):
     cfg_path = Path(tmp_path) / "nbr_paths.cfg"
     cfg_path.write_text((DATA_DIR / "nbr_paths.cfg").read_text())
     r = RUNNER.invoke(
-        draw_main,
-        ["nbr", f"-p{cfg_path}"],
+        mut_main,
+        ["draw-nbr", f"-p{cfg_path}"],
     )
     assert r.exit_code == 0, r.output
     fnames = [f"{n}.pdf" for n in ("one", "two", "three", "four", "summary")]
@@ -265,8 +262,8 @@ def test_nbr_matrix_app(DATA_DIR, tmp_path):
     shutil.copy(DATA_DIR / "nbr_matrix_paths.cfg", cfg_path)
     figpath = Path(tmp_path) / "nbr_matrix.pdf"
     r = RUNNER.invoke(
-        draw_main,
-        ["nbr-matrix", f"--paths_cfg={cfg_path}", f"--figpath={figpath}"],
+        mut_main,
+        ["draw-nbr-matrix", f"--paths_cfg={cfg_path}", f"--figpath={figpath}"],
     )
     assert r.exit_code == 0, r.output
     assert figpath.exists()
@@ -278,10 +275,10 @@ def test_mi_app(DATA_DIR, tmp_path, use_freq):
     """cl produces 1-way plot using MI"""
     data_path = DATA_DIR / "directions" / "CtoT.json"
     figpath = tmp_path / "mi.pdf"
-    args = ["mi", f"--json_path={data_path}", f"--figpath={figpath}"]
+    args = ["draw-mi", f"--json_path={data_path}", f"--figpath={figpath}"]
     args += ["--use_freq"] if use_freq else []
     r = RUNNER.invoke(
-        draw_main,
+        mut_main,
         args,
         catch_exceptions=False,
     )
@@ -295,8 +292,8 @@ def test_export_cfg_app(tmp_path):
 
     path = tmp_path / "cfgs"
     r = RUNNER.invoke(
-        draw_main,
-        ["export-cfg", str(path)],
+        mut_main,
+        ["draw-export-cfg", str(path)],
         catch_exceptions=False,
     )
     assert r.exit_code == 0, r.output

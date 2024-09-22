@@ -1,36 +1,25 @@
-import os
-import sys
-from configparser import ConfigParser
-from importlib import resources
-
-import click
 import numpy
 from cogent3.core.profile import MotifCountsArray
 from cogent3.draw.drawable import Drawable, get_domain
 from cogent3.draw.logo import get_base_logo_layout, get_logo
 from cogent3.draw.logo import get_mi_char_heights as c3_get_mi
 from cogent3.util.union_dict import UnionDict
-from scitrack import CachingLogger
 
 from mutation_motif.height import get_mi_char_heights, get_re_char_heights
 from mutation_motif.util import (
-    abspath,
     est_ylim,
     get_grid_config,
     get_nbr_config,
     get_nbr_matrix_config,
-    get_nbr_path_config,
     get_order_max_re_from_summary,
     get_position_number,
     get_selected_indices,
     get_spectra_config,
     get_summary_config,
     load_loglin_stats,
-    makedirs,
     pdf_writer,
 )
 
-LOGGER = CachingLogger(create_dir=True)
 write_pdf = pdf_writer()
 
 _axis_lines = dict(
@@ -1096,18 +1085,6 @@ def load_spectra_data(json_path, group_label, group_ref):
     return result
 
 
-_json_path = click.option(
-    "-p",
-    "--json_path",
-    required=True,
-    help="Path to spectra analysis spectra_analysis.json",
-)
-_group_label = click.option("--group_label", help="Id for reference group")
-
-
-_fig_cfg = click.option("--fig_config", required=True, type=click.Path(exists=True))
-
-
 def _get_axis_num(nrow, row, col):
     """
     computes axis number
@@ -1275,313 +1252,3 @@ def get_grid_drawable(plot_cfg, ylim=None):
 
     fig = Drawable(layout=layout, width=plot_cfg.width, height=plot_cfg.height)
     return fig
-
-
-# the CLI functions and options
-@click.group()
-def main():
-    """draw mutation motif logo's and spectra"""
-
-
-# defining the CLI options
-_paths_cfg = click.option(
-    "--paths_cfg",
-    required=True,
-    help="Text file listing path for 1.json file for "
-    "each mutation direction (e.g. AtoG).",
-)
-
-_figpath = click.option(
-    "--figpath",
-    help="Filename for plot file. Suffix defines format.",
-)
-_plot_cfg = click.option(
-    "--plot_cfg",
-    help="Config file for plot size, font size settings.",
-)
-
-_sample_size = click.option(
-    "--sample_size",
-    is_flag=True,
-    help="Include sample size on each subplot.",
-)
-
-_force_overwrite = click.option(
-    "-F",
-    "--force_overwrite",
-    is_flag=True,
-    help="Overwrite existing files.",
-)
-_dry_run = click.option(
-    "-D",
-    "--dry_run",
-    is_flag=True,
-    help="Do a dry run of the analysis without writing output.",
-)
-
-
-@main.command()
-@_paths_cfg
-@_plot_cfg
-@_figpath
-@_force_overwrite
-@_dry_run
-def nbr_matrix(
-    paths_cfg,
-    plot_cfg,
-    figpath,
-    force_overwrite,
-    dry_run,
-):
-    """draws square matrix of sequence logo's from neighbour analysis"""
-    config_path = abspath(paths_cfg)
-    indir = os.path.dirname(config_path)
-    if not figpath:
-        figpath = os.path.join(indir, "nbr_matrix.%s" % format)
-        log_file_path = os.path.join(indir, "nbr_matrix.log")
-    else:
-        figpath = abspath(figpath)
-        log_file_path = "%s.log" % ".".join(figpath.split(".")[:-1])
-
-    if not force_overwrite and os.path.exists(figpath):
-        click.secho(f"{figpath} alreadyt exists")
-        sys.exit(0)
-
-    LOGGER.log_args()
-
-    parser = ConfigParser()
-    parser.optionxform = str  # stops automatic conversion to lower case
-    parser.read(config_path)
-
-    json_paths = {}
-    for direction, path in parser.items("json_paths"):
-        # assumes paths are relative to indir
-        path = os.path.join(indir, path)
-        if not os.path.exists(path):
-            print("Couldn't find %s" % path)
-            print("json file paths should be relative to paths_cfg")
-            sys.exit(1)
-
-        json_paths[direction] = path
-
-    LOGGER.log_file_path = log_file_path
-    plot_data = {}
-    for direction, path in json_paths.items():
-        LOGGER.input_file(path)
-        data = load_loglin_stats(path)
-        plot_data[direction] = path
-
-    fig = get_position_grid_drawable(plot_data, plot_cfg)
-
-    write_pdf(fig, figpath)
-    LOGGER.output_file(figpath)
-    click.secho(f"Wrote {figpath}", fg="green")
-    LOGGER.shutdown()
-
-
-@main.command()
-@_fig_cfg
-@_figpath
-def grid(fig_config, figpath):
-    """draws an arbitrary shaped grid of mutation motifs based on a config file"""
-    # we read in the config file and determine number of rows and columns
-    # paths, headings, etc ..
-    # then create the figure and axes and call the mutation_motif drawing code
-    LOGGER.log_args()
-    if not figpath:
-        dirname = os.path.dirname(fig_config.name)
-        figpath = os.path.join(dirname, "drawn_array.%s" % format)
-        log_file_path = os.path.join(dirname, "drawn_array.log")
-    else:
-        figpath = abspath(figpath)
-        log_file_path = "%s.log" % ".".join(figpath.split(".")[:-1])
-
-    makedirs(os.path.dirname(figpath))
-    LOGGER.log_file_path = log_file_path
-
-    fig = get_grid_drawable(fig_config)
-    write_pdf(fig, figpath)
-    click.secho(f"Wrote {figpath}", fg="green")
-    LOGGER.shutdown()
-
-
-@main.command()
-@_json_path
-@_group_label
-@_plot_cfg
-@_figpath
-@_force_overwrite
-@_dry_run
-def spectra_grid(
-    json_path,
-    group_label,
-    plot_cfg,
-    figpath,
-    force_overwrite,
-    dry_run,
-):
-    """draws logo from mutation spectra analysis"""
-    # the following is for logging
-    LOGGER.log_args()
-
-    if not figpath:
-        dirname = os.path.dirname(json_path)
-        figpath = os.path.join(dirname, "spectra_grid.%s" % format)
-        log_file_path = os.path.join(dirname, "spectra_grid.log")
-    else:
-        figpath = abspath(figpath)
-        log_file_path = "%s.log" % ".".join(figpath.split(".")[:-1])
-
-    LOGGER.log_file_path = log_file_path
-
-    # data = load_spectra_data(json_path, group_label)
-
-    if plot_cfg:
-        LOGGER.input_file(plot_cfg)
-
-    fig = get_spectra_grid_drawable(
-        json_path,
-        plot_cfg=plot_cfg,
-        group_label=group_label,
-    )
-    write_pdf(fig, figpath)
-    LOGGER.output_file(figpath)
-    click.secho(f"Wrote {figpath}", fg="green")
-    LOGGER.shutdown()
-
-
-@main.command()
-@click.option(
-    "-p",
-    "--json_paths",
-    type=click.Path(exists=True),
-    help="config file with json paths",
-)
-@_plot_cfg
-@_group_label
-@_force_overwrite
-@_dry_run
-def nbr(
-    json_paths,
-    plot_cfg,
-    group_label,
-    force_overwrite,
-    dry_run,
-):
-    """makes motifs for independent or higher order interactions"""
-    LOGGER.log_args()
-    dirname = os.path.dirname(json_paths)
-    LOGGER.log_file_path = os.path.join(dirname, "nbr.log")
-
-    if plot_cfg:
-        LOGGER.input_file(plot_cfg)
-
-    paths = get_nbr_path_config(json_paths)
-    one_way = "1-way plot"
-    two_way = "2-way plot"
-    three_way = "3-way plot"
-    four_way = "4-way plot"
-    funcs = {
-        one_way: get_1way_position_drawable,
-        two_way: get_2way_position_drawable,
-        three_way: get_3way_position_drawable,
-        four_way: get_4way_position_drawable,
-    }
-
-    for order in (one_way, two_way, three_way, four_way):
-        if order not in paths:
-            continue
-        LOGGER.input_file(paths[order].inpath)
-        data = load_loglin_stats(paths[order].inpath)
-        fig = funcs[order](data, plot_cfg, group_label=group_label)
-        write_pdf(fig, paths[order].outpath)
-        LOGGER.output_file(paths[order].outpath)
-        click.secho(f"Wrote {paths[order].outpath}", fg="green")
-
-    summary = "summary"
-    if summary in paths:
-        LOGGER.input_file(paths[summary].inpath)
-        fig = get_summary_drawable(paths[summary].inpath, plot_cfg)
-        write_pdf(fig, paths[summary].outpath)
-        LOGGER.output_file(paths[summary].outpath)
-        click.secho(f"Wrote {paths[summary].outpath}", fg="green")
-
-    click.secho("Done!", fg="green")
-    LOGGER.shutdown()
-
-
-@main.command()
-@_json_path
-@_plot_cfg
-@_group_label
-@_figpath
-@click.option(
-    "--use_freq",
-    is_flag=True,
-    help="Use freqs rather than residuals for letter height.",
-)
-@_force_overwrite
-@_dry_run
-def mi(
-    json_path,
-    plot_cfg,
-    group_label,
-    figpath,
-    use_freq,
-    force_overwrite,
-    dry_run,
-):
-    """draws conventional sequence logo, using MI, from first order effects"""
-    global mi_use_freqs
-    mi_use_freqs = use_freq
-
-    LOGGER.log_args()
-    # the following is for logging
-    json_path = abspath(json_path)
-
-    if not figpath:
-        dirname = os.path.dirname(json_path)
-        figpath = os.path.join(dirname, "MI.pdf")
-        log_file_path = os.path.join(dirname, "MI.log")
-    else:
-        figpath = abspath(figpath)
-        log_file_path = "%s.log" % ".".join(figpath.split(".")[:-1])
-
-    LOGGER.log_file_path = log_file_path
-
-    if plot_cfg:
-        LOGGER.input_file(plot_cfg)
-
-    data = load_loglin_stats(json_path)
-    fig = get_1way_position_drawable(
-        data,
-        plot_cfg,
-        group_label=group_label,
-        get_heights=get_mi_plot_data,
-    )
-    for ann in fig.layout.annotations:
-        if "RE" in ann.text:
-            ann.text = ann.text.replace("RE", "MI")
-            break
-    write_pdf(fig, figpath)
-    LOGGER.output_file(figpath)
-    click.secho(f"Wrote {figpath}", fg="green")
-    LOGGER.shutdown()
-
-
-@main.command()
-@click.argument("outpath")
-def export_cfg(outpath):
-    """exports the sample config files to the nominated path"""
-    import shutil
-
-    if os.path.exists(outpath):
-        click.secho(
-            "outpath already exists, delete it or choose different dest",
-            fg="red",
-        )
-        sys.exit(1)
-
-    path = resources.files("mutation_motif") / "cfgs"
-    shutil.copytree(path, outpath)
-    click.secho(f"Contents written to {outpath}", fg="green")
