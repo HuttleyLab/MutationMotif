@@ -8,7 +8,7 @@ name = "mutation_motif"
 authors = [
     { name = "Gavin Huttley", email = "Gavin.Huttley@anu.edu.au"},
 ]
-keywords = ["biology", "genomics", "statistics", "genetics", "evolution", "bioinformatics"]
+keywords = ["biology", "genomics", "statistics", "genetics", "evolution", "bioinformatics", "mutation"]
 readme = "README.md"
 license = { file = "license.txt" }
 requires-python = ">3.9,<3.13"
@@ -42,29 +42,22 @@ include = ["requirements.txt", "src/*", "pyproject.toml"]
 exclude = ["doc/*.html"]
 
 [project.scripts]
-mutation_analysis = "mutation_motif.mutation_analysis:main"
-aln_to_counts = "mutation_motif.aln_to_counts:main"
-all_counts = "mutation_motif.all_counts:main"
-mutation_draw = "mutation_motif.draw:main"
+mm = "mutation_motif.cli:main"
 
 [project.optional-dependencies]
 test = [
     "pytest",
     "pytest-cov",
-    "pytest-xdist",
     "nox",
 ]
 dev = [
-    "black==23.3.0",
     "click",
     "cog",
-    "docformatter",
     "flit",
-    "isort==5.12.0",
     "pytest",
     "pytest-cov",
-    "pytest-xdist",
     "nox",
+    "ruff",
 ]
 
 [tool.pytest.ini_options]

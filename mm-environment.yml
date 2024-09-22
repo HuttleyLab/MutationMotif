@@ -1,9 +1,0 @@
-name: mm
-channels:
-  - conda-forge
-dependencies:
-  - python=3.10
-  - r
-  - pip
-  - pip:
-    - -e .[dev]
