@@ -1,7 +1,6 @@
+[![Python Versions](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12-blue)](https://www.python.org/)
 [![CI](https://github.com/HuttleyLab/MutationMotif/actions/workflows/testing_develop.yml/badge.svg)](https://github.com/HuttleyLab/MutationMotif/actions/workflows/testing_develop.yml)
-[![Coverage Status](https://coveralls.io/repos/github/HuttleyLab/MutationMotif/badge.svg?branch=develop)](https://coveralls.io/github/HuttleyLab/MutationMotif?branch=develop) 
-[![Python
-3.10+](https://img.shields.io/pypi/pyversions/cogent3)](https://www.python.org/downloads/release/python-360/)
+[![Coverage Status](https://coveralls.io/repos/github/HuttleyLab/MutationMotif/badge.svg?branch=develop)](https://coveralls.io/github/HuttleyLab/MutationMotif?branch=develop)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/ffc29377d3684100b74a868e4a15970d)](https://app.codacy.com/gh/HuttleyLab/MutationMotif/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 
@@ -143,7 +142,7 @@ The log-linear analyses requires a counts table from the prep steps. The table c
 Two subcommands are available: `ll-nbr` and `ll-spectra`. 
 
 <details>
-<summary>nbr: for detecting the influence of neighbouring bases on mutation</summary>
+<summary>ll-nbr: for detecting the influence of neighbouring bases on mutation</summary>
 
 The first examines the influence of neighbouring bases up to fourth order interactions.
 
@@ -241,7 +240,7 @@ $ mm ll-nbr -1 path/to/tests/data/counts-CtoT.txt -o path/for/results/ --strand_
 ```
 Similar output to the above is generated. The difference here is that the reference group for display are bases on the `+` strand.
 
-If comparing between groups, such as chromosomal regions, then there are two separate counts files and the second count file is indicated using a `-2` command line option.
+If comparing between groups, such as patient cohorts or chromosomal regions, then there are two separate counts files and the second count file is indicated using a `-2` command line option.
 
 ## Testing Full Spectra
 
