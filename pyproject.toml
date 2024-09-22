@@ -1,7 +1,6 @@
 [build-system]
 requires = ["flit_core >=3.2,<4"]
 build-backend = "flit_core.buildapi"
-platform = "darwin|linux"
 
 [project]
 name = "mutation_motif"
@@ -24,7 +23,7 @@ dependencies = ["click",
         "statsmodels",
         ]
 classifiers = [
-        "Development Status :: 3 - Alpha",
+        "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Science/Research",
         "License :: OSI Approved :: BSD License",
         "Topic :: Scientific/Engineering :: Bio-Informatics",
