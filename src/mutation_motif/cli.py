@@ -121,7 +121,6 @@ class OrderedGroup(click.Group):
 @click.version_option(__version__)  # add version option
 def main():
     """mm: point mutation analysis tools"""
-    pass
 
 
 @main.command(**_click_command_opts)
