@@ -107,6 +107,7 @@ def test_aln_to_counts(tmp_path, DATA_DIR):
     assert counts.shape[0] == 32
 
 
+@pytest.mark.draws
 def test_nbr(tmp_path, DATA_DIR):
     """exercising, making sure output generated"""
     path = DATA_DIR / "counts-CtoT.txt"
@@ -133,6 +134,7 @@ def test_nbr(tmp_path, DATA_DIR):
     assert all(f.stat().st_size > 0 for f in (tmp_path / fn for fn in fnames))
 
 
+@pytest.mark.draws
 def test_nbr_ssym(tmp_path, DATA_DIR):
     """exercising, nbr strand symmetric analysis"""
     path = DATA_DIR / "counts-CtoT-ss.txt"
@@ -164,6 +166,7 @@ def test_nbr_ssym(tmp_path, DATA_DIR):
     assert all(f.stat().st_size > 0 for f in (tmp_path / fn for fn in fnames))
 
 
+@pytest.mark.draws
 def test_spectra(tmp_path, DATA_DIR):
     """exercising spectra analysis code"""
     path1 = DATA_DIR / "auto_intergen_combined_counts.txt"
@@ -190,6 +193,7 @@ def test_spectra(tmp_path, DATA_DIR):
     assert all(f.stat().st_size > 0 for f in (tmp_path / fn for fn in fnames))
 
 
+@pytest.mark.draws
 def test_spectra_ssym(tmp_path, DATA_DIR):
     """exercising spectra analysis code with strand symmetry"""
     path = DATA_DIR / "counts-combined.txt"
@@ -214,6 +218,7 @@ def test_spectra_ssym(tmp_path, DATA_DIR):
     assert all(f.stat().st_size > 0 for f in (tmp_path / fn for fn in fnames))
 
 
+@pytest.mark.draws
 def test_spectra_grid(tmp_path, DATA_DIR):
     """exercising draw spectra grid"""
     path = DATA_DIR / "spectra_analysis.json"
@@ -233,6 +238,7 @@ def test_spectra_grid(tmp_path, DATA_DIR):
     assert all(f.stat().st_size > 0 for f in (tmp_path / fn for fn in fnames))
 
 
+@pytest.mark.draws
 def test_grid(tmp_path, DATA_DIR):
     """exercise drawing arbitrary grid"""
     path = DATA_DIR / "arbitrary_grid.cfg"
@@ -251,6 +257,7 @@ def test_grid(tmp_path, DATA_DIR):
     assert all(f.stat().st_size > 0 for f in (tmp_path / fn for fn in fnames))
 
 
+@pytest.mark.draws
 def test_nbr_app(DATA_DIR, tmp_path):
     """cl produces plots for 1-way up to 4-way plus summary"""
 
@@ -267,6 +274,7 @@ def test_nbr_app(DATA_DIR, tmp_path):
     assert all(f.stat().st_size > 0 for f in (tmp_path / fn for fn in fnames))
 
 
+@pytest.mark.draws
 def test_nbr_matrix_app(DATA_DIR, tmp_path):
     """cl produces matrix of 1-way plots"""
 
@@ -284,6 +292,7 @@ def test_nbr_matrix_app(DATA_DIR, tmp_path):
     assert figpath.stat().st_size > 0
 
 
+@pytest.mark.draws
 @pytest.mark.parametrize("use_freq", [False, True])
 def test_mi_app(DATA_DIR, tmp_path, use_freq):
     """cl produces 1-way plot using MI"""
