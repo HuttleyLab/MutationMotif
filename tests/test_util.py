@@ -23,7 +23,7 @@ def aln(DATA_DIR):
     )
 
 
-def test_seqs_to_array(aln):
+def test_just_nucs(aln):
     """in the input alignment profile,
     seq0, seq2 to seq5 contain no N/-,
         should all pass the test.
