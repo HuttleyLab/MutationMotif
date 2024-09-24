@@ -1,5 +1,4 @@
-import bz2
-import gzip
+import contextlib
 import io
 import json
 import os
@@ -11,27 +10,27 @@ from configparser import ConfigParser, NoOptionError, NoSectionError
 from importlib import resources
 
 import numpy
-from cogent3 import DNA, load_table, make_table
+from cogent3 import DNA, load_table, make_table, open_
 from cogent3.core.alignment import ArrayAlignment
-from cogent3.parse.fasta import MinimalFastaParser
+from cogent3.parse.fasta import iter_fasta_records
 from cogent3.util.union_dict import UnionDict
-from numpy import around
-from numpy.core._multiarray_umath import fabs
 from pandas import read_json
 
 
 def load_table_from_delimited_file(path, sep="\t"):
     """returns a Table object after a quicker loading"""
-    path = str(path)
     with open_(path, "rt") as infile:
-        header = infile.readline().strip().split(sep)
-        count_index = header.index("count")
-        records = []
-        for line in infile:
-            line = line.strip().split(sep)
-            line[count_index] = int(line[count_index])
-            records.append(line)
-        table = make_table(header=header, rows=records)
+        data = infile.read()
+
+    data = data.splitlines()
+    header = data.pop(0).strip().split(sep)
+    count_index = header.index("count")
+    records = []
+    for line in data:
+        line = line.strip().split(sep)
+        line[count_index] = int(line[count_index])
+        records.append(line)
+    table = make_table(header=header, rows=records)
     if "direction" in table.columns:
         table = make_consistent_direction_style(table)
     return table
@@ -41,7 +40,7 @@ def make_consistent_direction_style(table):
     """returns a table with the XtoY style"""
     current = table.distinct_values("direction")
     pattern = re.compile("[ACGT]to[ACGT]")
-    map = {}
+    direction_map = {}
     for d in current:
         if "to" in d:
             expect = 4
@@ -57,9 +56,9 @@ def make_consistent_direction_style(table):
         if match is None:
             raise ValueError(f"unknown direction '{d}'")
 
-        map[d] = val
+        direction_map[d] = val
 
-    new_col = [map[v] for v in table.columns["direction"]]
+    new_col = [direction_map[v] for v in table.columns["direction"]]
     table.columns["direction"] = numpy.array(new_col, dtype="U")
     return table
 
@@ -152,10 +151,7 @@ def is_valid(data):
 
 
 def load_from_fasta(filename):
-    infile = open_(filename, mode="rt")
-    parser = MinimalFastaParser(infile)
-    seqs = list(parser)
-    infile.close()
+    seqs = list(iter_fasta_records(filename))
     return ArrayAlignment(data=seqs, moltype=DNA)
 
 
@@ -182,12 +178,6 @@ def just_nucs(seqs):
     return seqs.take(indices, axis=0)
 
 
-def open_(filename, mode="r"):
-    """handles different compression"""
-    op = {"gz": gzip.open, "bz2": bz2.BZ2File}.get(filename.split(".")[-1], open)
-    return op(filename, mode)
-
-
 def abspath(path):
     """returns an expanded, absolute path"""
     return os.path.abspath(os.path.expanduser(path))
@@ -195,25 +185,21 @@ def abspath(path):
 
 def makedirs(path):
     """creates dir path"""
-    try:
-        os.makedirs(path)
-    except OSError:
-        pass
+    with contextlib.suppress(OSError):
+        os.makedirs(path, exist_ok=True)
 
 
 def get_selected_indices(stats, group_label=None, group_ref=None):
     """returns indices for selecting dataframe records for display"""
     if group_label and group_ref is None:  # TODO this logic needs improving
         val = dict(strand="+").get(group_label, "1")
-        indices = numpy.logical_and(stats["mut"] == "M", stats[group_label] == val)
-    elif group_label and group_ref:
-        indices = numpy.logical_and(
+        return numpy.logical_and(stats["mut"] == "M", stats[group_label] == val)
+    if group_label and group_ref:
+        return numpy.logical_and(
             stats["mut"] == "M",
             stats[group_label] == group_ref,
         )
-    else:
-        indices = stats["mut"] == "M"
-    return indices
+    return stats["mut"] == "M"
 
 
 _pos_num = re.compile(r"\d+$")
@@ -264,13 +250,11 @@ def get_fig_properties(parser, section="fig setup"):
     ]
     cfg.width, cfg.height = figsize
 
-    try:
+    with contextlib.suppress(NoOptionError):
         margin = {
             k[0]: int(get_val(section, k)) for k in ("top", "bottom", "right", "left")
         }
         cfg.margin = margin
-    except NoOptionError:
-        pass
 
     # font sizes, title, label text padding
     for option in parser.options(section):
@@ -281,37 +265,27 @@ def get_fig_properties(parser, section="fig setup"):
         cfg[option] = int(get_val(section, option))
 
     # ylim
-    try:
+    with contextlib.suppress(NoOptionError):
         ylim = float(get_val(section, "ylim"))
         cfg.ylim = ylim
-    except NoOptionError:
-        pass
 
-    try:
+    with contextlib.suppress(NoOptionError):
         ylabel = get_val(section, "ylabel")
         cfg.ylabel = ylabel
-    except NoOptionError:
-        pass
 
-    try:
+    with contextlib.suppress(NoOptionError):
         space = float(get_val(section, "space"))
         cfg.space = space
-    except NoOptionError:
-        pass
 
-    try:
+    with contextlib.suppress(NoOptionError):
         xlabel = get_val(section, "xlabel")
         cfg.xlabel = xlabel
-    except NoOptionError:
-        pass
 
     for axis in ("rows", "cols"):
         key = f"num_{axis}"
-        try:
+        with contextlib.suppress(NoOptionError):
             val = int(parser.get(section, key))
             cfg[key] = val
-        except NoOptionError:
-            pass
 
     return cfg
 
@@ -349,7 +323,7 @@ def get_grid_config(path):
     subplots = UnionDict()
     if path:
         # load user defined values
-        try:
+        with contextlib.suppress(NoOptionError):
             col_titles = [
                 l.strip() for l in parser.get("fig setup", "col_titles").split(",")
             ]
@@ -359,10 +333,7 @@ def get_grid_config(path):
                 msg = f"number of col_titles {num_titles} != num_cols {cfg.num_cols}"
                 raise ValueError(msg)
 
-        except NoOptionError:
-            pass
-
-        try:
+        with contextlib.suppress(NoOptionError):
             row_titles = [
                 l.strip() for l in parser.get("fig setup", "row_titles").split(",")
             ]
@@ -371,9 +342,6 @@ def get_grid_config(path):
             if num_titles != cfg.num_rows:
                 msg = f"number of row_titles {num_titles} != num_rows {cfg.num_rows}"
                 raise ValueError(msg)
-
-        except NoOptionError:
-            pass
 
         # load possible sections
         for section in parser.sections():
@@ -442,18 +410,18 @@ def get_nbr_path_config(path):
 def est_ylim(char_heights):
     """returns a ylim for character height axis plotting"""
     try:
-        t = fabs(char_heights).sum(axis=1).max()
+        t = numpy.fabs(char_heights).sum(axis=1).max()
     except ValueError:
-        t = fabs(char_heights).max()
+        t = numpy.fabs(char_heights).max()
 
     for i in range(1, 10):
-        ylim = around(t, i)
+        ylim = numpy.around(t, i)
         if ylim != 0:
             break
 
     if ylim < t:
         ylim *= 1.667
-        ylim = around(ylim, i)
+        ylim = numpy.around(ylim, i)
 
     ylim = max(ylim, 1e-6)
 
