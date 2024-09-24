@@ -13,8 +13,6 @@ from cogent3 import DNA, load_table, make_table, open_
 from cogent3.core.alignment import ArrayAlignment
 from cogent3.parse.fasta import iter_fasta_records
 from cogent3.util.union_dict import UnionDict
-from numpy import around
-from numpy.core._multiarray_umath import fabs
 from pandas import read_json
 
 
@@ -431,18 +429,18 @@ def get_nbr_path_config(path):
 def est_ylim(char_heights):
     """returns a ylim for character height axis plotting"""
     try:
-        t = fabs(char_heights).sum(axis=1).max()
+        t = numpy.fabs(char_heights).sum(axis=1).max()
     except ValueError:
-        t = fabs(char_heights).max()
+        t = numpy.fabs(char_heights).max()
 
     for i in range(1, 10):
-        ylim = around(t, i)
+        ylim = numpy.around(t, i)
         if ylim != 0:
             break
 
     if ylim < t:
         ylim *= 1.667
-        ylim = around(ylim, i)
+        ylim = numpy.around(ylim, i)
 
     ylim = max(ylim, 1e-6)
 
