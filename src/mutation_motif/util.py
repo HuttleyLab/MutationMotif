@@ -1,5 +1,3 @@
-import bz2
-import gzip
 import io
 import json
 import os
@@ -11,7 +9,7 @@ from configparser import ConfigParser, NoOptionError, NoSectionError
 from importlib import resources
 
 import numpy
-from cogent3 import DNA, load_table, make_table
+from cogent3 import DNA, load_table, make_table, open_
 from cogent3.core.alignment import ArrayAlignment
 from cogent3.parse.fasta import iter_fasta_records
 from cogent3.util.union_dict import UnionDict
@@ -177,12 +175,6 @@ def just_nucs(seqs):
     """
     (indices,) = (seqs <= 3).all(axis=1).nonzero()
     return seqs.take(indices, axis=0)
-
-
-def open_(filename, mode="r"):
-    """handles different compression"""
-    op = {"gz": gzip.open, "bz2": bz2.BZ2File}.get(filename.split(".")[-1], open)
-    return op(filename, mode)
 
 
 def abspath(path):
