@@ -193,15 +193,13 @@ def get_selected_indices(stats, group_label=None, group_ref=None):
     """returns indices for selecting dataframe records for display"""
     if group_label and group_ref is None:  # TODO this logic needs improving
         val = dict(strand="+").get(group_label, "1")
-        indices = numpy.logical_and(stats["mut"] == "M", stats[group_label] == val)
-    elif group_label and group_ref:
-        indices = numpy.logical_and(
+        return numpy.logical_and(stats["mut"] == "M", stats[group_label] == val)
+    if group_label and group_ref:
+        return numpy.logical_and(
             stats["mut"] == "M",
             stats[group_label] == group_ref,
         )
-    else:
-        indices = stats["mut"] == "M"
-    return indices
+    return stats["mut"] == "M"
 
 
 _pos_num = re.compile(r"\d+$")
