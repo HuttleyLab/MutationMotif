@@ -1,3 +1,4 @@
+import contextlib
 import io
 import json
 import os
@@ -184,10 +185,8 @@ def abspath(path):
 
 def makedirs(path):
     """creates dir path"""
-    try:
-        os.makedirs(path)
-    except OSError:
-        pass
+    with contextlib.suppress(OSError):
+        os.makedirs(path, exist_ok=True)
 
 
 def get_selected_indices(stats, group_label=None, group_ref=None):
@@ -253,13 +252,11 @@ def get_fig_properties(parser, section="fig setup"):
     ]
     cfg.width, cfg.height = figsize
 
-    try:
+    with contextlib.suppress(NoOptionError):
         margin = {
             k[0]: int(get_val(section, k)) for k in ("top", "bottom", "right", "left")
         }
         cfg.margin = margin
-    except NoOptionError:
-        pass
 
     # font sizes, title, label text padding
     for option in parser.options(section):
@@ -270,37 +267,27 @@ def get_fig_properties(parser, section="fig setup"):
         cfg[option] = int(get_val(section, option))
 
     # ylim
-    try:
+    with contextlib.suppress(NoOptionError):
         ylim = float(get_val(section, "ylim"))
         cfg.ylim = ylim
-    except NoOptionError:
-        pass
 
-    try:
+    with contextlib.suppress(NoOptionError):
         ylabel = get_val(section, "ylabel")
         cfg.ylabel = ylabel
-    except NoOptionError:
-        pass
 
-    try:
+    with contextlib.suppress(NoOptionError):
         space = float(get_val(section, "space"))
         cfg.space = space
-    except NoOptionError:
-        pass
 
-    try:
+    with contextlib.suppress(NoOptionError):
         xlabel = get_val(section, "xlabel")
         cfg.xlabel = xlabel
-    except NoOptionError:
-        pass
 
     for axis in ("rows", "cols"):
         key = f"num_{axis}"
-        try:
+        with contextlib.suppress(NoOptionError):
             val = int(parser.get(section, key))
             cfg[key] = val
-        except NoOptionError:
-            pass
 
     return cfg
 
@@ -338,7 +325,7 @@ def get_grid_config(path):
     subplots = UnionDict()
     if path:
         # load user defined values
-        try:
+        with contextlib.suppress(NoOptionError):
             col_titles = [
                 l.strip() for l in parser.get("fig setup", "col_titles").split(",")
             ]
@@ -348,10 +335,7 @@ def get_grid_config(path):
                 msg = f"number of col_titles {num_titles} != num_cols {cfg.num_cols}"
                 raise ValueError(msg)
 
-        except NoOptionError:
-            pass
-
-        try:
+        with contextlib.suppress(NoOptionError):
             row_titles = [
                 l.strip() for l in parser.get("fig setup", "row_titles").split(",")
             ]
@@ -360,9 +344,6 @@ def get_grid_config(path):
             if num_titles != cfg.num_rows:
                 msg = f"number of row_titles {num_titles} != num_rows {cfg.num_rows}"
                 raise ValueError(msg)
-
-        except NoOptionError:
-            pass
 
         # load possible sections
         for section in parser.sections():
