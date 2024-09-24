@@ -39,7 +39,7 @@ def make_consistent_direction_style(table):
     """returns a table with the XtoY style"""
     current = table.distinct_values("direction")
     pattern = re.compile("[ACGT]to[ACGT]")
-    map = {}
+    direction_map = {}
     for d in current:
         if "to" in d:
             expect = 4
@@ -55,9 +55,9 @@ def make_consistent_direction_style(table):
         if match is None:
             raise ValueError(f"unknown direction '{d}'")
 
-        map[d] = val
+        direction_map[d] = val
 
-    new_col = [map[v] for v in table.columns["direction"]]
+    new_col = [direction_map[v] for v in table.columns["direction"]]
     table.columns["direction"] = numpy.array(new_col, dtype="U")
     return table
 
