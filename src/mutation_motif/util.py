@@ -13,7 +13,7 @@ from importlib import resources
 import numpy
 from cogent3 import DNA, load_table, make_table
 from cogent3.core.alignment import ArrayAlignment
-from cogent3.parse.fasta import MinimalFastaParser
+from cogent3.parse.fasta import iter_fasta_records
 from cogent3.util.union_dict import UnionDict
 from numpy import around
 from numpy.core._multiarray_umath import fabs
@@ -152,10 +152,7 @@ def is_valid(data):
 
 
 def load_from_fasta(filename):
-    infile = open_(filename, mode="rt")
-    parser = MinimalFastaParser(infile)
-    seqs = list(parser)
-    infile.close()
+    seqs = list(iter_fasta_records(filename))
     return ArrayAlignment(data=seqs, moltype=DNA)
 
 
