@@ -18,16 +18,18 @@ from pandas import read_json
 
 def load_table_from_delimited_file(path, sep="\t"):
     """returns a Table object after a quicker loading"""
-    path = str(path)
     with open_(path, "rt") as infile:
-        header = infile.readline().strip().split(sep)
-        count_index = header.index("count")
-        records = []
-        for line in infile:
-            line = line.strip().split(sep)
-            line[count_index] = int(line[count_index])
-            records.append(line)
-        table = make_table(header=header, rows=records)
+        data = infile.read()
+
+    data = data.splitlines()
+    header = data.pop(0).strip().split(sep)
+    count_index = header.index("count")
+    records = []
+    for line in data:
+        line = line.strip().split(sep)
+        line[count_index] = int(line[count_index])
+        records.append(line)
+    table = make_table(header=header, rows=records)
     if "direction" in table.columns:
         table = make_consistent_direction_style(table)
     return table
