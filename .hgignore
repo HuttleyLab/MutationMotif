@@ -29,3 +29,4 @@ draw_results
 *lcov*.info
 working/*
 .ruff_cache/*
+.venv/*

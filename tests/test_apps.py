@@ -11,20 +11,22 @@ from mutation_motif.cli import main as mut_main
 RUNNER = CliRunner()
 
 
-def test_all_counts_fail(tmp_dir):
+def test_all_counts_fail(tmp_dir, DATA_DIR):
     # should fail, as data files not in this directory
+    data_glob = DATA_DIR / "*.txt"
     r = RUNNER.invoke(
         mut_main,
-        ["prep-spectra", "-cdata/*.txt", f"-o{tmp_dir!s}"],
+        ["prep-spectra", f"-c{data_glob}", f"-o{tmp_dir!s}"],
         catch_exceptions=False,
     )
     assert r.exit_code != 0
 
 
-def test_all_counts(tmp_dir):
+def test_all_counts(tmp_dir, DATA_DIR):
+    path = DATA_DIR / "directions/*.txt"
     r = RUNNER.invoke(
         mut_main,
-        ["prep-spectra", "-cdata/directions/*.txt", f"-o{tmp_dir!s}"],
+        ["prep-spectra", f"-c{path}", f"-o{tmp_dir!s}"],
         catch_exceptions=False,
     )
     assert r.exit_code == 0
@@ -38,11 +40,12 @@ def test_all_counts(tmp_dir):
     assert counts.shape[0] == 6144
 
 
-def test_all_counts_1(tmp_dir):
+def test_all_counts_1(tmp_dir, DATA_DIR):
     """exercising all_counts with strand symmetric"""
+    path = DATA_DIR / "directions/*.txt"
     r = RUNNER.invoke(
         mut_main,
-        ["prep-spectra", "-cdata/directions/*.txt", f"-o{tmp_dir}", "-s"],
+        ["prep-spectra", f"-c{path}", f"-o{tmp_dir}", "-s"],
     )
 
     # should produce directory containing two files
@@ -54,13 +57,15 @@ def test_all_counts_1(tmp_dir):
     assert "strand" in counts.header
 
 
-def test_all_counts_splitdir(tmp_dir):
+def test_all_counts_splitdir(tmp_dir, DATA_DIR):
+    path = DATA_DIR / "directions/*.txt"
+
     splitdir = tmp_dir / "splitdir"
     r = RUNNER.invoke(
         mut_main,
         [
             "prep-spectra",
-            "-cdata/directions/*.txt",
+            f"-c{path}",
             f"-o{tmp_dir}",
             "-s",
             f"--split_dir={splitdir}",
@@ -76,14 +81,16 @@ def test_all_counts_splitdir(tmp_dir):
     assert all("strand" in t.header for t in tables)
 
 
-def test_aln_to_counts(tmp_path):
+def test_aln_to_counts(tmp_path, DATA_DIR):
     """exercising aln_to_counts"""
+    path = DATA_DIR / "sample_AtoC.fasta"
+
     # should fail, as data files not in this directory
     r = RUNNER.invoke(
         mut_main,
         [
             "prep-nbr",
-            "-adata/sample_AtoC.fasta",
+            f"-a{path}",
             f"-o{tmp_path}",
             "-f1",
             "--direction=AtoC",
@@ -100,11 +107,13 @@ def test_aln_to_counts(tmp_path):
     assert counts.shape[0] == 32
 
 
-def test_nbr(tmp_path):
+@pytest.mark.draws
+def test_nbr(tmp_path, DATA_DIR):
     """exercising, making sure output generated"""
+    path = DATA_DIR / "counts-CtoT.txt"
     r = RUNNER.invoke(
         mut_main,
-        ["ll-nbr", "-1data/counts-CtoT.txt", f"-o{tmp_path}"],
+        ["ll-nbr", f"-1{path}", f"-o{tmp_path}"],
         catch_exceptions=False,
     )
     assert r.exit_code == 0, r.output
@@ -125,13 +134,15 @@ def test_nbr(tmp_path):
     assert all(f.stat().st_size > 0 for f in (tmp_path / fn for fn in fnames))
 
 
-def test_nbr_ssym(tmp_path):
+@pytest.mark.draws
+def test_nbr_ssym(tmp_path, DATA_DIR):
     """exercising, nbr strand symmetric analysis"""
+    path = DATA_DIR / "counts-CtoT-ss.txt"
     r = RUNNER.invoke(
         mut_main,
         [
             "ll-nbr",
-            "-1data/counts-CtoT-ss.txt",
+            f"-1{path}",
             f"-o{tmp_path}",
             "--strand_symmetry",
         ],
@@ -155,14 +166,17 @@ def test_nbr_ssym(tmp_path):
     assert all(f.stat().st_size > 0 for f in (tmp_path / fn for fn in fnames))
 
 
-def test_spectra(tmp_path):
+@pytest.mark.draws
+def test_spectra(tmp_path, DATA_DIR):
     """exercising spectra analysis code"""
+    path1 = DATA_DIR / "auto_intergen_combined_counts.txt"
+    path2 = DATA_DIR / "auto_intron_combined_counts.txt"
     r = RUNNER.invoke(
         mut_main,
         [
             "ll-spectra",
-            "-1data/auto_intergen_combined_counts.txt",
-            "-2data/auto_intron_combined_counts.txt",
+            f"-1{path1}",
+            f"-2{path2}",
             f"-o{tmp_path}",
         ],
         catch_exceptions=False,
@@ -179,13 +193,15 @@ def test_spectra(tmp_path):
     assert all(f.stat().st_size > 0 for f in (tmp_path / fn for fn in fnames))
 
 
-def test_spectra_ssym(tmp_path):
+@pytest.mark.draws
+def test_spectra_ssym(tmp_path, DATA_DIR):
     """exercising spectra analysis code with strand symmetry"""
+    path = DATA_DIR / "counts-combined.txt"
     r = RUNNER.invoke(
         mut_main,
         [
             "ll-spectra",
-            "-1data/counts-combined.txt",
+            f"-1{path}",
             f"-o{tmp_path}",
             "--strand_symmetry",
         ],
@@ -202,15 +218,17 @@ def test_spectra_ssym(tmp_path):
     assert all(f.stat().st_size > 0 for f in (tmp_path / fn for fn in fnames))
 
 
-def test_spectra_grid(tmp_path):
+@pytest.mark.draws
+def test_spectra_grid(tmp_path, DATA_DIR):
     """exercising draw spectra grid"""
+    path = DATA_DIR / "spectra_analysis.json"
     # first
     r = RUNNER.invoke(
         mut_main,
         [
             "draw-spectra-grid",
             f"--figpath={tmp_path}/spectra_grid.pdf",
-            "--json_path=data/spectra_analysis.json",
+            f"--json_path={path}",
             "--group_label=strand",
         ],
         catch_exceptions=False,
@@ -220,14 +238,16 @@ def test_spectra_grid(tmp_path):
     assert all(f.stat().st_size > 0 for f in (tmp_path / fn for fn in fnames))
 
 
-def test_grid(tmp_path):
+@pytest.mark.draws
+def test_grid(tmp_path, DATA_DIR):
     """exercise drawing arbitrary grid"""
+    path = DATA_DIR / "arbitrary_grid.cfg"
     r = RUNNER.invoke(
         mut_main,
         [
             "draw-grid",
             f"--figpath={tmp_path}/grid.pdf",
-            "--fig_config=data/arbitrary_grid.cfg",
+            f"--fig_config={path}",
         ],
         catch_exceptions=False,
     )
@@ -237,6 +257,7 @@ def test_grid(tmp_path):
     assert all(f.stat().st_size > 0 for f in (tmp_path / fn for fn in fnames))
 
 
+@pytest.mark.draws
 def test_nbr_app(DATA_DIR, tmp_path):
     """cl produces plots for 1-way up to 4-way plus summary"""
 
@@ -253,6 +274,7 @@ def test_nbr_app(DATA_DIR, tmp_path):
     assert all(f.stat().st_size > 0 for f in (tmp_path / fn for fn in fnames))
 
 
+@pytest.mark.draws
 def test_nbr_matrix_app(DATA_DIR, tmp_path):
     """cl produces matrix of 1-way plots"""
 
@@ -270,6 +292,7 @@ def test_nbr_matrix_app(DATA_DIR, tmp_path):
     assert figpath.stat().st_size > 0
 
 
+@pytest.mark.draws
 @pytest.mark.parametrize("use_freq", [False, True])
 def test_mi_app(DATA_DIR, tmp_path, use_freq):
     """cl produces 1-way plot using MI"""
