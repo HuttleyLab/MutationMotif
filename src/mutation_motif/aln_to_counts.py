@@ -80,5 +80,4 @@ def align_to_counts(
     orig_counts = motif_count.profile_to_seq_counts(orig, flank_size=flank_size)
     ctl_counts = motif_count.profile_to_seq_counts(ctl, flank_size=flank_size)
     counts_table = motif_count.get_count_table(orig_counts, ctl_counts, flank_size * 2)
-    counts_table = counts_table.sorted(columns="mut")
-    return counts_table
+    return counts_table.sorted(columns="mut")

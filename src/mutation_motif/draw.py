@@ -1,3 +1,5 @@
+import sys
+
 import numpy
 from cogent3.core.profile import MotifCountsArray
 from cogent3.draw.drawable import Drawable, get_domain
@@ -22,16 +24,16 @@ from mutation_motif.util import (
 
 write_pdf = pdf_writer()
 
-_axis_lines = dict(
-    mirror=True,
-    linewidth=1,
-    showgrid=False,
-    linecolor="black",
-    showline=True,
-    visible=True,
-    zeroline=False,
-)
-COLOURS = dict(A="green", C="blue", G="orange", T="red")
+_axis_lines = {
+    "mirror": True,
+    "linewidth": 1,
+    "showgrid": False,
+    "linecolor": "black",
+    "showline": True,
+    "visible": True,
+    "zeroline": False,
+}
+COLOURS = {"A": "green", "C": "blue", "G": "orange", "T": "red"}
 
 mi_use_freqs = False
 
@@ -79,7 +81,7 @@ def get_mi_plot_data(pwise_results, positions, group_label=None, group_ref=None)
         char_heights = []
         for i in range(mi.shape[0]):
             hts = get_mi_char_heights(mit[i], mi[i])
-            char_heights.append({b: v for b, v in zip(base_order, hts, strict=False)})
+            char_heights.append(dict(zip(base_order, hts, strict=False)))
     else:
         char_heights = []
         hts = c3_get_mi(freqs)
@@ -118,7 +120,7 @@ def get_re_plot_data(pwise_results, positions, group_label=None, group_ref=None)
     mid = (len(positions) + 1) // 2
 
     char_heights = []
-    for index, pos in enumerate(positions):
+    for _index, pos in enumerate(positions):
         stats = pwise_results[pos]["stats"]
         mut_stats = stats[
             get_selected_indices(stats, group_label=group_label, group_ref=group_ref)
@@ -131,7 +133,7 @@ def get_re_plot_data(pwise_results, positions, group_label=None, group_ref=None)
             re_positionwise=pwise_results[pos]["rel_entropy"],
         )
 
-        vals = {b: ret for b, ret in zip(chars_, hts, strict=False)}
+        vals = dict(zip(chars_, hts, strict=False))
         char_heights.append(vals)
 
     char_heights.insert(mid, {})
@@ -267,10 +269,7 @@ def get_position_grid_drawable(directions, plot_cfg, ylim=None):
     plottables = UnionDict()
     for direction in directions:
         value = directions[direction]
-        if not isinstance(value, dict):
-            data = load_loglin_stats(value)
-        else:
-            data = value
+        data = load_loglin_stats(value) if not isinstance(value, dict) else value
 
         if positions is None:
             positions = list(data.keys())
@@ -289,7 +288,7 @@ def get_position_grid_drawable(directions, plot_cfg, ylim=None):
 
     # customised xticks, text and location
     mid = (len(positions) + 1) // 2
-    xtick_vals = [i for i in range(len(positions) + 1)]
+    xtick_vals = list(range(len(positions) + 1))
     xtick_text = [f"{i - mid}" for i in xtick_vals]
 
     for direction in plottables:
@@ -313,10 +312,10 @@ def get_position_grid_drawable(directions, plot_cfg, ylim=None):
         layout[f"xaxis{ax}"].ticktext = xtick_text
         layout[f"yaxis{ax}"].title = None
         if col != 0 and (row, col) != (0, 1):
-            layout[f"yaxis{ax}"] |= dict(showticklabels=False)
+            layout[f"yaxis{ax}"] |= {"showticklabels": False}
 
         if row != 3 and (row, col) != (2, 3):
-            layout[f"xaxis{ax}"] |= dict(showticklabels=False)
+            layout[f"xaxis{ax}"] |= {"showticklabels": False}
 
         r = get_logo(plottables[direction], ylim=ylim, axnum=axnum, layout=base_layout)
         # cogent3 returns a Drawable instance, so we access it's layout
@@ -359,9 +358,7 @@ def get_position_grid_drawable(directions, plot_cfg, ylim=None):
 
     layout.template = "plotly_white"
     layout.margin = plot_cfg.margin
-    fig = Drawable(layout=layout, width=plot_cfg.width, height=plot_cfg.height)
-
-    return fig
+    return Drawable(layout=layout, width=plot_cfg.width, height=plot_cfg.height)
 
 
 # get effect order summary stuff
@@ -418,26 +415,26 @@ def get_summary_drawable(data, plot_cfg, ylim=None):
     )
     layout.yaxis = UnionDict(
         range=[0, ylim],
-        tickfont=dict(size=plot_cfg.ytick_fontsize),
-        titlefont=dict(size=plot_cfg.ylabel_fontsize),
+        tickfont={"size": plot_cfg.ytick_fontsize},
+        titlefont={"size": plot_cfg.ylabel_fontsize},
     )
     layout.xaxis = UnionDict(
         tickmode="array",
         ticktext=[str(o) for o in order],
         tickvals=order,
-        tickfont=dict(size=plot_cfg.xtick_fontsize),
-        titlefont=dict(size=plot_cfg.xlabel_fontsize),
+        tickfont={"size": plot_cfg.xtick_fontsize},
+        titlefont={"size": plot_cfg.xlabel_fontsize},
     )
 
-    axis_lines = dict(
-        mirror=True,
-        linewidth=1,
-        showgrid=False,
-        linecolor="black",
-        showline=True,
-        visible=True,
-        zeroline=False,
-    )
+    axis_lines = {
+        "mirror": True,
+        "linewidth": 1,
+        "showgrid": False,
+        "linecolor": "black",
+        "showline": True,
+        "visible": True,
+        "zeroline": False,
+    }
     layout.xaxis |= axis_lines
     layout.yaxis |= axis_lines
     layout.margin = plot_cfg.margin
@@ -501,7 +498,7 @@ def get_1way_position_drawable(
     layout.yaxis.title = None
     # customised xticks, text and location
     mid = (len(positions) + 1) // 2
-    xtick_vals = [i for i in range(len(positions) + 1)]
+    xtick_vals = list(range(len(positions) + 1))
     xtick_text = [f"{i - mid}" for i in xtick_vals]
     layout.xaxis.tickvals = xtick_vals
     layout.xaxis.ticktext = xtick_text
@@ -528,9 +525,7 @@ def get_1way_position_drawable(
     layout.template = "plotly_white"
     height = plot_cfg.height
     width = plot_cfg.width
-    fig = Drawable(layout=layout, height=height, width=width)
-
-    return fig
+    return Drawable(layout=layout, height=height, width=width)
 
 
 # get multi-way interactions drawable
@@ -602,7 +597,7 @@ def _get_multi_way_position_drawables(
 
     # customised xticks, text and location
     mid = (len(positions) + 1) // 2
-    xtick_vals = [i for i in range(len(positions) + 1)]
+    xtick_vals = list(range(len(positions) + 1))
     xtick_text = [f"{i - mid}" for i in xtick_vals]
 
     axnum = 1
@@ -625,32 +620,32 @@ def _get_multi_way_position_drawables(
         layout |= base_layout
         ax = "" if axnum == 1 else f"{axnum}"
         # domains
-        layout[f"xaxis{ax}"] |= dict(
-            domain=group_domains[group].x,
-            tickvals=xtick_vals,
-            ticktext=xtick_text,
-            range=[-0.5, num_pos + 0.25],
-        )
+        layout[f"xaxis{ax}"] |= {
+            "domain": group_domains[group].x,
+            "tickvals": xtick_vals,
+            "ticktext": xtick_text,
+            "range": [-0.5, num_pos + 0.25],
+        }
         # note that plotly display is cartesian, so the y array coordinate
         # needs to be reversed
-        layout[f"yaxis{ax}"] |= dict(
-            domain=group_domains[group].y,
-            title=None,
-            range=[0, ylim],
-        )
+        layout[f"yaxis{ax}"] |= {
+            "domain": group_domains[group].y,
+            "title": None,
+            "range": [0, ylim],
+        }
         # make sure xaxis has correct range
 
         if col != 0:
-            layout[f"yaxis{ax}"] |= dict(showticklabels=False)
+            layout[f"yaxis{ax}"] |= {"showticklabels": False}
 
         if row != num_row:
-            layout[f"xaxis{ax}"] |= dict(showticklabels=False)
+            layout[f"xaxis{ax}"] |= {"showticklabels": False}
 
         indices = list(map(ordered.index, group))
         rel_entropy = data[group]["rel_entropy"]
         stats = data[group]["stats"]
         idx = get_selected_indices(stats, group_label=group_label, group_ref=group_ref)
-        mut_stats = stats[idx][bases + ["ret"]]
+        mut_stats = stats[idx][[*bases, "ret"]]
         hts = get_re_char_heights(list(mut_stats["ret"]), re_positionwise=rel_entropy)
 
         for i, base in enumerate(bases):
@@ -686,8 +681,7 @@ def _get_multi_way_position_drawables(
     width = plot_cfg.width
     layout.margin = plot_cfg.margin
     layout.template = "plotly_white"
-    fig = Drawable(layout=layout, height=height, width=width)
-    return fig
+    return Drawable(layout=layout, height=height, width=width)
 
 
 # get 2-way interactions drawable, a lower triangular grid plot
@@ -734,7 +728,7 @@ def get_2way_position_drawable(
         x = get_domain(len(positions) - 1, col, is_y=False, space=sep)
         domains[pair] = UnionDict(x=x, y=y)
 
-    fig = _get_multi_way_position_drawables(
+    return _get_multi_way_position_drawables(
         data,
         plot_cfg,
         group_coords,
@@ -744,7 +738,6 @@ def get_2way_position_drawable(
         group_ref=group_ref,
         ylim=ylim,
     )
-    return fig
 
 
 # get 3-way interactions drawable, a lower triangular grid plot
@@ -788,7 +781,7 @@ def get_3way_position_drawable(
         x = get_domain(num_rows, col, is_y=False, space=sep)
         domains[group] = UnionDict(x=x, y=y)
 
-    fig = _get_multi_way_position_drawables(
+    return _get_multi_way_position_drawables(
         data,
         plot_cfg,
         group_coords,
@@ -798,7 +791,6 @@ def get_3way_position_drawable(
         group_ref=group_ref,
         ylim=ylim,
     )
-    return fig
 
 
 def get_4way_position_drawable(
@@ -840,7 +832,7 @@ def get_4way_position_drawable(
         x = get_domain(num_rows, col, is_y=False, space=0.03)
         domains[group] = UnionDict(x=x, y=y)
 
-    fig = _get_multi_way_position_drawables(
+    return _get_multi_way_position_drawables(
         data,
         plot_cfg,
         group_coords,
@@ -850,7 +842,6 @@ def get_4way_position_drawable(
         group_ref=group_ref,
         ylim=ylim,
     )
-    return fig
 
 
 def get_spectra_row(data, bases, axnum, ylim=1, domain=(0, 1), colours=None):
@@ -883,18 +874,18 @@ def get_spectra_row(data, bases, axnum, ylim=1, domain=(0, 1), colours=None):
     xref = "x" if axnum == 1 else f"x{axnum}"
     yref = "y" if axnum == 1 else f"y{axnum}"
     anchor = "" if axnum == 1 else axnum
-    layout["xaxis"] = dict(
-        domain=[0, 1],
-        showticklabels=False,
-        range=[1, 5],
-        anchor=f"y{anchor}",
-    )
-    layout["yaxis"] = dict(
-        domain=domain,
-        range=[0, ylim],
-        anchor=f"x{anchor}",
-        ticks="inside",
-    )
+    layout["xaxis"] = {
+        "domain": [0, 1],
+        "showticklabels": False,
+        "range": [1, 5],
+        "anchor": f"y{anchor}",
+    }
+    layout["yaxis"] = {
+        "domain": domain,
+        "range": [0, ylim],
+        "anchor": f"x{anchor}",
+        "ticks": "inside",
+    }
     layout["xaxis"] |= axis_lines
     layout["yaxis"] |= axis_lines
 
@@ -1026,8 +1017,7 @@ def get_spectra_grid_drawable(
     )
     layout.annotations.extend(col_titles + row_titles)
     layout.margin = plot_cfg.margin
-    fig = Drawable(layout=layout, width=plot_cfg.width, height=plot_cfg.height)
-    return fig
+    return Drawable(layout=layout, width=plot_cfg.width, height=plot_cfg.height)
 
 
 def load_spectra_data(json_path, group_label, group_ref):
@@ -1048,10 +1038,7 @@ def load_spectra_data(json_path, group_label, group_ref):
     """
     # for each starting base, we need the total relative entropy
     # we need the ret's for each ending base
-    if isinstance(json_path, dict):
-        data = json_path
-    else:
-        data = load_loglin_stats(json_path)
+    data = json_path if isinstance(json_path, dict) else load_loglin_stats(json_path)
 
     bases = list(data)
     bases.sort()
@@ -1059,13 +1046,10 @@ def load_spectra_data(json_path, group_label, group_ref):
 
     if group_label:
         assert group_label in "strand group", (
-            "group_label must be 'group' or 'strand', got %s" % group_label
+            f"group_label must be 'group' or 'strand', got {group_label}"
         )
 
-    if "group" in data[bases[0]]["stats"].columns:
-        group_label = "group"
-    else:
-        group_label = "strand"
+    group_label = "group" if "group" in data[bases[0]]["stats"].columns else "strand"
 
     result = {}
     for base in bases:
@@ -1074,13 +1058,13 @@ def load_spectra_data(json_path, group_label, group_ref):
             data[base]["stats"][group_label].apply(str) == group_ref
         ].copy()
         if subset.empty:
-            print("No entries equal to '%s'" % str(group_ref))
-            exit(-1)
+            print(f"No entries equal to '{group_ref!s}'")
+            sys.exit(-1)
 
         total_ret = numpy.fabs(subset["ret"]).sum()
         subset["prop"] = total_re * subset["ret"] / total_ret
         subset["end"] = [d[-1:] for d in subset["direction"]]
-        result[base] = dict((b, v) for i, b, v in subset[["end", "prop"]].to_records())
+        result[base] = {b: v for i, b, v in subset[["end", "prop"]].to_records()}
 
     return result
 
@@ -1155,7 +1139,7 @@ def get_grid_drawable(plot_cfg, ylim=None):
 
     # customised xticks, text and location
     mid = (len(positions) + 1) // 2
-    xtick_vals = [i for i in range(len(positions) + 1)]
+    xtick_vals = list(range(len(positions) + 1))
     xtick_text = [f"{i - mid}" for i in xtick_vals]
 
     for coord in plottable:
@@ -1188,10 +1172,10 @@ def get_grid_drawable(plot_cfg, ylim=None):
         layout[f"xaxis{ax}"].ticktext = xtick_text
         layout[f"yaxis{ax}"].title = None
         if col != 0:
-            layout[f"yaxis{ax}"] |= dict(showticklabels=False)
+            layout[f"yaxis{ax}"] |= {"showticklabels": False}
 
         if row != plot_cfg.num_rows - 1:
-            layout[f"xaxis{ax}"] |= dict(showticklabels=False)
+            layout[f"xaxis{ax}"] |= {"showticklabels": False}
 
         r = get_logo(plottable[coord], axnum=axnum, ylim=ylim, layout=base_layout)
         # cogent3 returns a Drawable instance, so we access it's layout
@@ -1250,5 +1234,4 @@ def get_grid_drawable(plot_cfg, ylim=None):
     layout.template = "plotly_white"
     layout.margin = plot_cfg.margin
 
-    fig = Drawable(layout=layout, width=plot_cfg.width, height=plot_cfg.height)
-    return fig
+    return Drawable(layout=layout, width=plot_cfg.width, height=plot_cfg.height)

@@ -29,7 +29,7 @@ class DevianceToRelativeEntropy:
     def __init__(self, N: int) -> None:
         self.denom = 2 * N
 
-    def __call__(self, val: int | float) -> float:
+    def __call__(self, val: float) -> float:
         return val / self.denom
 
 
@@ -40,7 +40,7 @@ class CalcRet:
         self,
         dev_to_re: typing.Callable[[float], float],
         epsilon: float = 1e-9,
-    ):
+    ) -> None:
         self.dev_to_re = dev_to_re
         self.epsilon = epsilon
 

@@ -9,7 +9,7 @@ from mutation_motif.util import load_table_from_delimited_file, pdf_writer
 write_fig = pdf_writer()
 
 
-def dump_json(data, outfile_path):
+def dump_json(data, outfile_path) -> None:
     with open(outfile_path, mode="w") as outfile:
         json.dump(data, outfile)
 
@@ -23,7 +23,7 @@ def main(
     dry_run,
     verbose,
     LOGGER,
-):
+) -> None:
     args = locals()
 
     table = load_table_from_delimited_file(countsfile, sep="\t")
@@ -59,7 +59,7 @@ def main(
         counts_table1 = util.spectra_table(counts_table1, group_label)
         counts_table2 = util.spectra_table(counts_table2, group_label)
         # now combine
-        header = ["group"] + list(counts_table2.header[:-1])
+        header = ["group", *list(counts_table2.header[:-1])]
         counts_table = counts_table1.appended(None, counts_table2)
         counts_table = counts_table.get_columns(header)
 
@@ -85,7 +85,7 @@ def main(
                 row[grp_index] = grp_labels[row[grp_index]]
 
         p = result.pvalue
-        prob = "%.2e" % p if p < 1e-6 else "%.6f" % p
+        prob = f"{p:.2e}" if p < 1e-6 else f"{p:.6f}"
         for row in r:
             row.insert(0, start_base)
             row.append(prob)
@@ -101,17 +101,17 @@ def main(
 
         stats = "  :  ".join(significance)
         print(f"Start base={start_base}  {stats}")
-        saveable[start_base] = dict(
-            rel_entropy=result.relative_entropy,
-            deviance=result.deviance,
-            df=result.nfp,
-            prob=result.pvalue,
-            formula=result.formula,
-            stats=result.df.to_json(),
-        )
+        saveable[start_base] = {
+            "rel_entropy": result.relative_entropy,
+            "deviance": result.deviance,
+            "df": result.nfp,
+            "prob": result.pvalue,
+            "formula": result.formula,
+            "stats": result.df.to_json(),
+        }
 
     table = make_table(
-        header=["start_base"] + list(result.df.columns) + ["prob"],
+        header=["start_base", *list(result.df.columns), "prob"],
         rows=results,
         digits=5,
     ).sorted(columns="ret")
@@ -136,5 +136,4 @@ def main(
 def select_mutating_base(counts_table, start_base):
     subtable = counts_table.filtered(f'start == "{start_base}"')
     columns = [c for c in counts_table.header if c != "start"]
-    subtable = subtable.get_columns(columns)
-    return subtable
+    return subtable.get_columns(columns)

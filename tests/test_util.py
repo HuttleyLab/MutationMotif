@@ -106,7 +106,7 @@ def test_grid_cfg_consistency(tmp_path, grid_cfg_path):
 
 def test_grid_cfg(tmp_path, grid_cfg_path):
     """exercising parser"""
-    path = resources.files("mutation_motif") / "cfgs/grid.cfg"
+    resources.files("mutation_motif") / "cfgs/grid.cfg"
     cfg = grid_cfg_path.read_text()
     out = tmp_path / "grid.cfg"
     out.write_text(cfg)

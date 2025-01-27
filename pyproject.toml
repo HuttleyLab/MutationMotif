@@ -72,6 +72,8 @@ markers = [
     "draws: tests that draw images (deselect with '-m \"not drwas\"')",
     ]
 
+[tool.uv]
+reinstall-package = ["mutation_motif"]
 
 [tool.ruff]
 exclude = [
@@ -114,7 +116,7 @@ target-version = "py310"
 # Unlike Flake8, Ruff doesn't enable pycodestyle warnings (`W`) or
 # McCabe complexity (`C901`) by default.
 select = ["ALL"]
-ignore = ["EXE002", "FA100", "E501", "D"]
+ignore = ["EXE002", "FA100", "E501", "D", "ICN001", "T201"]
 
 # Allow fix for all enabled rules (when `--fix`) is provided.
 fixable = ["ALL"]

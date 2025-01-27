@@ -1,6 +1,7 @@
 """combines counts from each mutation direction into a single table"""
 
 import re
+import sys
 from collections import Counter
 
 import click
@@ -19,10 +20,10 @@ _directions = [
     "TtoC",
     "TtoG",
 ]
-direction = re.compile(f'({"|".join(_directions)})')
+direction = re.compile(f"({'|'.join(_directions)})")
 
 
-def check_found_filenames(filenames):
+def check_found_filenames(filenames) -> None:
     """check the number of filenames and that they include the direction"""
     found = Counter()
     for fn in filenames:
@@ -37,4 +38,4 @@ def check_found_filenames(filenames):
             ", e.g. CtoT, AtoG",
         )
         click.secho(msg, fg="red")
-        exit(-1)
+        sys.exit(-1)

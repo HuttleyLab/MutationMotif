@@ -15,10 +15,7 @@ def make_summary(results):
     """returns records from analyses as list"""
     rows = []
     for position_set in results:
-        if type(position_set) != str:
-            position = ":".join(position_set)
-        else:
-            position = position_set
+        position = ":".join(position_set) if type(position_set) != str else position_set
 
         re = results[position_set]["rel_entropy"]
         dev = results[position_set]["deviance"]
@@ -38,7 +35,7 @@ def get_grouped_combined_counts(table, position, group_label):
         subtable = table.filtered(lambda x: x == category, columns=group_label)
         counts = motif_count.get_combined_counts(subtable, position)
         if header is None:
-            header = [group_label] + list(counts.header)
+            header = [group_label, *list(counts.header)]
 
         counts = counts.with_new_column(
             group_label,
@@ -71,14 +68,14 @@ def get_position_effects(table, position_sets, group_label=None):
             group_label=group_label,
         )
         p = result.pvalue
-        pos_results[position_set] = dict(
-            rel_entropy=result.relative_entropy,
-            deviance=result.deviance,
-            df=result.nfp,
-            stats=result.df,
-            formula=result.formula,
-            prob=p,
-        )
+        pos_results[position_set] = {
+            "rel_entropy": result.relative_entropy,
+            "deviance": result.deviance,
+            "df": result.nfp,
+            "stats": result.df,
+            "formula": result.formula,
+            "prob": p,
+        }
     return pos_results
 
 
@@ -152,7 +149,7 @@ def single_group(
         LOGGER.output_file(outfilename)
 
     if first_order:
-        msg = "Done! Check %s for your results" % outpath
+        msg = f"Done! Check {outpath} for your results"
         summary = make_table(
             header=["Position", "RE", "Deviance", "df", "prob", "formula"],
             rows=summary,
@@ -255,6 +252,6 @@ def single_group(
         summary.write(outfilename, sep="\t")
         LOGGER.output_file(outfilename, label="summary")
 
-    msg = "Done! Check %s for your results" % outpath
+    msg = f"Done! Check {outpath} for your results"
     LOGGER.shutdown()
     return msg

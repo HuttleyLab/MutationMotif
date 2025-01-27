@@ -138,8 +138,7 @@ def get_observed(data, flank_size):
     assert 2 * mid_pt + 1 == length, "Funny length"
 
     start = mid_pt - flank_size
-    data = data[:, start : start + (flank_size * 2 + 1)]
-    return data
+    return data[:, start : start + (flank_size * 2 + 1)]
 
 
 def get_profiles(data, chosen_base, step, flank_size, circle_range=None, seed=None):
