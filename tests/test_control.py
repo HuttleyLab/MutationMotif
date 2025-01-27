@@ -170,9 +170,9 @@ class TestRandomIndices(TestCase):
             [[12, 13, 14, 15, 16, 17, 18, 19, 20, 0, 1, 2, 3, 4, 5]],
         ]
         circle_range = MakeCircleRange(self.seq_array.shape[1], self.slice_side)
-        for i in range(4):
+        for _i in range(4):
             sampled_indices = get_random_indices(self.sample_indices, circle_range)
-            self.assertTrue(sampled_indices in expected)
+            assert sampled_indices in expected
 
 
 class TestAlignSnpAnnotation(TestCase):
@@ -193,7 +193,7 @@ class TestAlignSnpAnnotation(TestCase):
             [[2, 2, 2, 3, 3, 2, 2, 2, 0, 2, 0, 1, 2, 2, 1]],
         ]
 
-        for i in range(5):
+        for _i in range(5):
             control = get_control(
                 self.d_aln,
                 self.chosen_base,
@@ -201,7 +201,7 @@ class TestAlignSnpAnnotation(TestCase):
                 self.slice_side,
                 seed=self.seed,
             )
-            self.assertTrue(control.tolist() in expected)
+            assert control.tolist() in expected
 
 
 class TestIndices(TestCase):
@@ -252,7 +252,7 @@ class TestIndices(TestCase):
             [13, 14, 15, 16, 17, 18, 19, 20, 0, 1, 2, 3, 4, 5, 6],
         ]
 
-        self.assertEqual(full_list, expect)
+        assert full_list == expect
 
 
 if __name__ == "__main__":

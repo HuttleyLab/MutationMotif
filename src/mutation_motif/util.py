@@ -49,12 +49,14 @@ def make_consistent_direction_style(table):
             expect = 3
             val = f"{d[0]}to{d[2]}"
         else:
-            raise ValueError(f"unknown direction '{d}'")
+            msg = f"unknown direction '{d}'"
+            raise ValueError(msg)
 
         assert len(d) == expect, f"unknown direction '{d}'"
         match = pattern.search(val)
         if match is None:
-            raise ValueError(f"unknown direction '{d}'")
+            msg = f"unknown direction '{d}'"
+            raise ValueError(msg)
 
         direction_map[d] = val
 
@@ -79,11 +81,11 @@ def spectra_table(table, group_label):
     for direction in table.distinct_values("direction"):
         start = direction[0]
         for group_category in group_categories:
-            condition = dict(
-                direction=direction,
-                label=group_label,
-                category=group_category,
-            )
+            condition = {
+                "direction": direction,
+                "label": group_label,
+                "category": group_category,
+            }
             sub_table = table.filtered(filter_template % condition)
             total = sub_table.summed("count")
             results.append([total, start, direction, group_category])
@@ -91,8 +93,7 @@ def spectra_table(table, group_label):
         header=["count", "start", "direction", group_label],
         rows=results,
     )
-    result = make_consistent_direction_style(result)
-    return result
+    return make_consistent_direction_style(result)
 
 
 def get_subtables(table, group_label="direction"):
@@ -105,7 +106,7 @@ def get_subtables(table, group_label="direction"):
     return tables
 
 
-def dump_loglin_stats(data, outfile_path):
+def dump_loglin_stats(data, outfile_path) -> None:
     """save data in json format to outfile_path"""
     # convert all pandas data frames to json
     saveable = {}
@@ -183,7 +184,7 @@ def abspath(path):
     return os.path.abspath(os.path.expanduser(path))
 
 
-def makedirs(path):
+def makedirs(path) -> None:
     """creates dir path"""
     with contextlib.suppress(OSError):
         os.makedirs(path, exist_ok=True)
@@ -192,7 +193,7 @@ def makedirs(path):
 def get_selected_indices(stats, group_label=None, group_ref=None):
     """returns indices for selecting dataframe records for display"""
     if group_label and group_ref is None:  # TODO this logic needs improving
-        val = dict(strand="+").get(group_label, "1")
+        val = {"strand": "+"}.get(group_label, "1")
         return numpy.logical_and(stats["mut"] == "M", stats[group_label] == val)
     if group_label and group_ref:
         return numpy.logical_and(
@@ -369,7 +370,8 @@ def get_grid_config(path):
             subplots[coord] = path
 
     if not subplots and path is not None:
-        raise NoSectionError("no sections for subplots")
+        msg = "no sections for subplots"
+        raise NoSectionError(msg)
 
     cfg.paths = subplots
 
@@ -423,9 +425,7 @@ def est_ylim(char_heights):
         ylim *= 1.667
         ylim = numpy.around(ylim, i)
 
-    ylim = max(ylim, 1e-6)
-
-    return ylim
+    return max(ylim, 1e-6)
 
 
 class pdf_writer:

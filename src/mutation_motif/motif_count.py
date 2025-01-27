@@ -13,8 +13,7 @@ def profile_to_seq_counts(data, flank_size):
 
     data = data.take(indices, axis=1)
     seqs = array_to_str(data)
-    seqs = Counter(seqs)
-    return seqs
+    return Counter(seqs)
 
 
 def get_count_table(observed, control, k=None):
@@ -32,9 +31,10 @@ def get_count_table(observed, control, k=None):
         list(map(len, list(observed.keys()))) + list(map(len, list(control.keys()))),
     )
     if len(lengths) != 1:
-        raise ValueError(f"Motifs not all same length: {lengths}")
+        msg = f"Motifs not all same length: {lengths}"
+        raise ValueError(msg)
 
-    length = list(lengths)[0]
+    length = next(iter(lengths))
     if k and length != k:
         raise ValueError("k[%d] doesn't match motif length [%d]" % (k, length))
     if k is None:
@@ -51,8 +51,8 @@ def get_count_table(observed, control, k=None):
 
         rows.extend(
             (
-                [control_counts] + list(state) + ["R"],
-                [observed_counts] + list(state) + ["M"],
+                [control_counts, *list(state), "R"],
+                [observed_counts, *list(state), "M"],
             ),
         )
     header = ["count"] + ["pos%d" % i for i in range(k)] + ["mut"]
@@ -61,7 +61,7 @@ def get_count_table(observed, control, k=None):
 
 def reduced_multiple_positions(table, *positions):
     base_counts = {"M": Counter(), "R": Counter()}
-    columns = ["count", "mut"] + list(positions)
+    columns = ["count", "mut", *list(positions)]
     for row in table.to_list(columns):
         count = row[0]
         mut = row[1]
@@ -99,10 +99,9 @@ def get_combined_counts(table, positions):
     for state in states:
         combined.extend(
             (
-                ["R"] + list(state) + [unmut_counts[state]],
-                ["M"] + list(state) + [mut_counts[state]],
+                ["R", *list(state), unmut_counts[state]],
+                ["M", *list(state), mut_counts[state]],
             ),
         )
     counts_table = make_table(header=header, rows=combined)
-    counts_table = counts_table.sorted(columns=header[:-1])
-    return counts_table
+    return counts_table.sorted(columns=header[:-1])

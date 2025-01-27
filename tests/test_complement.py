@@ -32,7 +32,7 @@ class TestEntropy(TestCase):
         got = _reverse_complement(table)
         raw_got = got.to_list()
 
-        self.assertEqual(raw_got, ex)
+        assert raw_got == ex
 
     def test_strandsym_table(self):
         """makes strand symmetric table"""
@@ -52,13 +52,13 @@ class TestEntropy(TestCase):
         for row in data:
             seq = list(map(DNA.complement, row[1:-2]))
             seq.reverse()
-            n = [row[0]] + seq + ["M", "AtoC"]
+            n = [row[0], *seq, "M", "AtoC"]
             n.append("-")
             exp.append(n)
 
         table = make_table(header=self.header, rows=self.data + data)
         r = make_strand_symmetric_table(table)
-        self.assertEqual(r.to_list(), exp)
+        assert r.to_list() == exp
 
 
 if __name__ == "__main__":

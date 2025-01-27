@@ -37,10 +37,10 @@ from mutation_motif.util import (
     makedirs,
 )
 
-_click_command_opts = dict(
-    no_args_is_help=True,
-    context_settings={"show_default": True},
-)
+_click_command_opts = {
+    "no_args_is_help": True,
+    "context_settings": {"show_default": True},
+}
 _countsfile = click.option("-1", "--countsfile", help="tab delimited file of counts.")
 _outpath = click.option("-o", "--outpath", help="Directory path to write data.")
 _countsfile2 = click.option(
@@ -108,7 +108,7 @@ class OrderedGroup(click.Group):
         name: str | None = None,
         commands: Mapping[str, click.Command] | None = None,
         **kwargs,
-    ):
+    ) -> None:
         super().__init__(name, commands, **kwargs)
         #: the registered subcommands by their exported names.
         self.commands = commands or OrderedDict()
@@ -119,7 +119,7 @@ class OrderedGroup(click.Group):
 
 @click.group(cls=OrderedGroup)
 @click.version_option(__version__)  # add version option
-def main():
+def main() -> None:
     """mm: point mutation analysis tools"""
 
 
@@ -191,7 +191,7 @@ def prep_nbr(
     step,
     dry_run,
     force_overwrite,
-):
+) -> None:
     """export tab delimited counts table from alignment centred on SNP position
 
     Output file is written to the same path with just the file suffix changed
@@ -279,7 +279,7 @@ def prep_spectra(
     split_dir,
     dry_run,
     force_overwrite,
-):
+) -> None:
     """export tab delimited combined counts table by appending the 12 mutation
     direction tables, adding a new column ``direction``."""
     LOGGER = CachingLogger(create_dir=True)
@@ -373,7 +373,7 @@ def ll_nbr(
     group_ref,
     verbose,
     dry_run,
-):
+) -> None:
     """log-linear analysis of neighbouring base influence on point mutation
 
     Writes estimated statistics, figures and a run log to the specified
@@ -398,7 +398,8 @@ def ll_nbr(
 
     positions = [c for c in counts_table.header if c.startswith("pos")]
     if not first_order and len(positions) != 4:
-        raise ValueError("Requires four positions for analysis")
+        msg = "Requires four positions for analysis"
+        raise ValueError(msg)
 
     group_label = group_label or None
     group_ref = group_ref or None
@@ -407,7 +408,7 @@ def ll_nbr(
         group_ref = group_ref or "+"
         if group_label not in counts_table.header:
             print("ERROR: no column named 'strand', exiting.")
-            exit(-1)
+            sys.exit(-1)
 
     if countsfile2:
         print("Performing 2 group analysis")
@@ -430,7 +431,7 @@ def ll_nbr(
             columns=counts_table2.header[0],
         )
         # now combine
-        header = [group_label] + list(counts_table2.header[:-1])
+        header = [group_label, *list(counts_table2.header[:-1])]
         raw1 = counts_table1.to_list(header)
         raw2 = counts_table2.to_list(header)
         counts_table = make_table(header=header, rows=raw1 + raw2)
@@ -474,7 +475,7 @@ def ll_spectra(
     force_overwrite,
     dry_run,
     verbose,
-):
+) -> None:
     """log-linear analysis of mutation spectra between groups"""
     LOGGER = CachingLogger(create_dir=True)
     spectra_analysis.main(
@@ -502,17 +503,17 @@ def draw_nbr_matrix(
     figpath,
     force_overwrite,
     dry_run,
-):
+) -> None:
     """draws square matrix of sequence logo's from neighbour analysis"""
     LOGGER = CachingLogger(create_dir=True)
     config_path = abspath(paths_cfg)
     indir = os.path.dirname(config_path)
     if not figpath:
-        figpath = os.path.join(indir, "nbr_matrix.%s" % format)
+        figpath = os.path.join(indir, f"nbr_matrix.{format}")
         log_file_path = os.path.join(indir, "nbr_matrix.log")
     else:
         figpath = abspath(figpath)
-        log_file_path = "%s.log" % ".".join(figpath.split(".")[:-1])
+        log_file_path = "{}.log".format(".".join(figpath.split(".")[:-1]))
 
     if not force_overwrite and os.path.exists(figpath):
         click.secho(f"{figpath} alreadyt exists")
@@ -529,7 +530,7 @@ def draw_nbr_matrix(
         # assumes paths are relative to indir
         path = os.path.join(indir, path)
         if not os.path.exists(path):
-            print("Couldn't find %s" % path)
+            print(f"Couldn't find {path}")
             print("json file paths should be relative to paths_cfg")
             sys.exit(1)
 
@@ -539,7 +540,7 @@ def draw_nbr_matrix(
     plot_data = {}
     for direction, path in json_paths.items():
         LOGGER.input_file(path)
-        data = load_loglin_stats(path)
+        load_loglin_stats(path)
         plot_data[direction] = path
 
     fig = get_position_grid_drawable(plot_data, plot_cfg)
@@ -553,7 +554,7 @@ def draw_nbr_matrix(
 @main.command()
 @_fig_cfg
 @_figpath
-def draw_grid(fig_config, figpath):
+def draw_grid(fig_config, figpath) -> None:
     """draws an arbitrary shaped grid of mutation motifs based on a config file"""
     # we read in the config file and determine number of rows and columns
     # paths, headings, etc ..
@@ -562,11 +563,11 @@ def draw_grid(fig_config, figpath):
     LOGGER.log_args()
     if not figpath:
         dirname = os.path.dirname(fig_config.name)
-        figpath = os.path.join(dirname, "drawn_array.%s" % format)
+        figpath = os.path.join(dirname, f"drawn_array.{format}")
         log_file_path = os.path.join(dirname, "drawn_array.log")
     else:
         figpath = abspath(figpath)
-        log_file_path = "%s.log" % ".".join(figpath.split(".")[:-1])
+        log_file_path = "{}.log".format(".".join(figpath.split(".")[:-1]))
 
     makedirs(os.path.dirname(figpath))
     LOGGER.log_file_path = log_file_path
@@ -600,18 +601,18 @@ def draw_spectra_grid(
     figpath,
     force_overwrite,
     dry_run,
-):
+) -> None:
     """draws logo from mutation spectra analysis"""
     LOGGER = CachingLogger(create_dir=True)
     LOGGER.log_args()
 
     if not figpath:
         dirname = os.path.dirname(json_path)
-        figpath = os.path.join(dirname, "spectra_grid.%s" % format)
+        figpath = os.path.join(dirname, f"spectra_grid.{format}")
         log_file_path = os.path.join(dirname, "spectra_grid.log")
     else:
         figpath = abspath(figpath)
-        log_file_path = "%s.log" % ".".join(figpath.split(".")[:-1])
+        log_file_path = "{}.log".format(".".join(figpath.split(".")[:-1]))
 
     LOGGER.log_file_path = log_file_path
 
@@ -648,7 +649,7 @@ def draw_nbr(
     group_label,
     force_overwrite,
     dry_run,
-):
+) -> None:
     """makes motifs for independent or higher order interactions"""
     LOGGER = CachingLogger(create_dir=True)
     LOGGER.log_args()
@@ -712,7 +713,7 @@ def draw_mi(
     use_freq,
     force_overwrite,
     dry_run,
-):
+) -> None:
     """draws conventional sequence logo, using MI, from first order effects"""
     LOGGER = CachingLogger(create_dir=True)
     global mi_use_freqs
@@ -728,7 +729,7 @@ def draw_mi(
         log_file_path = os.path.join(dirname, "MI.log")
     else:
         figpath = abspath(figpath)
-        log_file_path = "%s.log" % ".".join(figpath.split(".")[:-1])
+        log_file_path = "{}.log".format(".".join(figpath.split(".")[:-1]))
 
     LOGGER.log_file_path = log_file_path
 
@@ -754,7 +755,7 @@ def draw_mi(
 
 @main.command()
 @click.argument("outpath")
-def draw_export_cfg(outpath):
+def draw_export_cfg(outpath) -> None:
     """exports the sample config files to the nominated path"""
     import shutil
 

@@ -22,8 +22,7 @@ def get_ret(ref, ctl, pseudocount=1, check_valid=False):
     q = as_freq_matrix(ctl, pseudocount=pseudocount, check_valid=check_valid)
     # relative entropy terms
     with errstate(divide="ignore"):
-        ret = p * log2(p / q)
-    return ret
+        return p * log2(p / q)
 
 
 def as_freq_matrix(data, pseudocount=0, check_valid=False):
@@ -40,8 +39,7 @@ def as_freq_matrix(data, pseudocount=0, check_valid=False):
     base_counts = array(base_counts, dtype=float)
 
     # as frequencies
-    p = base_counts / (total + pseudocount * 4)
-    return p
+    return base_counts / (total + pseudocount * 4)
 
 
 def get_entropy_terms(data, pseudocount=0, check_valid=False, freq_matrix=False):
@@ -52,8 +50,7 @@ def get_entropy_terms(data, pseudocount=0, check_valid=False, freq_matrix=False)
         p = as_freq_matrix(data, pseudocount=pseudocount, check_valid=check_valid)
 
     with errstate(divide="ignore"):
-        et = -p * log2(p)
-    return et
+        return -p * log2(p)
 
 
 def get_mit(data, pseudocount=0, check_valid=False, freq_matrix=False):

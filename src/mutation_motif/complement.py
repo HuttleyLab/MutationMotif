@@ -21,11 +21,7 @@ def _reverse_complement(table):
         seq = list(seq.rc())
         for i, index in enumerate(pos_indices):
             row[index] = seq[i]
-    if rows:
-        new = make_table(header=table.header, rows=rows)
-    else:
-        new = None
-    return new
+    return make_table(header=table.header, rows=rows) if rows else None
 
 
 def add_strand_column(rows, strand):
@@ -41,15 +37,15 @@ def make_strand_symmetric_table(table):
     Uses MUTATION_COMPLEMENTS"""
 
     new_data = []
-    direction_index = [
+    direction_index = next(
         i for i in range(len(table.header)) if table.header[i] == "direction"
-    ][0]
+    )
     for plus, minus in list(MUTATION_COMPLEMENTS.items()):
-        plus_table = table.filtered('direction=="%s"' % plus)
+        plus_table = table.filtered(f'direction=="{plus}"')
         plus_data = add_strand_column(plus_table.to_list(), "+")
         new_data.extend(plus_data)
 
-        minus_table = table.filtered('direction=="%s"' % minus)
+        minus_table = table.filtered(f'direction=="{minus}"')
         if minus_table.shape[0] == 0:
             continue
         minus_table = _reverse_complement(minus_table)
@@ -59,4 +55,4 @@ def make_strand_symmetric_table(table):
         minus_data = add_strand_column(minus_data, "-")
         new_data.extend(minus_data)
 
-    return make_table(header=list(table.header[:]) + ["strand"], rows=new_data)
+    return make_table(header=[*list(table.header[:]), "strand"], rows=new_data)
