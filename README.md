@@ -4,7 +4,7 @@
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/ffc29377d3684100b74a868e4a15970d)](https://app.codacy.com/gh/HuttleyLab/MutationMotif/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 
-![logo](https://ndownloader.figstatic.com/files/23575181)
+![logo](https://figshare.com/ndownloader/files/23575181)
 
 # Mutation Motif
 
