@@ -416,14 +416,14 @@ def get_summary_drawable(data, plot_cfg, ylim=None):
     layout.yaxis = UnionDict(
         range=[0, ylim],
         tickfont={"size": plot_cfg.ytick_fontsize},
-        titlefont={"size": plot_cfg.ylabel_fontsize},
+        title={"font": {"size": plot_cfg.ylabel_fontsize}},
     )
     layout.xaxis = UnionDict(
         tickmode="array",
         ticktext=[str(o) for o in order],
         tickvals=order,
         tickfont={"size": plot_cfg.xtick_fontsize},
-        titlefont={"size": plot_cfg.xlabel_fontsize},
+        title={"font": {"size": plot_cfg.xlabel_fontsize}},
     )
 
     axis_lines = {
