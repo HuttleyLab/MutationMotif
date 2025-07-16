@@ -3,8 +3,10 @@
 import os
 import re
 
+import cogent3
+
 from mutation_motif import motif_count, profile
-from mutation_motif.util import just_nucs, load_from_fasta, makedirs
+from mutation_motif.util import just_nucs, makedirs
 
 fn_suffixes = re.compile(r"\.(fa|fasta)\.*(gz|gzip|bz2)*$")
 
@@ -44,7 +46,7 @@ def align_to_counts(
 
     direction = tuple(direction.split("to"))
     chosen_base = direction[0]
-    orig_seqs = load_from_fasta(os.path.abspath(align_path))
+    orig_seqs = cogent3.load_aligned_seqs(os.path.abspath(align_path), moltype="dna")
     seqs = orig_seqs.array_seqs
     seqs = just_nucs(seqs)
     if not randomise:

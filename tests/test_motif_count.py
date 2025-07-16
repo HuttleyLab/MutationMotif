@@ -1,7 +1,6 @@
 from unittest import TestCase, main
 
-from cogent3 import DNA
-from cogent3.core.alignment import ArrayAlignment
+from cogent3 import DNA, make_aligned_seqs
 
 from mutation_motif.motif_count import (
     get_combined_counts,
@@ -36,7 +35,7 @@ ctl = [(f"s{i}", s) for i, s in enumerate(ctl) if s]
 
 def _get_seq_array(data):
     """returns [(n, seq), ...] as DenseArray"""
-    return ArrayAlignment(data=data, moltype=DNA).array_seqs
+    return make_aligned_seqs(data, moltype=DNA).array_seqs
 
 
 class TestMotifCount(TestCase):

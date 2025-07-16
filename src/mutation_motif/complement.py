@@ -17,7 +17,7 @@ def _reverse_complement(table):
     rows = table.to_list()
     for row in rows:
         # we use the cogent3 DnaSeq object to do reverse complementing
-        seq = DNA.make_seq("".join(row[i] for i in pos_indices))
+        seq = DNA.make_seq(seq="".join(row[i] for i in pos_indices))
         seq = list(seq.rc())
         for i, index in enumerate(pos_indices):
             row[index] = seq[i]

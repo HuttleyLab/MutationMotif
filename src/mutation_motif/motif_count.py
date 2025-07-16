@@ -1,9 +1,11 @@
 from collections import Counter
 from itertools import product
 
-from cogent3 import make_table
+from cogent3 import get_moltype, make_table
 
 from mutation_motif.util import array_to_str
+
+dna_alpha = get_moltype("DNA").most_degen_alphabet()
 
 
 def profile_to_seq_counts(data, flank_size):

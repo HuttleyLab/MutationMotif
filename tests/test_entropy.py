@@ -16,42 +16,39 @@ from mutation_motif.entropy import (
 def ref_aln(DATA_DIR):
     return load_aligned_seqs(
         DATA_DIR / "entropy/ref.fasta",
-        array_align=True,
         moltype=DNA,
     )
 
 
 @pytest.fixture(scope="session")
 def ref_data(ref_aln):
-    return ref_aln.seq_data
+    return ref_aln.array_seqs
 
 
 @pytest.fixture(scope="session")
 def ctl_aln(DATA_DIR):
     return load_aligned_seqs(
         DATA_DIR / "entropy/control.fasta",
-        array_align=True,
         moltype=DNA,
     )
 
 
 @pytest.fixture(scope="session")
 def ctl_data(ctl_aln):
-    return ctl_aln.seq_data
+    return ctl_aln.array_seqs
 
 
 @pytest.fixture(scope="session")
 def gap_aln(DATA_DIR):
     return load_aligned_seqs(
         DATA_DIR / "entropy/gap.fasta",
-        array_align=True,
         moltype=DNA,
     )
 
 
 @pytest.fixture(scope="session")
 def gap_data(gap_aln):
-    return gap_aln.seq_data
+    return gap_aln.array_seqs
 
 
 def test_validity(ref_data, gap_data):

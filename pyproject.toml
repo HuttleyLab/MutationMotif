@@ -12,7 +12,7 @@ readme = "README.md"
 license = { file = "license.txt" }
 requires-python = ">=3.10,<3.14"
 dependencies = ["click",
-        "cogent3",
+        "cogent3>=2025.7.10a3",
         "kaleido",
         "numpy",
         "scipy",
