@@ -1,4 +1,4 @@
-[![Python Versions](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12-blue)](https://www.python.org/)
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/cogent3)
 [![CI](https://github.com/HuttleyLab/MutationMotif/actions/workflows/testing_develop.yml/badge.svg)](https://github.com/HuttleyLab/MutationMotif/actions/workflows/testing_develop.yml)
 [![Coverage Status](https://coveralls.io/repos/github/HuttleyLab/MutationMotif/badge.svg?branch=develop)](https://coveralls.io/github/HuttleyLab/MutationMotif?branch=develop)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/ffc29377d3684100b74a868e4a15970d)](https://app.codacy.com/gh/HuttleyLab/MutationMotif/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
