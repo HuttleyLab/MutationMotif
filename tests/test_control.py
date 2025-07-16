@@ -178,7 +178,7 @@ class TestRandomIndices(TestCase):
 class TestAlignSnpAnnotation(TestCase):
     seqs = [("seq_0", "ATCAACATATAAAAAGGAAAT")]
 
-    d_aln = make_aligned_seqs(data=seqs, array_align=True, moltype=DNA).array_seqs
+    d_aln = make_aligned_seqs(seqs, moltype=DNA).array_seqs
     step = 3
     slice_side = 7
     direction = "AtoC"

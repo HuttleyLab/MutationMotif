@@ -11,8 +11,6 @@ from importlib import resources
 
 import numpy
 from cogent3 import DNA, load_table, make_table, open_
-from cogent3.core.alignment import ArrayAlignment
-from cogent3.parse.fasta import iter_fasta_records
 from cogent3.util.union_dict import UnionDict
 from pandas import read_json
 
@@ -151,13 +149,9 @@ def is_valid(data):
     return (data >= 0).all() and (data < 4).all()
 
 
-def load_from_fasta(filename):
-    seqs = list(iter_fasta_records(filename))
-    return ArrayAlignment(data=seqs, moltype=DNA)
-
-
 def array_to_str(data):
     """convert numpy array back to DNA sequence"""
+    data = data.astype(numpy.uint8)
     return ["".join(DNA.alphabet.from_indices(v)) for v in data]
 
 

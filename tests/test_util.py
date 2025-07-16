@@ -18,7 +18,6 @@ from mutation_motif.util import (
 def aln(DATA_DIR):
     return load_aligned_seqs(
         DATA_DIR / "just_nuc.fasta",
-        array_align=True,
         moltype=DNA,
     )
 
@@ -49,7 +48,6 @@ def test_just_nucs(aln):
 def d_aln(DATA_DIR):
     return load_aligned_seqs(
         DATA_DIR / "load_seqs_to_array.fasta",
-        array_align=True,
         moltype=DNA,
     )
 
