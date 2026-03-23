@@ -5,5 +5,4 @@ from warnings import filterwarnings
 filterwarnings("ignore", "Attempting to set identical bottom==top")
 filterwarnings("ignore", "invalid value encountered.*")
 
-__license__ = "BSD-3"
-__version__ = "2025.7.17"
+__version__ = "2026.3.23"
