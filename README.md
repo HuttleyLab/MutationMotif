@@ -4,7 +4,7 @@
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/ffc29377d3684100b74a868e4a15970d)](https://app.codacy.com/gh/HuttleyLab/MutationMotif/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 
-![logo](https://figshare.com/ndownloader/files/23575181)
+![logo](https://github.com/user-attachments/assets/4c9cebc1-847f-40b9-bdad-1becd1781a61)
 
 # Mutation Motif
 
@@ -17,11 +17,11 @@ The description of the models and applications of them are described in [Zhu, Ne
 
 ## Installation
 
-You can just do a pip install 
-
 ```
 $ pip install mutation_motif
 ```
+
+> **Note:** In order to write Plotly figures to static image files you will need to [install Chrome](https://plotly.com/python/static-image-export/#install-dependencies).
 
 ## The commands
 

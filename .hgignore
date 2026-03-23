@@ -30,3 +30,4 @@ draw_results
 working/*
 .ruff_cache/*
 .venv/*
+.mypy_cache/*
