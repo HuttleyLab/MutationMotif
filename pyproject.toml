@@ -4,37 +4,44 @@ build-backend = "flit_core.buildapi"
 
 [project]
 name = "mutation_motif"
-authors = [
-    { name = "Gavin Huttley", email = "Gavin.Huttley@anu.edu.au"},
+authors = [{ name = "Gavin Huttley", email = "Gavin.Huttley@anu.edu.au" }]
+keywords = [
+    "biology",
+    "genomics",
+    "statistics",
+    "genetics",
+    "evolution",
+    "bioinformatics",
+    "mutation",
 ]
-keywords = ["biology", "genomics", "statistics", "genetics", "evolution", "bioinformatics", "mutation"]
 readme = "README.md"
 license = { file = "license.txt" }
-requires-python = ">=3.10,<3.14"
-dependencies = ["click",
-        "cogent3>=2025.7.10a3",
-        "kaleido",
-        "numpy",
-        "scipy",
-        "scitrack",
-        "pandas",
-        "plotly",
-        "scipy",
-        "statsmodels",
-        ]
+requires-python = ">=3.11,<=3.14"
+dependencies = [
+    "click",
+    "cogent3>=2025.7.10a3",
+    "kaleido",
+    "numpy",
+    "scipy",
+    "scitrack",
+    "pandas",
+    "plotly",
+    "scipy",
+    "statsmodels",
+]
 classifiers = [
-        "Development Status :: 5 - Production/Stable",
-        "Intended Audience :: Science/Research",
-        "License :: OSI Approved :: BSD License",
-        "Topic :: Scientific/Engineering :: Bio-Informatics",
-        "Topic :: Software Development :: Libraries :: Python Modules",
-        "Operating System :: MacOS",
-        "Operating System :: POSIX :: Linux",
-        "Programming Language :: Python :: 3.10",
-        "Programming Language :: Python :: 3.11",
-        "Programming Language :: Python :: 3.12",
-        "Programming Language :: Python :: 3.13",
-    ]
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: BSD License",
+    "Topic :: Scientific/Engineering :: Bio-Informatics",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Operating System :: MacOS",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+]
 dynamic = ["version", "description"]
 
 [project.urls]
@@ -50,27 +57,13 @@ exclude = ["doc/*.html"]
 mm = "mutation_motif.cli:main"
 
 [project.optional-dependencies]
-test = [
-    "pytest",
-    "pytest-cov",
-    "nox",
-]
-dev = [
-    "click",
-    "cog",
-    "flit",
-    "pytest",
-    "pytest-cov",
-    "nox",
-    "ruff",
-]
+test = ["pytest", "pytest-cov", "nox"]
+dev = ["click", "cog", "flit", "pytest", "pytest-cov", "nox", "ruff"]
 
 [tool.pytest.ini_options]
 addopts = ["--strict-config", "-ra"]
 testpaths = "tests"
-markers = [
-    "draws: tests that draw images (deselect with '-m \"not drwas\"')",
-    ]
+markers = ["draws: tests that draw images (deselect with '-m \"not draws\"')"]
 
 [tool.uv]
 reinstall-package = ["mutation_motif"]
@@ -127,18 +120,18 @@ dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**/*.py" = [
-    "S101", # asserts allowed in tests...
+    "S101",   # asserts allowed in tests...
     "INP001", # __init__.py files are not required...
     "ANN",
     "N802",
-    "N803"
+    "N803",
 ]
 "noxfile.py" = [
-    "S101", # asserts allowed in tests...
+    "S101",   # asserts allowed in tests...
     "INP001", # __init__.py files are not required...
     "ANN",
     "N802",
-    "N803"
+    "N803",
 ]
 
 [tool.ruff.format]
