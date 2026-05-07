@@ -1,6 +1,6 @@
 [build-system]
-requires = ["flit_core >=3.12.0,<4"]
-build-backend = "flit_core.buildapi"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [project]
 name = "mutation_motif"
@@ -42,119 +42,31 @@ classifiers = [
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
 ]
-dynamic = ["version", "description"]
+description = "Analyses of point mutation counts data using log-linear models"
+dynamic = ["version"]
 
 [project.urls]
 Documentation = "https://github.com/HuttleyLab/MutationMotif"
 "Bug Tracker" = "https://github.com/HuttleyLab/MutationMotif/issues"
 "Source Code" = "https://github.com/HuttleyLab/MutationMotif"
 
-[tool.flit.sdist]
-include = ["requirements.txt", "src/*", "pyproject.toml"]
-exclude = ["doc/*.html"]
-
 [project.scripts]
 mm = "mutation_motif.cli:main"
 
-[project.optional-dependencies]
+[dependency-groups]
 test = ["pytest", "pytest-cov", "nox"]
-dev = ["click", "cog", "flit", "pytest", "pytest-cov", "nox", "ruff"]
+dev = ["click", "cog", "pytest", "pytest-cov", "nox", "ruff"]
 
 [tool.pytest.ini_options]
 addopts = ["--strict-config", "-ra"]
 testpaths = "tests"
 markers = ["draws: tests that draw images (deselect with '-m \"not draws\"')"]
 
+[tool.hatch.version]
+path = "src/mutation_motif/__init__.py"
+
 [tool.uv]
 reinstall-package = ["mutation_motif"]
+# Minimize the risk of supply chain attacks
+exclude-newer = "7 days"
 
-[tool.ruff]
-exclude = [
-    ".bzr",
-    ".direnv",
-    ".eggs",
-    ".git",
-    ".git-rewrite",
-    ".hg",
-    ".ipynb_checkpoints",
-    ".mypy_cache",
-    ".nox",
-    ".pants.d",
-    ".pyenv",
-    ".pytest_cache",
-    ".pytype",
-    ".ruff_cache",
-    ".svn",
-    ".tox",
-    ".venv",
-    ".vscode",
-    "__pypackages__",
-    "_build",
-    "buck-out",
-    "build",
-    "dist",
-    "node_modules",
-    "site-packages",
-    "venv",
-]
-
-# Same as Black.
-line-length = 88
-indent-width = 4
-
-target-version = "py310"
-
-[tool.ruff.lint]
-# Enable Pyflakes (`F`) and a subset of the pycodestyle (`E`)  codes by default.
-# Unlike Flake8, Ruff doesn't enable pycodestyle warnings (`W`) or
-# McCabe complexity (`C901`) by default.
-select = ["ALL"]
-ignore = ["EXE002", "FA100", "E501", "D", "ICN001", "T201"]
-
-# Allow fix for all enabled rules (when `--fix`) is provided.
-fixable = ["ALL"]
-unfixable = []
-
-# Allow unused variables when underscore-prefixed.
-dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
-
-[tool.ruff.lint.per-file-ignores]
-"tests/**/*.py" = [
-    "S101",   # asserts allowed in tests...
-    "INP001", # __init__.py files are not required...
-    "ANN",
-    "N802",
-    "N803",
-]
-"noxfile.py" = [
-    "S101",   # asserts allowed in tests...
-    "INP001", # __init__.py files are not required...
-    "ANN",
-    "N802",
-    "N803",
-]
-
-[tool.ruff.format]
-# Like Black, use double quotes for strings.
-quote-style = "double"
-
-# Like Black, indent with spaces, rather than tabs.
-indent-style = "space"
-
-# Like Black, respect magic trailing commas.
-skip-magic-trailing-comma = false
-
-# Like Black, automatically detect the appropriate line ending.
-line-ending = "lf"
-docstring-code-format = true
-
-# Set the line length limit used when formatting code snippets in
-# docstrings.
-#
-# This only has an effect when the `docstring-code-format` setting is
-# enabled.
-docstring-code-line-length = "dynamic"
-
-[tool.ruff.lint.isort]
-# group cogent3 imports last
-known-first-party = ["mutation_motif"]
