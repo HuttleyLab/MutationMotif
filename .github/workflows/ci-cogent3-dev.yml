@@ -16,22 +16,19 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: "actions/setup-python@v6"
-        with:
-            python-version: "3.12"
-
       - name: Install uv
         uses: astral-sh/setup-uv@v7
         with:
-            enable-cache: true
+          enable-cache: true
+          python-version: "3.12"
 
-      - name: Install the cogent3 dev branch
+      - name: Install project + test group
         run: |
-          uv pip install "cogent3 @ git+https://github.com/cogent3/cogent3.git@develop" --system
+          uv venv
+          uv pip install -e . --group test
 
-      - name: Install the project
-        run: |
-          uv pip install ".[test]" --system
+      - name: Override cogent3 with dev branch
+        run: uv pip install --refresh "cogent3 @ git+https://github.com/cogent3/cogent3.git@develop"
 
       - name: Run tests
         run: uv run pytest tests
