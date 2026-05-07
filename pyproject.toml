@@ -16,7 +16,7 @@ keywords = [
 ]
 readme = "README.md"
 license = { file = "license.txt" }
-requires-python = ">=3.11,<=3.14"
+requires-python = ">=3.11,<3.15"
 dependencies = [
     "click",
     "cogent3>=2026.4.13a0",
@@ -69,4 +69,3 @@ path = "src/mutation_motif/__init__.py"
 reinstall-package = ["mutation_motif"]
 # Minimize the risk of supply chain attacks
 exclude-newer = "7 days"
-
