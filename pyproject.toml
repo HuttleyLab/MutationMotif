@@ -69,3 +69,8 @@ path = "src/mutation_motif/__init__.py"
 reinstall-package = ["mutation_motif"]
 # Minimize the risk of supply chain attacks
 exclude-newer = "7 days"
+
+[tool.uv.pip.exclude-newer-package]
+# but we allow cogent3 packages to be more recent
+scinexus = false
+cogent3 = false
