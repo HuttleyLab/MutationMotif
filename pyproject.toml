@@ -19,7 +19,7 @@ license = { file = "license.txt" }
 requires-python = ">=3.11,<3.15"
 dependencies = [
     "click",
-    "cogent3>=2026.7.6a0",
+    "cogent3>=2026.7.30a0",
     "kaleido",
     "numpy",
     "scipy",
