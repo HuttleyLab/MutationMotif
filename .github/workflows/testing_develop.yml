@@ -34,7 +34,7 @@ jobs:
         run: uv run --group test nox -db uv -s test-${{ matrix.python-version }} -- --cov-report lcov:lcov-${{matrix.os}}-${{matrix.python-version}}.lcov --cov-report term --cov-append --cov mutation_motif
 
       - name: Coveralls Parallel
-        uses: coverallsapp/github-action@v2
+        uses: coverallsapp/github-action@v2.3.6
         env:
           # macOS installs the coverage-reporter via a third-party Homebrew
           # tap; Homebrew's new tap-trust enforcement refuses it otherwise.
@@ -51,7 +51,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Coveralls Finished
-      uses: coverallsapp/github-action@v2
+      uses: coverallsapp/github-action@v2.3.6
       with:
         github-token: ${{ secrets.github_token }}
         parallel-finished: true
